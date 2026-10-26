@@ -200,7 +200,7 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-fixas">
       <div class="card">
         <h2><i class="ph-fill ph-receipt"></i> Contas fixas do mês</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> para definir o valor base de cada conta. Depois, clique em <strong>Pagar</strong> para colocar o valor real, data e juros.</div></div>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> para definir o dia real de vencimento e o valor base. Depois, clique em <strong>Pagar</strong>.</div></div>
         <div class="table-responsive">
           <table>
             <thead><tr><th>Conta</th><th>Venc.</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
@@ -426,6 +426,21 @@ function editFixaValor(id) {
   save();
 }
 
+// NOVA FUNÇÃO PARA EDITAR O DIA DO VENCIMENTO
+function editFixaDia(id) {
+  const f = state.fixas.find(x => x.id === id);
+  if (!f) return;
+  const v = prompt(`Digite o dia do vencimento (1 a 31) para "${f.nome}":`, f.dia);
+  if (v === null) return;
+  const num = parseInt(v);
+  if (num >= 1 && num <= 31) {
+    f.dia = num;
+    save();
+  } else {
+    alert('Por favor, digite um dia válido entre 1 e 31.');
+  }
+}
+
 // --- LÓGICA DO MODAL DE PAGAMENTO ---
 function abrirModalPgto(id) {
   const f = state.fixas.find(x => x.id === id);
@@ -459,7 +474,6 @@ function confirmarPagamento() {
   const previsto = f.valor;
   const diferenca = valorReal - previsto;
   
-  // Salva os dados detalhados do pagamento
   m.fixasPago[id] = {
     valor: valorReal,
     data: dataPgto,
@@ -549,7 +563,6 @@ function render(){
   const mes = $('mes').value;
   const m = getMes(mes);
   
-  // Soma os gastos reais (o que saiu do bolso)
   const fixPago = Object.values(m.fixasPago).reduce((s,v)=>s+(v.valor||0),0);
   const ifd = m.ifood.reduce((s,e)=>s+e.valor,0);
   const out = m.outros.reduce((s,e)=>s+e.valor,0);
@@ -590,7 +603,11 @@ function render(){
     }
 
     return `<tr>
-      <td><strong>${f.nome}</strong></td><td>dia ${f.dia}</td>
+      <td><strong>${f.nome}</strong></td>
+      <td>
+        dia ${f.dia}
+        <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaDia('${f.id}')" title="Editar vencimento">✎</button>
+      </td>
       <td>
         ${fmt(f.valor)} 
         <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')" title="Editar valor">✎</button>
