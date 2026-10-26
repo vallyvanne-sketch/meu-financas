@@ -3,301 +3,441 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Finanças do Casal — Inteligente</title>
+<title>Finanças do Casal — Pro</title>
 
-<!-- Firebase SDKs (Versão Compat) -->
+<!-- Fonte Inter e Ícones -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <style>
-*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{margin:0;background:#f1f5f9;color:#0f172a;font-size:14px}
-header{background:#0f172a;color:#fff;padding:14px 0;position:sticky;top:0;z-index:10}
-header .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-header h1{margin:0;font-size:17px;font-weight:700}
-.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
-main{padding:16px}
-.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
-h2{margin:0 0 14px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-h2 .sub{font-size:12px;font-weight:400;color:#64748b;margin-left:auto}
-input,select,button,textarea{font:inherit;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;width:100%;background:#fff;color:#0f172a}
-input:focus,select:focus,textarea:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-button{background:#2563eb;color:#fff;border:0;cursor:pointer;font-weight:600;transition:.15s}
-button:hover{background:#1d4ed8}
-button.ghost{background:#f1f5f9;color:#334155}
-button.ghost:hover{background:#e2e8f0}
-button.danger{background:#fee2e2;color:#dc2626;padding:4px 8px;width:auto;font-weight:700;border-radius:6px}
-button.ok{background:#dcfce7;color:#166534;padding:4px 8px;width:auto;font-weight:600;border-radius:6px}
-button.ok:hover{background:#bbf7d0}
-button.roll{background:#e0e7ff;color:#3730a3;padding:4px 8px;width:auto;font-weight:600;border-radius:6px}
-button.roll:hover{background:#c7d2fe}
-button.skip{background:#f1f5f9;color:#64748b;padding:4px 8px;width:auto;font-weight:600;border-radius:6px}
-button.skip:hover{background:#e2e8f0}
-button.sm{padding:5px 10px;font-size:12px;width:auto}
-.row{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
-.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px}
-.stat{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
-.stat .lbl{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.03em}
-.stat .val{font-size:20px;font-weight:700;margin-top:6px}
-.stat .sub{font-size:11px;color:#64748b;margin-top:4px}
-.pos{color:#059669}.neg{color:#dc2626}.muted{color:#94a3b8}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th,td{padding:9px 8px;text-align:right;border-bottom:1px solid #f1f5f9}
-th:first-child,td:first-child{text-align:left}
-th{color:#64748b;font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.02em}
-tr:last-child td{border-bottom:0}
-.bar{height:10px;background:#e2e8f0;border-radius:6px;overflow:hidden;margin-top:8px}
-.bar>div{height:100%;transition:width .3s}
-.legend{display:flex;gap:16px;font-size:12px;color:#64748b;margin-bottom:8px;flex-wrap:wrap}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
-.badge.pago{background:#dcfce7;color:#166534}
-.badge.pendente{background:#fef3c7;color:#92400e}
-.badge.atraso{background:#fee2e2;color:#991b1b}
-.badge.adiada{background:#e0e7ff;color:#3730a3}
-.badge.pulada{background:#f1f5f9;color:#64748b}
-.badge.rolled{background:#dbeafe;color:#1e40af;margin-left:4px}
-.tabs{display:flex;gap:4px;border-bottom:2px solid #e2e8f0;margin-bottom:16px;overflow-x:auto}
-.tab{padding:10px 16px;border:0;background:transparent;color:#64748b;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;width:auto}
-.tab:hover{color:#0f172a}
-.tab.active{color:#2563eb;border-bottom-color:#2563eb}
-.panel{display:none}.panel.active{display:block}
-.ifood-bar{height:14px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin:10px 0}
-.ifood-bar>div{height:100%;transition:width .3s, background .3s}
-.ifood-status{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
-.mini-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
-.mini{background:#f8fafc;border-radius:10px;padding:12px;border:1px solid #e2e8f0}
-.mini .l{font-size:11px;color:#64748b;text-transform:uppercase}
-.mini .v{font-size:16px;font-weight:700;margin-top:4px}
-.empty{padding:20px;text-align:center;color:#94a3b8;font-size:13px}
-.insights{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-.insight{padding:12px 14px;border-radius:10px;border:1px solid}
-.insight.ok{background:#f0fdf4;border-color:#bbf7d0}
-.insight.warn{background:#fef9c3;border-color:#fde047}
-.insight.danger{background:#fee2e2;border-color:#fca5a5}
-.insight.info{background:#eff6ff;border-color:#bfdbfe}
-.insight .ttl{font-weight:700;font-size:13px;margin-bottom:2px;display:flex;align-items:center;gap:6px}
-.insight .txt{font-size:12px;opacity:.85;line-height:1.4}
-.insight.ok .ttl{color:#166534}.insight.ok .txt{color:#15803d}
-.insight.warn .ttl{color:#854d0e}.insight.warn .txt{color:#a16207}
-.insight.danger .ttl{color:#991b1b}.insight.danger .txt{color:#b91c1c}
-.insight.info .ttl{color:#1e40af}.insight.info .txt{color:#1d4ed8}
-.pill{display:inline-block;padding:1px 6px;background:#eff6ff;color:#1d4ed8;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-left:4px}
-.hint{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#1e40af;margin-bottom:12px;line-height:1.5}
-.hint strong{color:#1d4ed8}
-.bulk{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
-.bulk button{width:auto;padding:7px 12px;font-size:12px}
-
-/* Login Screen */
-#login-screen {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: #f1f5f9; display: flex; align-items: center; justify-content: center;
-  z-index: 1000; padding: 16px;
+/* ============ VARIÁVEIS DE DESIGN ============ */
+:root {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --shadow-sm: 0 1px 3px rgba(15,23,42,.05);
+  --shadow-md: 0 4px 6px -1px rgba(15,23,42,.05), 0 2px 4px -2px rgba(15,23,42,.05);
+  --radius: 16px;
+  --radius-sm: 10px;
 }
-#login-screen .card { max-width: 400px; width: 100%; }
-#app-screen { display: none; }
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --primary-light: #312e81;
+  --success-light: #064e3b;
+  --danger-light: #7f1d1d;
+  --warning-light: #78350f;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,.4);
+}
+
+/* ============ BASE ============ */
+*{box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text-main);font-size:14px;transition:background .3s,color .3s}
+button{font-family:inherit;cursor:pointer;transition:all .2s;border:none;outline:none}
+input,select{font-family:inherit;outline:none;transition:border .2s, box-shadow .2s}
+a{text-decoration:none;color:var(--primary)}
+
+/* ============ HEADER ============ */
+header{background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;transition:background .3s,border .3s}
+[data-theme="dark"] header{background:rgba(15,23,42,0.7)}
+header .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 16px;max-width:1200px;margin:0 auto}
+.logo-area{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px;color:var(--text-main)}
+.logo-area i{color:var(--primary);font-size:24px}
+.header-controls{display:flex;align-items:center;gap:8px}
+.header-controls input[type=month]{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-main);font-weight:600;font-size:13px}
+.btn-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);color:var(--text-main);font-size:18px}
+.btn-icon:hover{background:var(--bg);color:var(--primary)}
+
+/* ============ LAYOUT ============ */
+.wrap{max-width:1200px;margin:0 auto;padding:24px 16px}
+.card{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:background .3s,border .3s}
+h2{margin:0 0 16px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h2 i{color:var(--primary);font-size:20px}
+h2 .sub{font-size:12px;font-weight:500;color:var(--text-muted);margin-left:auto}
+
+/* ============ CARDS DE RESUMO ============ */
+.stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:24px}
+.stat{background:var(--surface);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s}
+.stat:hover{transform:translateY(-2px);box-shadow:0 10px 15px -3px rgba(15,23,42,.08)}
+.stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px}
+.stat-icon.rec{background:var(--success-light);color:var(--success)}
+.stat-icon.fix{background:var(--primary-light);color:var(--primary)}
+.stat-icon.ifd{background:var(--danger-light);color:var(--danger)}
+.stat-icon.out{background:var(--warning-light);color:var(--warning)}
+.stat-icon.sal{background:var(--bg);color:var(--text-main)}
+.stat .lbl{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stat .val{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat .sub{font-size:12px;color:var(--text-muted);font-weight:500}
+.pos{color:var(--success)!important}.neg{color:var(--danger)!important}.muted{color:var(--text-muted)}
+
+/* ============ ABAS (PÍLULA) ============ */
+.tabs-wrap{overflow-x:auto;margin-bottom:24px;padding-bottom:4px;scrollbar-width:none}
+.tabs-wrap::-webkit-scrollbar{display:none}
+.tabs{display:inline-flex;background:var(--surface);padding:4px;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow-sm);min-width:100%}
+.tab{padding:10px 18px;border:none;background:transparent;color:var(--text-muted);font-weight:600;font-size:13px;border-radius:10px;white-space:nowrap;display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
+.tab i{font-size:16px}
+.tab:hover{color:var(--text-main)}
+.tab.active{background:var(--primary);color:#fff;box-shadow:0 2px 4px rgba(79,70,229,.3)}
+
+.panel{display:none;animation:fadeIn .3s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============ FORMULÁRIOS E BOTÕES ============ */
+.row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+input,select{padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-main);font-size:13px;width:100%}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+button.btn-primary{background:var(--primary);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px}
+button.btn-primary:hover{background:var(--primary-hover)}
+button.ghost{background:var(--bg);color:var(--text-main);padding:10px 16px;border-radius:var(--radius-sm);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border)}
+button.ghost:hover{background:var(--border)}
+button.danger{background:var(--danger-light);color:var(--danger);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+button.ok{background:var(--success-light);color:var(--success);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
+button.roll{background:var(--primary-light);color:var(--primary);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
+button.skip{background:var(--bg);color:var(--text-muted);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
+button.sm{padding:6px 10px;font-size:12px;width:auto}
+
+/* ============ TABELAS ============ */
+.table-responsive{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+th,td{padding:12px 12px;text-align:right;border-bottom:1px solid var(--border)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--text-muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--bg)}
+
+/* ============ BADGES E PILLS ============ */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700}
+.badge.pago{background:var(--success-light);color:var(--success)}
+.badge.pendente{background:var(--warning-light);color:var(--warning)}
+.badge.atraso{background:var(--danger-light);color:var(--danger)}
+.badge.adiada{background:var(--primary-light);color:var(--primary)}
+.badge.pulada{background:var(--bg);color:var(--text-muted)}
+.badge.rolled{background:var(--primary-light);color:var(--primary);margin-left:6px}
+.pill{display:inline-block;padding:2px 8px;background:var(--primary-light);color:var(--primary);border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase}
+
+/* ============ BARRAS E INSIGHTS ============ */
+.bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:8px}
+.bar>div{height:100%;transition:width .4s ease}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--text-muted);margin-bottom:12px;font-weight:500}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:middle}
+.empty{padding:32px 16px;text-align:center;color:var(--text-muted);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty i{font-size:32px;opacity:.5}
+.insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.insight{padding:16px;border-radius:var(--radius-sm);display:flex;gap:12px;border:1px solid transparent}
+.insight i{font-size:24px;flex-shrink:0}
+.insight .ttl{font-weight:700;font-size:13px;margin-bottom:2px}
+.insight .txt{font-size:12px;line-height:1.4}
+.insight.ok{background:var(--success-light);color:var(--success)}
+.insight.warn{background:var(--warning-light);color:var(--warning)}
+.insight.danger{background:var(--danger-light);color:var(--danger)}
+.insight.info{background:var(--primary-light);color:var(--primary)}
+.insight.ok .ttl{color:var(--success)}.insight.warn .ttl{color:var(--warning)}.insight.danger .ttl{color:var(--danger)}.insight.info .ttl{color:var(--primary)}
+.insight.ok .txt{color:var(--text-main)}.insight.warn .txt{color:var(--text-main)}.insight.danger .txt{color:var(--text-main)}.insight.info .txt{color:var(--text-main)}
+
+/* iFood Bar */
+.ifood-bar-wrap{background:var(--bg);border-radius:10px;padding:4px;margin:12px 0}
+.ifood-bar{height:16px;background:var(--border);border-radius:8px;overflow:hidden}
+.ifood-bar>div{height:100%;transition:width .4s ease, background .4s ease;border-radius:8px}
+.mini-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:16px}
+.mini{background:var(--bg);border-radius:var(--radius-sm);padding:14px;border:1px solid var(--border)}
+.mini .l{font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:.05em}
+.mini .v{font-size:16px;font-weight:800;margin-top:4px}
+
+.hint{background:var(--primary-light);border-radius:var(--radius-sm);padding:14px 16px;font-size:13px;color:var(--text-main);margin-bottom:16px;display:flex;gap:12px;align-items:flex-start}
+.hint i{color:var(--primary);font-size:20px;flex-shrink:0}
+.bulk{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+
+/* ============ LOGIN SCREEN ============ */
+#login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;transition:background .3s}
+.login-card{background:var(--surface);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-md);max-width:400px;width:100%;border:1px solid var(--border)}
+.login-card h2{justify-content:center;font-size:22px;margin-bottom:8px;color:var(--text-main)}
+.login-card p{text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:24px}
+#app-screen{display:none}
+
+/* Responsividade Mobile */
+@media(max-width:768px){
+  .header-controls{gap:6px}
+  header .wrap{padding:10px}
+  .stat .val{font-size:20px}
+  .tab{padding:10px 14px;font-size:12px}
+  .login-card{padding:24px}
+}
 </style>
 </head>
 <body>
 
 <!-- TELA DE LOGIN -->
 <div id="login-screen">
-  <div class="card">
-    <h2 style="justify-content:center;font-size:20px">🔐 Acesso do Casal</h2>
-    <p style="text-align:center;color:#64748b;font-size:13px;margin-bottom:20px">Entre para sincronizar os gastos.</p>
-    <div class="row" style="grid-template-columns:1fr">
+  <div class="login-card">
+    <h2><i class="ph-fill ph-wallet"></i> Acesso do Casal</h2>
+    <p>Entre para sincronizar os gastos.</p>
+    <div class="row" style="grid-template-columns:1fr;gap:12px">
       <input type="email" id="login-email" placeholder="E-mail">
       <input type="password" id="login-password" placeholder="Senha">
-      <button id="btn-login">Entrar</button>
-      <button id="btn-signup" class="ghost" style="margin-top:8px">Criar nova conta</button>
+      <button class="btn-primary" id="btn-login" style="margin-top:4px;padding:12px">Entrar</button>
+      <button class="ghost" id="btn-signup" style="margin-top:8px">Criar nova conta</button>
     </div>
-    <p id="login-error" style="color:#dc2626; font-size:12px; text-align:center; margin-top:12px; margin-bottom:0;"></p>
+    <p id="login-error" style="color:var(--danger); font-size:12px; text-align:center; margin-top:16px; margin-bottom:0; font-weight:500;"></p>
   </div>
 </div>
 
 <!-- APP PRINCIPAL -->
 <div id="app-screen">
-  <header><div class="wrap">
-    <h1>🧠 Finanças do Casal</h1>
-    <div style="display:flex;gap:8px;align-items:center">
-      <input type="month" id="mes" style="width:auto;background:#1e293b;color:#fff;border-color:#334155">
-      <button id="btn-logout" class="danger" style="width:auto" title="Sair">Sair</button>
+  <header>
+    <div class="wrap">
+      <div class="logo-area">
+        <i class="ph-fill ph-wallet"></i> Finanças do Casal
+      </div>
+      <div class="header-controls">
+        <input type="month" id="mes">
+        <button class="btn-icon" id="btn-theme" title="Alternar Tema"><i class="ph ph-moon"></i></button>
+        <button class="btn-icon" id="btn-logout" title="Sair" style="color:var(--danger)"><i class="ph ph-sign-out"></i></button>
+      </div>
     </div>
-  </div></header>
+  </header>
 
   <main class="wrap">
     <div class="stats">
-      <div class="stat"><div class="lbl">Receita</div><div class="val pos" id="sRec">R$ 0,00</div><div class="sub" id="sRecSub">—</div></div>
-      <div class="stat"><div class="lbl">Contas fixas pagas</div><div class="val" id="sFix">R$ 0,00</div><div class="sub" id="sFixSub">—</div></div>
-      <div class="stat"><div class="lbl">iFood</div><div class="val" id="sIf">R$ 0,00</div><div class="sub" id="sIfSub">—</div></div>
-      <div class="stat"><div class="lbl">Outros</div><div class="val neg" id="sOut">R$ 0,00</div><div class="sub" id="sOutSub">—</div></div>
-      <div class="stat"><div class="lbl">Saldo</div><div class="val" id="sSal">R$ 0,00</div><div class="sub" id="sSalSub">—</div></div>
+      <div class="stat">
+        <div class="stat-icon rec"><i class="ph-fill ph-arrow-down-left"></i></div>
+        <div class="lbl">Receita</div>
+        <div class="val pos" id="sRec">R$ 0,00</div>
+        <div class="sub" id="sRecSub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon fix"><i class="ph-fill ph-house"></i></div>
+        <div class="lbl">Contas Fixas</div>
+        <div class="val" id="sFix">R$ 0,00</div>
+        <div class="sub" id="sFixSub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon ifd"><i class="ph-fill ph-fork-knife"></i></div>
+        <div class="lbl">iFood</div>
+        <div class="val neg" id="sIf">R$ 0,00</div>
+        <div class="sub" id="sIfSub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon out"><i class="ph-fill ph-shopping-cart"></i></div>
+        <div class="lbl">Outros</div>
+        <div class="val neg" id="sOut">R$ 0,00</div>
+        <div class="sub" id="sOutSub">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon sal"><i class="ph-fill ph-scales"></i></div>
+        <div class="lbl">Saldo</div>
+        <div class="val" id="sSal">R$ 0,00</div>
+        <div class="sub" id="sSalSub">—</div>
+      </div>
     </div>
 
-    <div class="tabs">
-      <button class="tab active" data-tab="dash">📊 Dashboard</button>
-      <button class="tab" data-tab="fixas">🏠 Contas fixas</button>
-      <button class="tab" data-tab="receitas">💵 Receitas</button>
-      <button class="tab" data-tab="ifood">🍔 iFood</button>
-      <button class="tab" data-tab="outros">🛒 Outros</button>
-      <button class="tab" data-tab="config">⚙️ Config</button>
+    <div class="tabs-wrap">
+      <div class="tabs">
+        <button class="tab active" data-tab="dash"><i class="ph ph-chart-pie-slice"></i> Dashboard</button>
+        <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Contas Fixas</button>
+        <button class="tab" data-tab="receitas"><i class="ph ph-money"></i> Receitas</button>
+        <button class="tab" data-tab="ifood"><i class="ph ph-fork-knife"></i> iFood</button>
+        <button class="tab" data-tab="outros"><i class="ph ph-shopping-cart"></i> Outros</button>
+        <button class="tab" data-tab="config"><i class="ph ph-gear"></i> Config</button>
+      </div>
     </div>
 
     <section class="panel active" id="panel-dash">
       <div class="card">
-        <h2>🧠 Insights automáticos</h2>
+        <h2><i class="ph-fill ph-lightbulb"></i> Insights automáticos</h2>
         <div id="insights" class="insights"></div>
       </div>
       <div class="card">
-        <h2>Últimos 6 meses</h2>
+        <h2><i class="ph-fill ph-chart-bar"></i> Evolução dos últimos 6 meses</h2>
         <div class="legend">
-          <span><i style="background:#10b981"></i>Receitas</span>
-          <span><i style="background:#ef4444"></i>Despesas</span>
+          <span><i style="background:var(--success)"></i>Receitas</span>
+          <span><i style="background:var(--danger)"></i>Despesas</span>
         </div>
         <div id="chart"></div>
       </div>
       <div class="card">
-        <h2>Comparativo mês a mês</h2>
-        <table>
-          <thead><tr><th>Mês</th><th>Receitas</th><th>Fixas</th><th>iFood</th><th>Outros</th><th>Saldo</th><th>vs ant.</th></tr></thead>
-          <tbody id="cmp"></tbody>
-        </table>
+        <h2><i class="ph-fill ph-arrows-left-right"></i> Comparativo mês a mês</h2>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Mês</th><th>Receitas</th><th>Fixas</th><th>iFood</th><th>Outros</th><th>Saldo</th><th>vs ant.</th></tr></thead>
+            <tbody id="cmp"></tbody>
+          </table>
+        </div>
       </div>
       <div class="card">
-        <h2>Gastos por categoria</h2>
+        <h2><i class="ph-fill ph-chart-donut"></i> Gastos por categoria</h2>
         <div id="cats"></div>
       </div>
     </section>
 
     <section class="panel" id="panel-fixas">
       <div class="card">
-        <h2>Contas fixas do mês <span class="sub" id="fixasTot"></span></h2>
+        <h2><i class="ph-fill ph-receipt"></i> Contas fixas do mês <span class="sub" id="fixasTot"></span></h2>
         <div class="hint">
-          💡 <strong>Começando agora?</strong> Se você já pagou alguma conta antes de instalar o sistema, clique em <strong>✓ Pagar</strong> (pode confirmar o valor previsto). Se a conta só vai ser paga no mês que vem, clique em <strong>🔄 Rolar</strong>.
+          <i class="ph-fill ph-info"></i>
+          <div><strong>Dica:</strong> Se já pagou alguma conta, clique em <strong>Pagar</strong> para confirmar o valor real. Se vai pagar mês que vem, use <strong>Rolar</strong>.</div>
         </div>
         <div class="bulk">
-          <button class="ghost" onclick="rolarTodasPendentes()">🔄 Rolar todas pendentes p/ próximo mês</button>
-          <button class="ghost" onclick="pularTodasPendentes()">⏭ Pular todas pendentes deste mês</button>
+          <button class="ghost sm" onclick="rolarTodasPendentes()"><i class="ph ph-arrow-clockwise"></i> Rolar todas pendentes</button>
+          <button class="ghost sm" onclick="pularTodasPendentes()"><i class="ph ph-skip-forward"></i> Pular todas pendentes</button>
         </div>
-        <table>
-          <thead><tr><th>Conta</th><th>Venc.</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
-          <tbody id="fixasBody"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Conta</th><th>Venc.</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="fixasBody"></tbody>
+          </table>
+        </div>
       </div>
       <div class="card">
-        <h2>Adicionar conta fixa</h2>
+        <h2><i class="ph-fill ph-plus-circle"></i> Adicionar conta fixa</h2>
         <div class="row">
-          <input type="text" id="fxNome" placeholder="Nome">
-          <input type="number" id="fxValor" placeholder="Valor previsto" step="0.01">
-          <input type="number" id="fxDia" placeholder="Dia venc." min="1" max="31">
-          <button onclick="addFixa()">Adicionar</button>
+          <input type="text" id="fxNome" placeholder="Nome da conta">
+          <input type="number" id="fxValor" placeholder="Valor (R$)" step="0.01">
+          <input type="number" id="fxDia" placeholder="Dia venc. (1-31)" min="1" max="31">
+          <button class="btn-primary" onclick="addFixa()">Adicionar</button>
         </div>
       </div>
     </section>
 
     <section class="panel" id="panel-receitas">
       <div class="card">
-        <h2>Salário líquido <span class="sub">auto-preenchido do mês anterior</span></h2>
+        <h2><i class="ph-fill ph-bank"></i> Salário líquido</h2>
         <div class="row">
-          <div><label style="font-size:12px;color:#64748b">Salário Eu</label>
-            <input type="number" id="salEu" step="0.01" onchange="setSalario('eu',this.value)"></div>
-          <div><label style="font-size:12px;color:#64748b">Salário Esposa</label>
-            <input type="number" id="salEsp" step="0.01" onchange="setSalario('esp',this.value)"></div>
+          <div>
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:4px;display:block">Salário Eu</label>
+            <input type="number" id="salEu" step="0.01" onchange="setSalario('eu',this.value)">
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:4px;display:block">Salário Esposa</label>
+            <input type="number" id="salEsp" step="0.01" onchange="setSalario('esp',this.value)">
+          </div>
         </div>
       </div>
       <div class="card">
-        <h2>Rendas extras <span class="sub" id="extrasTot"></span></h2>
-        <div class="row" style="margin-bottom:12px">
+        <h2><i class="ph-fill ph-hand-coins"></i> Rendas extras <span class="sub" id="extrasTot"></span></h2>
+        <div class="row" style="margin-bottom:16px">
           <input type="text" id="exDesc" placeholder="Descrição">
           <select id="exPessoa"><option>Eu</option><option>Esposa</option><option>Casal</option></select>
-          <input type="number" id="exValor" placeholder="Valor" step="0.01">
-          <label style="font-size:12px;display:flex;align-items:center;gap:6px;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px">
-            <input type="checkbox" id="exRecurring" style="width:auto"> Fixa
+          <input type="number" id="exValor" placeholder="Valor (R$)" step="0.01">
+          <label style="font-size:12px;display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;color:var(--text-main)">
+            <input type="checkbox" id="exRecurring" style="width:auto"> Fixa (repete)
           </label>
-          <button onclick="addExtra()">Adicionar</button>
+          <button class="btn-primary" onclick="addExtra()">Adicionar</button>
         </div>
-        <table>
-          <thead><tr><th>Descrição</th><th>Pessoa</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
-          <tbody id="extrasBody"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Descrição</th><th>Pessoa</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
+            <tbody id="extrasBody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <section class="panel" id="panel-ifood">
       <div class="card">
-        <h2>🍔 iFood <span class="sub" id="ifoodSub"></span></h2>
+        <h2><i class="ph-fill ph-fork-knife"></i> Controle iFood <span class="sub" id="ifoodSub"></span></h2>
         <div id="ifoodWarn"></div>
-        <div class="ifood-status">
-          <span>Usado: <strong id="ifUsado">R$ 0,00</strong></span>
+        <div class="ifood-bar-wrap">
+          <div class="ifood-bar"><div id="ifBar" style="width:0%;background:var(--success)"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:8px">
+          <span>Usado: <strong id="ifUsado" style="color:var(--danger)">R$ 0,00</strong></span>
           <span>Limite: <strong id="ifLimite">R$ 0,00</strong></span>
         </div>
-        <div class="ifood-bar"><div id="ifBar" style="width:0%;background:#10b981"></div></div>
-        <div class="mini-grid" style="margin-top:12px">
+        <div class="mini-grid">
           <div class="mini"><div class="l">Restante</div><div class="v" id="ifRest">—</div></div>
           <div class="mini"><div class="l">Média/pedido</div><div class="v" id="ifMedia">—</div></div>
           <div class="mini"><div class="l">Pedidos</div><div class="v" id="ifQtd">0</div></div>
-          <div class="mini"><div class="l">Projeção</div><div class="v" id="ifProj">—</div></div>
+          <div class="mini"><div class="l">Projeção do mês</div><div class="v" id="ifProj">—</div></div>
         </div>
       </div>
       <div class="card">
-        <h2>Novo pedido</h2>
+        <h2><i class="ph-fill ph-plus-circle"></i> Novo pedido</h2>
         <div class="row">
           <input type="date" id="ifData">
           <select id="ifTipo"><option>Almoço</option><option>Lanche</option><option>Café</option><option>Jantar</option><option>Outro</option></select>
           <input type="text" id="ifDesc" placeholder="Descrição (opcional)">
-          <input type="number" id="ifValor" placeholder="Valor" step="0.01">
-          <button onclick="addIfood()">Adicionar</button>
+          <input type="number" id="ifValor" placeholder="Valor (R$)" step="0.01">
+          <button class="btn-primary" onclick="addIfood()">Adicionar</button>
         </div>
       </div>
       <div class="card">
-        <h2>Pedidos do mês</h2>
-        <table>
-          <thead><tr><th>Data</th><th>Tipo</th><th>Desc.</th><th>Valor</th><th></th></tr></thead>
-          <tbody id="ifBody"></tbody>
-        </table>
+        <h2><i class="ph-fill ph-list-dashes"></i> Pedidos do mês</h2>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Data</th><th>Tipo</th><th>Desc.</th><th>Valor</th><th></th></tr></thead>
+            <tbody id="ifBody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <section class="panel" id="panel-outros">
       <div class="card">
-        <h2>Outros gastos <span class="sub" id="outrosTot"></span></h2>
-        <div class="row" style="margin-bottom:12px">
+        <h2><i class="ph-fill ph-shopping-cart"></i> Outros gastos <span class="sub" id="outrosTot"></span></h2>
+        <div class="row" style="margin-bottom:16px">
           <input type="date" id="oData">
           <input type="text" id="oDesc" placeholder="Descrição (auto-categoriza)">
           <select id="oCat"></select>
           <select id="oPessoa"><option>Eu</option><option>Esposa</option><option>Casal</option></select>
           <select id="oPagto"><option>Débito</option><option>Crédito</option><option>PIX</option><option>Dinheiro</option><option>Boleto</option></select>
-          <input type="number" id="oValor" placeholder="Valor" step="0.01">
-          <button onclick="addOutro()">Adicionar</button>
+          <input type="number" id="oValor" placeholder="Valor (R$)" step="0.01">
+          <button class="btn-primary" onclick="addOutro()">Adicionar</button>
         </div>
-        <table>
-          <thead><tr><th>Data</th><th>Descrição</th><th>Cat.</th><th>Pessoa</th><th>Pagto</th><th>Valor</th><th></th></tr></thead>
-          <tbody id="outrosBody"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>Data</th><th>Descrição</th><th>Cat.</th><th>Pessoa</th><th>Pagto</th><th>Valor</th><th></th></tr></thead>
+            <tbody id="outrosBody"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <section class="panel" id="panel-config">
       <div class="card">
-        <h2>Limite do iFood</h2>
+        <h2><i class="ph-fill ph-target"></i> Limite do iFood</h2>
         <div class="row">
-          <input type="number" id="cfgIfood" step="0.01" placeholder="Limite mensal">
-          <button onclick="setLimiteIfood()">Salvar</button>
+          <input type="number" id="cfgIfood" step="0.01" placeholder="Limite mensal (R$)">
+          <button class="btn-primary" onclick="setLimiteIfood()">Salvar Limite</button>
         </div>
       </div>
       <div class="card">
-        <h2>Começar do zero</h2>
+        <h2><i class="ph-fill ph-broom"></i> Limpeza de dados</h2>
         <div class="row">
-          <button class="ghost" onclick="limparAnteriores()">🗑️ Apagar meses anteriores a este</button>
+          <button class="ghost" onclick="limparAnteriores()"><i class="ph ph-trash"></i> Apagar meses anteriores a este</button>
         </div>
       </div>
       <div class="card">
-        <h2>Backup</h2>
+        <h2><i class="ph-fill ph-floppy-disk"></i> Backup</h2>
         <div class="row">
-          <button class="ghost" onclick="exportar()">⬇️ Exportar</button>
-          <label style="cursor:pointer"><input type="file" id="fileImp" accept=".json" style="display:none" onchange="importar(event)"><button class="ghost" onclick="document.getElementById('fileImp').click()">⬆️ Importar</button></label>
-          <button class="danger" style="padding:9px 11px;width:auto" onclick="resetar()">🗑️ Resetar tudo</button>
+          <button class="ghost" onclick="exportar()"><i class="ph ph-download-simple"></i> Exportar arquivo</button>
+          <label style="cursor:pointer;display:flex"><input type="file" id="fileImp" accept=".json" style="display:none" onchange="importar(event)"><button class="ghost" onclick="document.getElementById('fileImp').click()" style="width:100%"><i class="ph ph-upload-simple"></i> Importar arquivo</button></label>
+          <button class="danger" style="width:100%;padding:10px" onclick="resetar()"><i class="ph ph-warning"></i> Resetar Tudo</button>
         </div>
       </div>
     </section>
@@ -305,7 +445,7 @@ tr:last-child td{border-bottom:0}
 </div>
 
 <script>
-// 1. Configuração do Firebase (Sua chave)
+// ============ CONFIGURAÇÃO DO FIREBASE ============
 const firebaseConfig = {
   apiKey: "AIzaSyDZC-qqbktn2IfL-V94rmaqdxImvhg951I",
   authDomain: "financas-casal-264e6.firebaseapp.com",
@@ -316,16 +456,13 @@ const firebaseConfig = {
   appId: "1:195068207969:web:69eb7a2a90ed8199ccdb20"
 };
 
-// Inicializa o Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// Variáveis Globais
 let state = null;
 let currentUser = null;
 
-const KEY_STATE = 'financas_casal_v4'; // Usado apenas se precisar resetar algo local
 const defaultState = {
   cfg: { limiteIfood: 300 },
   fixas: [
@@ -374,34 +511,27 @@ function ultimosMeses(y,n){const [a,m]=y.split('-').map(Number);const arr=[];for
 function isMesAtual(y){const [a,m]=y.split('-').map(Number);return a===hoje.getFullYear() && m===hoje.getMonth()+1;}
 function diasNoMes(y){const [a,m]=y.split('-').map(Number);return new Date(a,m,0).getDate();}
 
-// LÓGICA DO FIREBASE
 function save() {
   if (!currentUser || !state) return;
-  db.ref('users/' + currentUser.uid + '/state').set(state)
-    .catch(err => alert("Erro ao salvar no banco: " + err.message));
+  db.ref('users/' + currentUser.uid + '/state').set(state).catch(err => alert("Erro ao salvar no banco: " + err.message));
 }
 
 function loadStateFromFirebase() {
   if (!currentUser) return;
   const stateRef = db.ref('users/' + currentUser.uid + '/state');
-  
-  // Listener em tempo real: atualiza a tela se o outro mudar algo
   stateRef.on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
       state = data;
-      // Garante que o mês selecionado exista na estrutura
       getMes($('mes').value);
       render();
     } else {
-      // Primeiro acesso: cria o estado base
       state = structuredClone(defaultState);
       save();
     }
   });
 }
 
-// AUTENTICAÇÃO
 $('btn-login').addEventListener('click', () => {
   const email = $('login-email').value;
   const pass = $('login-password').value;
@@ -434,7 +564,21 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// LÓGICA DO SISTEMA
+// Lógica do Tema Escuro
+const themeBtn = $('btn-theme');
+const currentTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
+themeBtn.innerHTML = currentTheme === 'dark' ? '<i class="ph ph-sun"></i>' : '<i class="ph ph-moon"></i>';
+
+themeBtn.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  themeBtn.innerHTML = newTheme === 'dark' ? '<i class="ph ph-sun"></i>' : '<i class="ph ph-moon"></i>';
+  render(); // Redesenha o gráfico SVG para atualizar as cores
+});
+
 function getMes(y){
   if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], fixasPago:{}, adiadas:{}, puladas:{} };
   const m = state.meses[y];
@@ -449,13 +593,11 @@ function getMes(y){
 }
 
 function statusFixa(m, f, mes){
-  if(m.fixasPago[f.id] != null) return {tipo:'pago', label:'✓ Pago'};
-  if(m.adiadas[f.id]) return {tipo:'adiada', label:`→ ${fmtMes(m.adiadas[f.id])}`};
-  if(m.puladas[f.id]) return {tipo:'pulada', label:'Pulada'};
-  const ant = mesAnt(mes);
-  const rolledFromPrev = state.meses[ant]?.adiadas?.[f.id] === mes;
-  if(isMesAtual(mes) && f.dia < hoje.getDate()) return {tipo:'atraso', label:'Atrasada'};
-  return {tipo:'pendente', label:'Pendente'};
+  if(m.fixasPago[f.id] != null) return {tipo:'pago', label:'✓ Pago', icon:'ph-check-circle'};
+  if(m.adiadas[f.id]) return {tipo:'adiada', label:`→ ${fmtMes(m.adiadas[f.id])}`, icon:'ph-arrow-right'};
+  if(m.puladas[f.id]) return {tipo:'pulada', label:'Pulada', icon:'ph-skip-forward'};
+  if(isMesAtual(mes) && f.dia < hoje.getDate()) return {tipo:'atraso', label:'Atrasada', icon:'ph-warning-circle'};
+  return {tipo:'pendente', label:'Pendente', icon:'ph-clock'};
 }
 
 function totais(y){
@@ -465,9 +607,7 @@ function totais(y){
   const extras = (m.extras||[]).reduce((s,e)=>s+e.valor,0);
   const rec = sal + extras;
   const fixPago = Object.values(m.fixasPago||{}).reduce((s,v)=>s+v,0);
-  const fixPend = state.fixas.filter(f =>
-    m.fixasPago[f.id] == null && !(m.adiadas?.[f.id]) && !(m.puladas?.[f.id])
-  ).reduce((s,f)=>s+(f.valor||0),0);
+  const fixPend = state.fixas.filter(f => m.fixasPago[f.id] == null && !(m.adiadas?.[f.id]) && !(m.puladas?.[f.id])).reduce((s,f)=>s+(f.valor||0),0);
   const ifd = (m.ifood||[]).reduce((s,e)=>s+e.valor,0);
   const out = (m.outros||[]).reduce((s,e)=>s+e.valor,0);
   const des = fixPago + ifd + out;
@@ -486,7 +626,7 @@ function autoFillMonth(y){
       (pm.extras||[]).filter(e=>e.recurring).forEach(e=>{
         m.extras.push({id:Date.now()+Math.random(), desc:e.desc, pessoa:e.pessoa, valor:e.valor, recurring:true});
       });
-      return true; // Não dá save aqui, o render e as ações seguintes cuidam disso
+      return true;
     }
   }
   return false;
@@ -529,7 +669,7 @@ function generateInsights(y){
 
   const roladasDoAnt = state.fixas.filter(f => state.meses[ant]?.adiadas?.[f.id] === y);
   if(roladasDoAnt.length){
-    out.push({type:'info', title:`🔄 ${roladasDoAnt.length} conta(s) rolada(s) do mês anterior`, text: roladasDoAnt.map(f=>f.nome).join(', ')});
+    out.push({type:'info', title:`🔄 Contas roladas do mês anterior`, text: roladasDoAnt.map(f=>f.nome).join(', ')});
   }
 
   const ifc = ifoodForecast(y);
@@ -732,13 +872,8 @@ function resetar(){
 function render(){
   if(!state) return;
   const mes=$('mes').value, ant=mesAnt(mes);
+  if(autoFillMonth(mes)) {}
   
-  // Auto-fill de salários ao trocar de mês (executa em background)
-  if(autoFillMonth(mes)) {
-     // Não salva aqui pra não fazer loop infinito com o Firebase, 
-     // o auto-fill só atualiza o objeto local, o primeiro save (ex: setSalario) persiste.
-  }
-
   const m=getMes(mes), t=totais(mes);
 
   $('sRec').textContent=fmt(t.rec);
@@ -760,8 +895,11 @@ function render(){
 
   const ins = generateInsights(mes);
   $('insights').innerHTML = ins.length
-    ? ins.map(i=>`<div class="insight ${i.type}"><div class="ttl">${i.title}</div><div class="txt">${i.text}</div></div>`).join('')
-    : '<p class="empty">Sem insights ainda — cadastre receitas e gastos.</p>';
+    ? ins.map(i=>`<div class="insight ${i.type}">
+        <i class="ph-fill ${i.type==='ok'?'ph-check-circle':i.type==='warn'?'ph-warning':i.type==='danger'?'ph-x-circle':'ph-info'}"></i>
+        <div><div class="ttl">${i.title}</div><div class="txt">${i.text}</div></div>
+      </div>`).join('')
+    : `<div class="empty"><i class="ph ph-lightbulb"></i> Sem insights por enquanto.<br>Cadastre receitas e gastos para ver a mágica acontecer.</div>`;
 
   let totP=0, totPg=0, cntAdiadas=0, cntPuladas=0, cntAtraso=0;
   const mesAntObj = state.meses[ant];
@@ -775,29 +913,28 @@ function render(){
     const rolled = mesAntObj?.adiadas?.[f.id] === mes;
     const rolledBadge = rolled ? '<span class="badge rolled">Rolada</span>' : '';
     let acoes = '';
-    if(st.tipo==='pago'){
-      acoes = `<button class="ok sm" onclick="togglePago('${f.id}')">Desfazer</button> <button class="danger" onclick="delFixa('${f.id}')">x</button>`;
-    } else if(st.tipo==='adiada' || st.tipo==='pulada'){
-      acoes = `<button class="ok sm" onclick="togglePago('${f.id}')">Desfazer</button> <button class="danger" onclick="delFixa('${f.id}')">x</button>`;
+    if(st.tipo==='pago' || st.tipo==='adiada' || st.tipo==='pulada'){
+      acoes = `<button class="ok sm" onclick="togglePago('${f.id}')"><i class="ph ph-arrow-u-up-left"></i> Desfazer</button> <button class="danger" onclick="delFixa('${f.id}')"><i class="ph ph-trash"></i></button>`;
     } else {
-      acoes = `<button class="ok sm" onclick="togglePago('${f.id}')">✓ Pagar</button>
-               <button class="roll sm" onclick="rolarFixa('${f.id}')">🔄 Rolar</button>
-               <button class="skip sm" onclick="pularFixa('${f.id}')">⏭</button>
-               <button class="danger" onclick="delFixa('${f.id}')">x</button>`;
+      acoes = `<button class="ok sm" onclick="togglePago('${f.id}')"><i class="ph ph-check"></i> Pagar</button>
+               <button class="roll sm" onclick="rolarFixa('${f.id}')"><i class="ph ph-arrow-clockwise"></i> Rolar</button>
+               <button class="skip sm" onclick="pularFixa('${f.id}')"><i class="ph ph-skip-forward"></i></button>
+               <button class="danger" onclick="delFixa('${f.id}')"><i class="ph ph-trash"></i></button>`;
     }
     return `<tr>
-      <td>${f.nome}</td><td>dia ${f.dia}</td>
-      <td>${fmt(f.valor)} <button class="ok sm" style="margin-left:4px" onclick="editFixaValor('${f.id}')" title="Editar">✎</button></td>
+      <td><strong>${f.nome}</strong></td><td>dia ${f.dia}</td>
+      <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:4px" onclick="editFixaValor('${f.id}')" title="Editar"><i class="ph ph-pencil-simple"></i></button></td>
       <td>${isPago?fmt(pago):'<span class="muted">—</span>'}</td>
-      <td><span class="badge ${st.tipo}">${st.label}</span>${rolledBadge}</td>
+      <td><span class="badge ${st.tipo}"><i class="ph ${st.icon}"></i> ${st.label}</span>${rolledBadge}</td>
       <td style="white-space:nowrap">${acoes}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="6" class="empty">Nenhuma conta fixa.</td></tr>';
+  }).join('') || `<tr><td colspan="6" class="empty"><i class="ph ph-receipt"></i> Nenhuma conta fixa cadastrada.</td></tr>`;
+  
   const extras = [];
   if(cntAdiadas) extras.push(`${cntAdiadas} rolada${cntAdiadas>1?'s':''}`);
   if(cntPuladas) extras.push(`${cntPuladas} pulada${cntPuladas>1?'s':''}`);
   if(cntAtraso) extras.push(`<span class="neg">${cntAtraso} atrasada${cntAtraso>1?'s':''}</span>`);
-  $('fixasTot').innerHTML = `Previsto: <strong>${fmt(totP)}</strong> · Pago: <strong>${fmt(totPg)}</strong>` + (extras.length?` · ${extras.join(' · ')}`:'');
+  $('fixasTot').innerHTML = `Pago: <strong>${fmt(totPg)}</strong> de ${fmt(totP)}` + (extras.length?` · ${extras.join(' · ')}`:'');
 
   $('salEu').value=m.salarios.eu||'';
   $('salEsp').value=m.salarios.esp||'';
@@ -805,11 +942,11 @@ function render(){
   $('extrasTot').innerHTML=`Total: <strong class="pos">${fmt(totEx)}</strong>`;
   $('extrasBody').innerHTML = m.extras.length ? m.extras.map(e=>`
     <tr>
-      <td>${e.desc}</td><td>${e.pessoa}</td>
+      <td><strong>${e.desc}</strong></td><td>${e.pessoa}</td>
       <td>${e.recurring?'<span class="pill">Fixa</span>':'<span class="muted">—</span>'}</td>
       <td class="pos">+${fmt(e.valor)}</td>
-      <td><button class="danger" onclick="delExtra(${e.id})">x</button></td>
-    </tr>`).join('') : '<tr><td colspan="5" class="empty">Nenhuma renda extra este mês.</td></tr>';
+      <td><button class="danger" onclick="delExtra(${e.id})"><i class="ph ph-trash"></i></button></td>
+    </tr>`).join('') : `<tr><td colspan="5" class="empty"><i class="ph ph-coins"></i> Nenhuma renda extra este mês.</td></tr>`;
 
   const ifc = ifoodForecast(mes);
   const pct = ifc.lim ? Math.min(100, ifc.total/ifc.lim*100) : 0;
@@ -823,10 +960,10 @@ function render(){
   $('ifProj').textContent=ifc.isCurrent?fmt(ifc.projecao):'—';
   $('ifProj').className='v '+(ifc.projecao<=ifc.lim?'pos':'neg');
   $('ifBar').style.width=pct+'%';
-  $('ifBar').style.background = pct<70?'#10b981':pct<90?'#f59e0b':'#ef4444';
+  $('ifBar').style.background = pct<70?'var(--success)':pct<90?'var(--warning)':'var(--danger)';
   $('ifoodWarn').innerHTML='';
-  if(ifc.lim && ifc.total>ifc.lim) $('ifoodWarn').innerHTML=`<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:10px 14px;font-size:13px;color:#991b1b;margin-bottom:12px">🚨 Passou do limite em <strong>${fmt(ifc.total-ifc.lim)}</strong>!</div>`;
-  else if(ifc.isCurrent && ifc.projecao>ifc.lim) $('ifoodWarn').innerHTML=`<div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:10px 14px;font-size:13px;color:#854d0e;margin-bottom:12px">⚠️ No ritmo atual vai estourar em ${fmt(ifc.projecao-ifc.lim)}.</div>`;
+  if(ifc.lim && ifc.total>ifc.lim) $('ifoodWarn').innerHTML=`<div class="hint" style="background:var(--danger-light);color:var(--danger);border:1px solid var(--danger)">🚨 Passou do limite em <strong>${fmt(ifc.total-ifc.lim)}</strong>!</div>`;
+  else if(ifc.isCurrent && ifc.projecao>ifc.lim) $('ifoodWarn').innerHTML=`<div class="hint" style="background:var(--warning-light);color:var(--warning);border:1px solid var(--warning)">⚠️ No ritmo atual vai estourar em ${fmt(ifc.projecao-ifc.lim)}.</div>`;
   $('cfgIfood').value=ifc.lim||'';
   $('ifBody').innerHTML = m.ifood.length ? [...m.ifood].sort((a,b)=>b.data.localeCompare(a.data)).map(e=>`
     <tr>
@@ -834,36 +971,37 @@ function render(){
       <td>${e.tipo}</td><td>${e.desc||'—'}</td>
       <td class="neg">${fmt(e.valor)}</td>
       <td style="white-space:nowrap">
-        <button class="ok sm" onclick="repeatIfood(${e.id})" title="Repetir">🔁</button>
-        <button class="danger" onclick="delIfood(${e.id})">x</button>
+        <button class="ok sm" onclick="repeatIfood(${e.id})" title="Repetir"><i class="ph ph-arrows-clockwise"></i></button>
+        <button class="danger" onclick="delIfood(${e.id})"><i class="ph ph-trash"></i></button>
       </td>
-    </tr>`).join('') : '<tr><td colspan="5" class="empty">Nenhum pedido.</td></tr>';
+    </tr>`).join('') : `<tr><td colspan="5" class="empty"><i class="ph ph-fork-knife"></i> Nenhum pedido registrado.</td></tr>`;
 
   const totOut=m.outros.reduce((s,e)=>s+e.valor,0);
   $('outrosTot').innerHTML=`Total: <strong class="neg">${fmt(totOut)}</strong>`;
   $('outrosBody').innerHTML = m.outros.length ? [...m.outros].sort((a,b)=>b.data.localeCompare(a.data)).map(e=>`
     <tr>
       <td>${e.data.split('-').reverse().join('/')}</td>
-      <td>${e.desc}</td><td>${e.cat}</td><td>${e.pessoa}</td><td>${e.pagto}</td>
+      <td><strong>${e.desc}</strong></td><td><span class="pill" style="background:var(--bg);color:var(--text-main)">${e.cat}</span></td><td>${e.pessoa}</td><td>${e.pagto}</td>
       <td class="neg">${fmt(e.valor)}</td>
       <td style="white-space:nowrap">
-        <button class="ok sm" onclick="repeatOutro(${e.id})" title="Repetir">🔁</button>
-        <button class="danger" onclick="delOutro(${e.id})">x</button>
+        <button class="ok sm" onclick="repeatOutro(${e.id})" title="Repetir"><i class="ph ph-arrows-clockwise"></i></button>
+        <button class="danger" onclick="delOutro(${e.id})"><i class="ph ph-trash"></i></button>
       </td>
-    </tr>`).join('') : '<tr><td colspan="7" class="empty">Nenhum gasto.</td></tr>';
+    </tr>`).join('') : `<tr><td colspan="7" class="empty"><i class="ph ph-shopping-cart"></i> Nenhum gasto registrado.</td></tr>`;
 
   const meses=ultimosMeses(mes,6);
   const dados=meses.map(k=>({k, ...totais(k)}));
   drawChart(meses,dados);
+  
   $('cmp').innerHTML = dados.map((d,i)=>{
     const prev=i>0?dados[i-1]:null;
     let v='<span class="muted">—</span>';
     if(prev && prev.sal!==0){
       const dif=(d.sal-prev.sal)/Math.abs(prev.sal)*100;
-      v=Math.abs(dif)<0.5?'<span class="muted">=</span>':`<span class="${dif>=0?'pos':'neg'}">${dif>=0?'▲':'▼'} ${Math.abs(dif).toFixed(0)}%</span>`;
+      v=Math.abs(dif)<0.5?'<span class="muted">=</span>':`<span class="${dif>=0?'pos':'neg'}">${dif>=0?'<i class="ph ph-trend-up"></i>':'<i class="ph ph-trend-down"></i>'} ${Math.abs(dif).toFixed(0)}%</span>`;
     }
     return `<tr>
-      <td>${fmtMes(d.k)}${d.k===mes?' <strong>(atual)</strong>':''}</td>
+      <td><strong>${fmtMes(d.k)}</strong>${d.k===mes?' <span class="pill">Atual</span>':''}</td>
       <td class="pos">${fmt(d.rec)}</td><td>${fmt(d.fix)}</td>
       <td>${fmt(d.ifd)}</td><td class="neg">${fmt(d.out)}</td>
       <td class="${d.sal>=0?'pos':'neg'}"><strong>${fmt(d.sal)}</strong></td>
@@ -877,13 +1015,19 @@ function render(){
   const entries=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const max=entries[0]?.[1]||1;
   $('cats').innerHTML = entries.length ? entries.map(([c,v])=>`
-    <div style="margin-bottom:10px;font-size:13.5px">
-      <div style="display:flex;justify-content:space-between"><span>${c}</span><strong>${fmt(v)}</strong></div>
-      <div class="bar"><div style="width:${(v/max*100).toFixed(0)}%;background:#3b82f6"></div></div>
-    </div>`).join('') : '<p class="empty">Sem dados.</p>';
+    <div style="margin-bottom:14px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-weight:500"><span>${c}</span><strong>${fmt(v)}</strong></div>
+      <div class="bar" style="height:6px"><div style="width:${(v/max*100).toFixed(0)}%;background:var(--primary)"></div></div>
+    </div>`).join('') : `<div class="empty"><i class="ph ph-chart-pie-slice"></i> Sem dados para este mês.</div>`;
 }
 
 function drawChart(meses,dados){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const cGrid = isDark ? '#334155' : '#e2e8f0';
+  const cText = isDark ? '#94a3b8' : '#64748b';
+  const cRec = 'var(--success)';
+  const cDes = 'var(--danger)';
+
   const W=900,H=240,pad={l:50,r:10,t:10,b:30};
   const iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
   const max=Math.max(1,...dados.flatMap(d=>[d.rec, d.fix+d.ifd+d.out]));
@@ -891,15 +1035,15 @@ function drawChart(meses,dados){
   let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">`;
   for(let i=0;i<=4;i++){
     const y=pad.t+ih-(ih*i/4);
-    s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y}" y2="${y}" stroke="#e2e8f0"/>`;
-    s+=`<text x="${pad.l-6}" y="${y+4}" font-size="10" fill="#94a3b8" text-anchor="end">${fmtK(max*i/4)}</text>`;
+    s+=`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y}" y2="${y}" stroke="${cGrid}"/>`;
+    s+=`<text x="${pad.l-8}" y="${y+4}" font-size="10" fill="${cText}" font-weight="600" text-anchor="end">${fmtK(max*i/4)}</text>`;
   }
   dados.forEach((d,i)=>{
     const cx=pad.l+gw*i+gw/2, des=d.fix+d.ifd+d.out;
     const hR=ih*d.rec/max, hD=ih*des/max;
-    s+=`<rect x="${cx-bw-1}" y="${pad.t+ih-hR}" width="${bw}" height="${hR}" fill="#10b981" rx="2"/>`;
-    s+=`<rect x="${cx+1}" y="${pad.t+ih-hD}" width="${bw}" height="${hD}" fill="#ef4444" rx="2"/>`;
-    s+=`<text x="${cx}" y="${H-10}" font-size="10" fill="#64748b" text-anchor="middle">${meses[i].slice(5)}/${meses[i].slice(2,4)}</text>`;
+    s+=`<rect x="${cx-bw-1}" y="${pad.t+ih-hR}" width="${bw}" height="${hR}" fill="${cRec}" rx="3"/>`;
+    s+=`<rect x="${cx+1}" y="${pad.t+ih-hD}" width="${bw}" height="${hD}" fill="${cDes}" rx="3"/>`;
+    s+=`<text x="${cx}" y="${H-8}" font-size="11" font-weight="600" fill="${cText}" text-anchor="middle">${meses[i].slice(5)}/${meses[i].slice(2,4)}</text>`;
   });
   s+='</svg>';
   $('chart').innerHTML=s;
@@ -914,7 +1058,6 @@ document.querySelectorAll('.tab').forEach(b=>{
   });
 });
 
-// Inicialização dos campos visuais
 $('mes').value=ym(new Date());
 $('ifData').value=ymd(new Date());
 $('oData').value=ymd(new Date());
