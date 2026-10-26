@@ -94,6 +94,7 @@ tr:last-child td{border-bottom:0}
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
 .login-card{background:var(--surface);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-md);max-width:400px;width:100%;border:1px solid var(--border)}
 #app-screen{display:none}
+#status-offline { display:none; background:var(--danger); color:white; text-align:center; padding:8px; font-size:12px; font-weight:bold; position:fixed; bottom:0; width:100%; z-index:999;}
 </style>
 </head>
 <body>
@@ -112,6 +113,7 @@ tr:last-child td{border-bottom:0}
 </div>
 
 <div id="app-screen">
+  <div id="status-offline">⚠️ Sem conexão com a nuvem. Seus dados estão sendo salvos apenas neste aparelho.</div>
   <header>
     <div class="wrap">
       <div class="logo-area"><i class="ph-fill ph-wallet"></i> Finanças do Casal</div>
@@ -236,13 +238,6 @@ tr:last-child td{border-bottom:0}
           <button class="btn-primary" onclick="setLimiteIfood()">Salvar</button>
         </div>
       </div>
-      <div class="card">
-        <h2><i class="ph-fill ph-floppy-disk"></i> Backup</h2>
-        <div class="row">
-          <button class="ghost" onclick="exportar()">Exportar</button>
-          <button class="danger" style="padding:10px" onclick="resetar()">Resetar Tudo</button>
-        </div>
-      </div>
     </section>
   </main>
 </div>
@@ -262,9 +257,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let state = null;
-let currentUser = null;
-
+// ESTADO INICIAL (O app já nasce com as 12 contas para a tela NUNCA ficar vazia)
 const defaultState = {
   cfg: { limiteIfood: 300 },
   fixas: [
@@ -277,19 +270,34 @@ const defaultState = {
   ],
   meses: {}
 };
+
+let state = JSON.parse(localStorage.getItem('financas_local')) || JSON.parse(JSON.stringify(defaultState));
+let currentUser = null;
+let firebaseConectado = false;
+
 const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Outros'];
 const $ = id => document.getElementById(id);
 const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const ymd = d => d.toISOString().slice(0,10);
 const ym  = d => d.toISOString().slice(0,7);
 
-// CORREÇÃO CRÍTICA: Avisar na tela se o Firebase bloquear o salvamento
+// SALVAMENTO BLINDADO: Salva no navegador na hora, tenta salvar na nuvem em seguida
 function save() {
-  if (!currentUser || !state) return;
-  db.ref('users/' + currentUser.uid + '/state').set(state)
-    .catch(err => {
-       alert("Erro no Firebase! Verifique as regras do banco de dados.\nDetalhe: " + err.message);
-    });
+  localStorage.setItem('financas_local', JSON.stringify(state));
+  render(); // Atualiza a tela IMEDIATAMENTE
+  
+  if (currentUser) {
+    db.ref('users/' + currentUser.uid + '/state').set(state)
+      .then(() => { 
+         firebaseConectado = true; 
+         $('status-offline').style.display = 'none'; 
+      })
+      .catch(err => {
+         firebaseConectado = false;
+         $('status-offline').style.display = 'block';
+         console.warn("Salvando apenas localmente. Erro Firebase:", err.message);
+      });
+  }
 }
 
 function loadStateFromFirebase() {
@@ -298,11 +306,18 @@ function loadStateFromFirebase() {
     const data = snapshot.val();
     if (data) {
       state = data;
-      if (!state.fixas) state.fixas = structuredClone(defaultState.fixas);
+      if (!state.fixas) state.fixas = JSON.parse(JSON.stringify(defaultState.fixas));
+      localStorage.setItem('financas_local', JSON.stringify(state));
+      firebaseConectado = true;
+      $('status-offline').style.display = 'none';
     } else {
-      state = structuredClone(defaultState);
-      save();
+      save(); // Envia os dados iniciais para a nuvem
     }
+    render();
+  }, (error) => {
+    // Se a nuvem der erro (Regras bloqueadas), ele ignora e usa o LocalStorage
+    firebaseConectado = false;
+    $('status-offline').style.display = 'block';
     render();
   });
 }
@@ -325,7 +340,7 @@ auth.onAuthStateChanged(user => {
     loadStateFromFirebase();
   } else {
     currentUser = null;
-    state = null;
+    state = JSON.parse(localStorage.getItem('financas_local')) || JSON.parse(JSON.stringify(defaultState));
     $('login-screen').style.display = 'flex';
     $('app-screen').style.display = 'none';
   }
@@ -335,11 +350,11 @@ $('btn-theme').addEventListener('click', () => {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
   $('btn-theme').innerHTML = isDark ? '<i class="ph ph-moon"></i>' : '<i class="ph ph-sun"></i>';
-  if(state) render();
+  render();
 });
 
 function getMes(y){
-  if(!state) return null;
+  if(!state.meses) state.meses = {};
   if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], fixasPago:{}, adiadas:{}, puladas:{} };
   const m = state.meses[y];
   m.salarios = m.salarios || {eu:0,esp:0}; m.extras = m.extras || []; m.ifood = m.ifood || []; m.outros = m.outros || [];
@@ -347,90 +362,79 @@ function getMes(y){
   return m;
 }
 
-// Botões agora verificam se o 'state' carregou antes de fazer algo
 function salvarSalarios() {
-  if(!state) return alert('Aguarde o sistema carregar...');
   const m = getMes($('mes').value);
   m.salarios.eu = parseFloat($('salEu').value.replace(',', '.')) || 0;
   m.salarios.esp = parseFloat($('salEsp').value.replace(',', '.')) || 0;
-  save(); render(); alert('Salários salvos!');
+  save();
 }
 
 function addFixa(){
-  if(!state) return alert('Aguarde o sistema carregar...');
-  const nome=$('fxNome').value.trim(), valor=parseFloat($('fxValor').value.replace(',', '.'))||0;
-  if(!nome) return alert('Informe o nome');
-  state.fixas.push({id:'f'+Date.now(), nome, valor, dia:parseInt($('fxDia').value)||1});
-  $('fxNome').value='';$('fxValor').value='';$('fxDia').value='';
-  save(); render();
+  const nome=$('fxNome').value.trim();
+  if(!nome) return alert('Informe o nome da conta');
+  state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
+  $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value='';
+  save();
 }
 
 function togglePago(id){
-  if(!state) return;
   const m = getMes($('mes').value);
   const f = state.fixas.find(x=>x.id===id);
-  if(m.fixasPago[id] != null){ delete m.fixasPago[id]; save(); render(); return; }
-  if(m.adiadas[id] || m.puladas[id]){ delete m.adiadas[id]; delete m.puladas[id]; save(); render(); return; }
+  if(m.fixasPago[id] != null){ delete m.fixasPago[id]; save(); return; }
+  if(m.adiadas[id] || m.puladas[id]){ delete m.adiadas[id]; delete m.puladas[id]; save(); return; }
   const v = prompt(`Valor pago de "${f.nome}":`, f.valor||'');
   if(v===null) return;
   m.fixasPago[id] = parseFloat(v.replace(',', '.'))||0;
-  save(); render();
+  save();
 }
 
 function rolarFixa(id){
-  if(!state) return;
   const m = getMes($('mes').value);
   const alvo = prompt(`Rolar para qual mês? (AAAA-MM)`, '2026-11');
   if(!alvo || alvo === $('mes').value) return;
-  m.adiadas[id] = alvo; delete m.puladas[id]; save(); render();
+  m.adiadas[id] = alvo; delete m.puladas[id]; save();
 }
 
 function pularFixa(id){
-  if(!state) return;
   const m = getMes($('mes').value);
-  m.puladas[id] = true; delete m.adiadas[id]; save(); render();
+  m.puladas[id] = true; delete m.adiadas[id]; save();
 }
 
 function addExtra(){
-  if(!state) return;
   const m = getMes($('mes').value);
   const valor = parseFloat($('exValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
   m.extras.push({id:Date.now(), desc:$('exDesc').value||'Extra', pessoa:$('exPessoa').value, valor, recurring:$('exRecurring').checked});
-  $('exDesc').value='';$('exValor').value='';
-  save(); render();
+  $('exDesc').value=''; $('exValor').value='';
+  save();
 }
-function delExtra(id){ if(state){ getMes($('mes').value).extras = getMes($('mes').value).extras.filter(e=>e.id!==id); save(); render(); } }
+function delExtra(id){ const m = getMes($('mes').value); m.extras = m.extras.filter(e=>e.id!==id); save(); }
 
 function addIfood(){
-  if(!state) return;
   const valor = parseFloat($('ifValor').value.replace(',', '.'));
-  if(!valor) return alert('Informe o valor');
+  if(!valor) return alert('Informe o valor do pedido');
   getMes($('mes').value).ifood.push({id:Date.now(), data:$('ifData').value, tipo:$('ifTipo').value, desc:$('ifDesc').value, valor});
-  $('ifDesc').value='';$('ifValor').value='';
-  save(); render();
+  $('ifDesc').value=''; $('ifValor').value='';
+  save();
 }
-function delIfood(id){ if(state){ getMes($('mes').value).ifood = getMes($('mes').value).ifood.filter(e=>e.id!==id); save(); render(); } }
+function delIfood(id){ const m = getMes($('mes').value); m.ifood = m.ifood.filter(e=>e.id!==id); save(); }
 function repeatIfood(id){
-  if(!state) return;
   const e = getMes($('mes').value).ifood.find(x=>x.id===id);
   if(e){ $('ifData').value=ymd(new Date()); $('ifTipo').value=e.tipo; $('ifDesc').value=e.desc; $('ifValor').value=e.valor; $('ifValor').focus(); }
 }
 
 function addOutro(){
-  if(!state) return;
   const valor = parseFloat($('oValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
   getMes($('mes').value).outros.push({id:Date.now(), data:$('oData').value, desc:$('oDesc').value||$('oCat').value, cat:$('oCat').value, valor});
-  $('oDesc').value='';$('oValor').value='';
-  save(); render();
+  $('oDesc').value=''; $('oValor').value='';
+  save();
 }
-function delOutro(id){ if(state){ getMes($('mes').value).outros = getMes($('mes').value).outros.filter(e=>e.id!==id); save(); render(); } }
+function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
 
 function setLimiteIfood(){
-  if(!state) return;
   const v = parseFloat($('cfgIfood').value.replace(',', '.'));
-  if(v>0){ state.cfg.limiteIfood = v; save(); render(); alert('Limite salvo!'); }
+  if(v>0){ state.cfg.limiteIfood = v; save(); }
 }
 
 function render(){
@@ -438,7 +442,6 @@ function render(){
   const mes = $('mes').value;
   const m = getMes(mes);
   
-  // Total de despesas e saldo
   const fixPago = Object.values(m.fixasPago).reduce((s,v)=>s+v,0);
   const ifd = m.ifood.reduce((s,e)=>s+e.valor,0);
   const out = m.outros.reduce((s,e)=>s+e.valor,0);
@@ -451,11 +454,10 @@ function render(){
   $('sSal').textContent = fmt(rec - fixPago - ifd - out);
   $('sSal').className = 'val ' + ((rec - fixPago - ifd - out) >= 0 ? 'pos' : 'neg');
 
-  // Salários nos inputs
   $('salEu').value = m.salarios.eu || '';
   $('salEsp').value = m.salarios.esp || '';
 
-  // Tabela de fixas
+  // Tabela de Fixas
   $('fixasBody').innerHTML = state.fixas.map(f => {
     const pago = m.fixasPago[f.id] != null;
     const adiada = m.adiadas[f.id];
@@ -478,7 +480,7 @@ function render(){
     </tr>`;
   }).join('');
 
-  // Tabela de extras
+  // Tabela de Extras
   $('extrasBody').innerHTML = m.extras.map(e => `
     <tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td>
     <td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>
@@ -490,7 +492,7 @@ function render(){
     <td><button class="ok sm" onclick="repeatIfood(${e.id})">🔁</button> <button class="danger" onclick="delIfood(${e.id})">x</button></td></tr>
   `).join('');
 
-  // Tabela de outros
+  // Tabela de Outros
   $('outrosBody').innerHTML = m.outros.map(e => `
     <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td class="neg">${fmt(e.valor)}</td>
     <td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>
@@ -503,7 +505,6 @@ function render(){
   $('ifBar').style.width = pct + '%';
   $('ifBar').style.background = pct > 90 ? 'var(--danger)' : pct > 70 ? 'var(--warning)' : 'var(--success)';
 
-  // Config
   $('cfgIfood').value = state.cfg.limiteIfood;
 }
 
@@ -515,11 +516,13 @@ document.querySelectorAll('.tab').forEach(b=>{
   });
 });
 
+// Inicialização Segura
 $('mes').value = ym(new Date());
 $('ifData').value = ymd(new Date());
 $('oData').value = ymd(new Date());
 $('oCat').innerHTML = CATS.map(c=>`<option>${c}</option>`).join('');
 $('mes').addEventListener('change', render);
+render(); // Desenha na tela IMEDIATAMENTE ao carregar, sem esperar nuvem.
 </script>
 </body>
 </html>
