@@ -82,34 +82,37 @@ tr:last-child td{border-bottom:0}
 .badge.adiada{background:var(--primary-light);color:var(--primary)}
 .badge.pulada{background:var(--bg);color:var(--text-muted)}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
+.bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
+.bar>div{height:100%;transition:width .4s ease}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-.insight{padding:16px;border-radius:var(--radius-sm);display:flex;gap:12px}
+.insight{padding:16px;border-radius:var(--radius-sm);display:flex;gap:12px;align-items:flex-start}
+.insight i{font-size:24px}
 .insight.ok{background:var(--success-light);color:var(--success)}
 .insight.warn{background:var(--warning-light);color:var(--warning)}
 .insight.danger{background:var(--danger-light);color:var(--danger)}
 .insight.info{background:var(--primary-light);color:var(--primary)}
 .insight .txt{color:var(--text-main);font-size:12px;line-height:1.4}
-.empty{padding:32px;text-align:center;color:var(--text-muted);font-size:13px}
-.hint{background:var(--primary-light);border-radius:var(--radius-sm);padding:14px;font-size:13px;margin-bottom:16px;display:flex;gap:12px}
+.insight .ttl{font-weight:700;font-size:14px;margin-bottom:4px;}
+.hint{background:var(--primary-light);border-radius:var(--radius-sm);padding:14px;font-size:13px;margin-bottom:16px;display:flex;gap:12px;align-items:center}
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
 .login-card{background:var(--surface);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-md);max-width:400px;width:100%;border:1px solid var(--border)}
 #app-screen{display:none}
 #status-offline { display:none; background:var(--danger); color:white; text-align:center; padding:8px; font-size:12px; font-weight:bold; position:fixed; bottom:0; width:100%; z-index:999;}
 
-/* Estilo do Modal de Pagamento */
-#modal-pgto {
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000;
-  align-items: center; justify-content: center; padding: 16px;
-}
-.modal-box {
-  background: var(--surface); border-radius: var(--radius); padding: 24px;
-  width: 100%; max-width: 450px; box-shadow: var(--shadow-md); border: 1px solid var(--border);
-}
+/* Estilos Específicos de Dívidas e Metas */
+.progress-box { margin-bottom: 16px; background: var(--bg); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.progress-title { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.simulator-box { background: var(--warning-light); padding: 16px; border-radius: var(--radius-sm); margin-top: 16px; border: 1px solid var(--warning); }
+.simulator-box h4 { margin: 0 0 8px; color: var(--text-main); font-size: 14px; }
+.simulator-res { font-weight: 800; color: var(--warning); font-size: 16px; margin-top: 8px; }
+
+/* Modal de Pagamento */
+#modal-pgto { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
+.modal-box { background: var(--surface); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 450px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
 .modal-box h3 { margin: 0 0 16px; font-size: 18px; color: var(--primary); }
 .modal-box .info { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
 .modal-box .info div { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.modal-box .info div:last-child { margin-bottom: 0; }
 .modal-box label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
 .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
 .modal-actions button { flex: 1; padding: 12px; font-size: 14px; }
@@ -130,7 +133,7 @@ tr:last-child td{border-bottom:0}
   </div>
 </div>
 
-<!-- MODAL DE PAGAMENTO -->
+<!-- MODAL DE PAGAMENTO DE CONTA FIXA -->
 <div id="modal-pgto">
   <div class="modal-box">
     <h3>Pagar Conta</h3>
@@ -150,8 +153,8 @@ tr:last-child td{border-bottom:0}
       </div>
     </div>
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">
-      💡 <strong>Juros/Multa:</strong> Se o valor pago for maior que o previsto, o sistema calculará os juros automaticamente.<br>
-      ✂️ <strong>Pagamento Parcial:</strong> Se pagar menos, o sistema avisará quanto sobrou e marcará como Parcial.
+      💡 <strong>Juros/Multa:</strong> Se pagar mais que o previsto, o sistema calcula.<br>
+      ✂️ <strong>Parcial:</strong> Se pagar menos, avisará quanto sobrou.
     </div>
     <div class="modal-actions">
       <button class="ghost" onclick="fecharModal()">Cancelar</button>
@@ -184,23 +187,43 @@ tr:last-child td{border-bottom:0}
 
     <div class="tabs-wrap">
       <div class="tabs">
-        <button class="tab active" data-tab="dash"><i class="ph ph-chart-pie-slice"></i> Dashboard</button>
-        <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Contas Fixas</button>
+        <button class="tab active" data-tab="dash"><i class="ph ph-chart-pie-slice"></i> Dash</button>
+        <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Fixas</button>
         <button class="tab" data-tab="receitas"><i class="ph ph-money"></i> Receitas</button>
         <button class="tab" data-tab="ifood"><i class="ph ph-fork-knife"></i> iFood</button>
         <button class="tab" data-tab="outros"><i class="ph ph-shopping-cart"></i> Outros</button>
+        <button class="tab" data-tab="dividas"><i class="ph ph-receipt-x"></i> Dívidas</button>
+        <button class="tab" data-tab="metas"><i class="ph ph-target"></i> Metas</button>
         <button class="tab" data-tab="config"><i class="ph ph-gear"></i> Config</button>
       </div>
     </div>
 
+    <!-- DASHBOARD -->
     <section class="panel active" id="panel-dash">
-      <div class="card"><h2><i class="ph-fill ph-lightbulb"></i> Insights automáticos</h2><div id="insights" class="insights"></div></div>
+      <div class="card"><h2><i class="ph-fill ph-lightbulb"></i> Diagnóstico Automático</h2><div id="insights" class="insights"></div></div>
+      
+      <div class="card">
+        <h2><i class="ph-fill ph-users"></i> Divisão do Casal (Gastos variáveis)</h2>
+        <div class="row">
+          <div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600">Você gastou</div>
+            <div style="font-size:24px;font-weight:800;color:var(--primary)" id="gastoEu">R$ 0,00</div>
+            <div class="bar" style="margin-top:4px"><div id="barEu" style="width:0%;background:var(--primary)"></div></div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600">Esposa gastou</div>
+            <div style="font-size:24px;font-weight:800;color:var(--warning)" id="gastoEsposa">R$ 0,00</div>
+            <div class="bar" style="margin-top:4px"><div id="barEsposa" style="width:0%;background:var(--warning)"></div></div>
+          </div>
+        </div>
+      </div>
     </section>
 
+    <!-- CONTAS FIXAS -->
     <section class="panel" id="panel-fixas">
       <div class="card">
-        <h2><i class="ph-fill ph-receipt"></i> Contas fixas do mês</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> para definir o vencimento exato (dd/mm/aaaa) e o valor base desta conta para <strong>este mês</strong>.</div></div>
+        <h2><i class="ph-fill ph-receipt"></i> Contas fixas</h2>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis</strong> para mudar data/valor. Use <strong>Pagar</strong> para colocar o valor real.</div></div>
         <div class="table-responsive">
           <table>
             <thead><tr><th>Conta</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
@@ -219,11 +242,12 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
+    <!-- RECEITAS -->
     <section class="panel" id="panel-receitas">
       <div class="card">
         <h2><i class="ph-fill ph-bank"></i> Salário líquido</h2>
         <div class="row">
-          <div><label>Salário Eu</label><input type="number" id="salEu" step="0.01"></div>
+          <div><label>Salário Você</label><input type="number" id="salEu" step="0.01"></div>
           <div><label>Salário Esposa</label><input type="number" id="salEsp" step="0.01"></div>
         </div>
         <button class="btn-primary" style="margin-top:12px;width:100%" onclick="salvarSalarios()"><i class="ph ph-check"></i> Salvar Salários</button>
@@ -243,6 +267,7 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
+    <!-- IFOOD -->
     <section class="panel" id="panel-ifood">
       <div class="card">
         <h2><i class="ph-fill ph-fork-knife"></i> iFood</h2>
@@ -250,20 +275,20 @@ tr:last-child td{border-bottom:0}
           <span>Usado: <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
           <span>Limite: <strong id="ifLimite">R$ 0,00</strong></span>
         </div>
-        <div style="height:16px;background:var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px">
-          <div id="ifBar" style="height:100%;width:0%;background:var(--success)"></div>
-        </div>
+        <div class="bar" style="height:16px;margin-bottom:16px"><div id="ifBar" style="width:0%;background:var(--success)"></div></div>
         <div class="row" style="margin-bottom:16px">
           <input type="date" id="ifData">
           <select id="ifTipo"><option>Almoço</option><option>Lanche</option><option>Café</option><option>Jantar</option></select>
           <input type="text" id="ifDesc" placeholder="Descrição">
+          <select id="ifPessoa"><option>Eu</option><option>Esposa</option></select>
           <input type="number" id="ifValor" placeholder="Valor (R$)" step="0.01">
-          <button class="btn-primary" onclick="addIfood()">Adicionar</button>
+          <button class="btn-primary" onclick="addIfood()">Add</button>
         </div>
-        <div class="table-responsive"><table><thead><tr><th>Data</th><th>Tipo</th><th>Desc.</th><th>Valor</th><th></th></tr></thead><tbody id="ifBody"></tbody></table></div>
+        <div class="table-responsive"><table><thead><tr><th>Data</th><th>Tipo</th><th>Quem</th><th>Valor</th><th></th></tr></thead><tbody id="ifBody"></tbody></table></div>
       </div>
     </section>
 
+    <!-- OUTROS -->
     <section class="panel" id="panel-outros">
       <div class="card">
         <h2><i class="ph-fill ph-shopping-cart"></i> Outros gastos</h2>
@@ -271,24 +296,75 @@ tr:last-child td{border-bottom:0}
           <input type="date" id="oData">
           <input type="text" id="oDesc" placeholder="Descrição">
           <select id="oCat"></select>
+          <select id="oPessoa"><option>Eu</option><option>Esposa</option></select>
           <input type="number" id="oValor" placeholder="Valor (R$)" step="0.01">
-          <button class="btn-primary" onclick="addOutro()">Adicionar</button>
+          <button class="btn-primary" onclick="addOutro()">Add</button>
         </div>
-        <div class="table-responsive"><table><thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody id="outrosBody"></tbody></table></div>
+        
+        <div id="budgetAlerts"></div>
+
+        <div class="table-responsive"><table><thead><tr><th>Data</th><th>Descrição</th><th>Cat.</th><th>Quem</th><th>Valor</th><th></th></tr></thead><tbody id="outrosBody"></tbody></table></div>
       </div>
     </section>
 
+    <!-- DÍVIDAS -->
+    <section class="panel" id="panel-dividas">
+      <div class="card">
+        <h2><i class="ph-fill ph-receipt-x"></i> Minhas Dívidas</h2>
+        <div class="row" style="margin-bottom:16px">
+          <input type="text" id="dvNome" placeholder="Nome (ex: Empréstimo)">
+          <input type="number" id="dvTotal" placeholder="Valor Total (R$)" step="0.01">
+          <input type="number" id="dvParcela" placeholder="Parcela Mensal (R$)" step="0.01">
+          <input type="number" id="dvQtd" placeholder="Total de Parcelas">
+          <input type="number" id="dvPagas" placeholder="Parcelas Pagas" value="0">
+          <button class="btn-primary" onclick="addDivida()">Add</button>
+        </div>
+        
+        <div id="dividasBody"></div>
+
+        <div class="simulator-box">
+          <h4><i class="ph ph-magic-wand"></i> Simulador de Quitação Acelerada</h4>
+          <p style="font-size:12px;margin:0 0 8px;color:var(--text-muted)">Selecione uma dívida e diga quanto a mais vocês podem pagar por mês.</p>
+          <div class="row">
+            <select id="simDivida" onchange="simularQuitacao()"></select>
+            <input type="number" id="simExtra" placeholder="Extra por mês (R$)" step="0.01" oninput="simularQuitacao()">
+          </div>
+          <div class="simulator-res" id="simResultado"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METAS -->
+    <section class="panel" id="panel-metas">
+      <div class="card">
+        <h2><i class="ph-fill ph-target"></i> Metas e Reserva</h2>
+        <div class="row" style="margin-bottom:16px">
+          <input type="text" id="mtNome" placeholder="Nome (ex: Viagem)">
+          <input type="number" id="mtAlvo" placeholder="Valor Alvo (R$)" step="0.01">
+          <button class="btn-primary" onclick="addMeta()">Criar Meta</button>
+        </div>
+        <div id="metasBody"></div>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
     <section class="panel" id="panel-config">
       <div class="card">
-        <h2><i class="ph-fill ph-target"></i> Limite do iFood</h2>
+        <h2><i class="ph-fill ph-fork-knife"></i> Limite do iFood (R$)</h2>
         <div class="row">
-          <input type="number" id="cfgIfood" step="0.01" placeholder="Limite mensal (R$)">
+          <input type="number" id="cfgIfood" step="0.01" placeholder="Ex: 300">
           <button class="btn-primary" onclick="setLimiteIfood()">Salvar</button>
         </div>
       </div>
       <div class="card">
-        <h2><i class="ph-fill ph-warning"></i> Problemas com o sistema?</h2>
-        <button class="danger" style="padding:12px;font-size:14px" onclick="resetarTudo()">🗑️ Resetar Tudo do Zero</button>
+        <h2><i class="ph-fill ph-chart-bar"></i> Teto de Gastos (Orçamento)</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Defina o limite para cada categoria. O sistema avisará se passar.</p>
+        <div class="row" id="configOrcamentos"></div>
+        <button class="btn-primary" style="margin-top:12px;width:100%" onclick="salvarOrcamentos()">Salvar Tetos</button>
+      </div>
+      <div class="card">
+        <h2><i class="ph-fill ph-warning"></i> Zona de Perigo</h2>
+        <button class="danger" style="padding:12px;width:100%" onclick="resetarTudo()">🗑️ Resetar Tudo do Zero</button>
       </div>
     </section>
   </main>
@@ -309,7 +385,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 const defaultState = {
-  cfg: { limiteIfood: 300 },
+  cfg: { limiteIfood: 300, orcamentos: {} },
   fixas: [
     {id:'f1', nome:'Construtora', valor:0, dia:5}, {id:'f2', nome:'Caixa', valor:0, dia:10},
     {id:'f3', nome:'Condomínio', valor:0, dia:10}, {id:'f4', nome:'Spacelink', valor:0, dia:15},
@@ -318,17 +394,22 @@ const defaultState = {
     {id:'f9', nome:'Fatura Afinz', valor:0, dia:15}, {id:'f10', nome:'Fatura Digio', valor:0, dia:12},
     {id:'f11', nome:'Fatura Mercado Pago', valor:0, dia:8}, {id:'f12', nome:'Água', valor:0, dia:20}
   ],
+  dividas: [],
+  metas: [],
   meses: {}
 };
 
 let state = JSON.parse(localStorage.getItem('financas_local'));
-if (!state || !state.fixas || !Array.isArray(state.fixas) || state.fixas.length === 0) {
+if (!state || !state.fixas) {
     state = JSON.parse(JSON.stringify(defaultState));
     localStorage.setItem('financas_local', JSON.stringify(state));
 }
+if (!state.dividas) state.dividas = [];
+if (!state.metas) state.metas = [];
+if (!state.cfg.orcamentos) state.cfg.orcamentos = {};
 
 let currentUser = null;
-const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Outros'];
+const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Vestuário','Casa','Outros'];
 const $ = id => document.getElementById(id);
 const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const ymd = d => d.toISOString().slice(0,10);
@@ -348,8 +429,11 @@ function loadStateFromFirebase() {
   if (!currentUser) return;
   db.ref('users/' + currentUser.uid + '/state').on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data && data.fixas && data.fixas.length > 0) {
+    if (data && data.fixas) {
       state = data;
+      if(!state.dividas) state.dividas = [];
+      if(!state.metas) state.metas = [];
+      if(!state.cfg.orcamentos) state.cfg.orcamentos = {};
       localStorage.setItem('financas_local', JSON.stringify(state));
       $('status-offline').style.display = 'none';
     } else {
@@ -362,6 +446,7 @@ function loadStateFromFirebase() {
   });
 }
 
+// Autenticação
 $('btn-login').addEventListener('click', () => {
   auth.signInWithEmailAndPassword($('login-email').value, $('login-password').value)
     .catch(e => $('login-error').textContent = "Erro: " + e.message);
@@ -394,17 +479,11 @@ $('btn-theme').addEventListener('click', () => {
 });
 
 function resetarTudo() {
-  if(confirm("Isso vai apagar todos os dados e restaurar as 12 contas iniciais. Tem certeza?")) {
+  if(confirm("CUIDADO: Isso apagará TUDO (dívidas, metas, histórico). Tem certeza?")) {
     localStorage.removeItem('financas_local');
     state = JSON.parse(JSON.stringify(defaultState));
-    if (currentUser) {
-      db.ref('users/' + currentUser.uid + '/state').set(state).then(() => {
-        alert("Sistema resetado com sucesso!");
-        window.location.reload();
-      });
-    } else {
-      window.location.reload();
-    }
+    if (currentUser) db.ref('users/' + currentUser.uid + '/state').set(state).then(() => window.location.reload());
+    else window.location.reload();
   }
 }
 
@@ -414,10 +493,109 @@ function getMes(y){
   const m = state.meses[y];
   m.salarios = m.salarios || {eu:0,esp:0}; m.extras = m.extras || []; m.ifood = m.ifood || []; m.outros = m.outros || [];
   m.fixasPago = m.fixasPago || {}; m.adiadas = m.adiadas || {}; m.puladas = m.puladas || {};
-  m.vencimentos = m.vencimentos || {}; // Armazena datas exatas por mês
+  m.vencimentos = m.vencimentos || {};
   return m;
 }
 
+// --- MÓDULO DÍVIDAS ---
+function addDivida(){
+  const nome = $('dvNome').value.trim();
+  const total = parseFloat($('dvTotal').value.replace(',','.'))||0;
+  const parcela = parseFloat($('dvParcela').value.replace(',','.'))||0;
+  const qtd = parseInt($('dvQtd').value)||0;
+  const pagas = parseInt($('dvPagas').value)||0;
+  
+  if(!nome || total<=0 || qtd<=0) return alert('Preencha os dados da dívida corretamente.');
+  
+  state.dividas.push({id:Date.now(), nome, total, parcela, qtd, pagas});
+  $('dvNome').value='';$('dvTotal').value='';$('dvParcela').value='';$('dvQtd').value='';$('dvPagas').value='0';
+  save();
+}
+
+function pagarParcela(id) {
+  const d = state.dividas.find(x=>x.id===id);
+  if(d && d.pagas < d.qtd) {
+    d.pagas++;
+    save();
+  }
+}
+
+function delDivida(id) {
+  if(confirm('Apagar esta dívida?')) {
+    state.dividas = state.dividas.filter(x=>x.id!==id);
+    save();
+  }
+}
+
+function simularQuitacao() {
+  const id = parseInt($('simDivida').value);
+  const extra = parseFloat($('simExtra').value.replace(',','.'))||0;
+  const d = state.dividas.find(x=>x.id===id);
+  const res = $('simResultado');
+  
+  if(!d) { res.innerHTML = 'Selecione uma dívida.'; return; }
+  
+  const restam = d.qtd - d.pagas;
+  if(restam <= 0) { res.innerHTML = '🎉 Esta dívida já está quitada!'; return; }
+  
+  // Cálculo simples (sem juros compostos complexos, apenas divisão do saldo devedor)
+  const saldoDevedor = restam * d.parcela;
+  const novoPagamento = d.parcela + extra;
+  const novosMeses = Math.ceil(saldoDevedor / novoPagamento);
+  const economiaMeses = restam - novosMeses;
+  
+  res.innerHTML = `Saldo devedor: ${fmt(saldoDevedor)}<br>
+                   Pagando ${fmt(novoPagamento)}/mês, vocês quitam em <strong>${novosMeses} meses</strong>.<br>
+                   ${economiaMeses > 0 ? `Economia de ${economiaMeses} meses!` : 'Adicione um valor extra para ver a economia.'}`;
+}
+
+// --- MÓDULO METAS ---
+function addMeta(){
+  const nome = $('mtNome').value.trim();
+  const alvo = parseFloat($('mtAlvo').value.replace(',','.'))||0;
+  if(!nome || alvo<=0) return alert('Preencha os dados da meta.');
+  state.metas.push({id:Date.now(), nome, alvo, atual:0});
+  $('mtNome').value='';$('mtAlvo').value='';
+  save();
+}
+
+function aportarMeta(id) {
+  const m = state.metas.find(x=>x.id===id);
+  if(!m) return;
+  const v = prompt(`Quanto você quer guardar na meta "${m.nome}"?`, '50');
+  if(!v) return;
+  const valor = parseFloat(v.replace(',','.'))||0;
+  if(valor > 0) {
+    m.atual += valor;
+    // Opcional: registrar no mês atual como "Outros" para não sumir do saldo
+    getMes($('mes').value).outros.push({id:Date.now(), data:ymd(new Date()), desc:'Aporte Meta: '+m.nome, cat:'Outros', pessoa:'Casal', valor});
+    save();
+  }
+}
+
+function delMeta(id) {
+  if(confirm('Apagar esta meta?')) {
+    state.metas = state.metas.filter(x=>x.id!==id);
+    save();
+  }
+}
+
+// --- MÓDULO CONFIG / ORÇAMENTO ---
+function setLimiteIfood(){
+  const v = parseFloat($('cfgIfood').value.replace(',', '.'));
+  if(v>0){ state.cfg.limiteIfood = v; save(); }
+}
+
+function salvarOrcamentos() {
+  CATS.forEach(c => {
+    const val = parseFloat($('orc_'+c).value.replace(',','.'))||0;
+    state.cfg.orcamentos[c] = val;
+  });
+  save();
+  alert('Tetos de gastos salvos!');
+}
+
+// --- CONTAS FIXAS E PAGAMENTOS ---
 function editFixaValor(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
@@ -427,13 +605,11 @@ function editFixaValor(id) {
   save();
 }
 
-// NOVA FUNÇÃO: Editar a data completa de vencimento por mês
 function editVencimentoMes(id) {
   const mes = $('mes').value;
   const m = getMes(mes);
   const f = state.fixas.find(x => x.id === id);
   
-  // Se já tem data salva para o mês, usa ela. Se não, gera baseada no "dia" padrão.
   let dataAtual = m.vencimentos[id];
   if (!dataAtual) {
      const diaStr = String(f.dia).padStart(2, '0');
@@ -448,7 +624,7 @@ function editVencimentoMes(id) {
   
   const partes = v.split('/');
   if(partes.length === 3) {
-      const novaDataFormatada = `${partes[2]}-${partes[1]}-${partes[0]}`; // YYYY-MM-DD
+      const novaDataFormatada = `${partes[2]}-${partes[1]}-${partes[0]}`;
       if(!isNaN(new Date(novaDataFormatada).getTime())) {
           m.vencimentos[id] = novaDataFormatada;
           save();
@@ -458,65 +634,35 @@ function editVencimentoMes(id) {
   alert('Data inválida. Use o formato DD/MM/AAAA.');
 }
 
-// --- LÓGICA DO MODAL DE PAGAMENTO ---
 function abrirModalPgto(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
-  
   $('modal-id').value = id;
   $('modal-nome').textContent = f.nome;
   $('modal-previsto').textContent = fmt(f.valor);
   $('modal-valor').value = f.valor; 
   $('modal-data').value = ymd(new Date());
-  
   $('modal-pgto').style.display = 'flex';
   $('modal-valor').focus();
 }
 
-function fecharModal() {
-  $('modal-pgto').style.display = 'none';
-}
+function fecharModal() { $('modal-pgto').style.display = 'none'; }
 
 function confirmarPagamento() {
   const id = $('modal-id').value;
   const valorReal = parseFloat($('modal-valor').value.replace(',', '.')) || 0;
   const dataPgto = $('modal-data').value;
+  if (valorReal <= 0 || !dataPgto) return alert('Preencha valor e data.');
   
-  if (valorReal <= 0) return alert('Digite um valor válido.');
-  if (!dataPgto) return alert('Selecione a data de pagamento.');
-
   const f = state.fixas.find(x => x.id === id);
   const m = getMes($('mes').value);
+  const diferenca = valorReal - f.valor;
   
-  const previsto = f.valor;
-  const diferenca = valorReal - previsto;
-  
-  m.fixasPago[id] = {
-    valor: valorReal,
-    data: dataPgto,
-    previsto: previsto,
-    juros: diferenca > 0 ? diferenca : 0,
-    parcial: diferenca < 0 ? true : false,
-    restante: diferenca < 0 ? Math.abs(diferenca) : 0
-  };
-  
-  fecharModal();
-  save();
+  m.fixasPago[id] = { valor: valorReal, data: dataPgto, previsto: f.valor, juros: diferenca > 0 ? diferenca : 0, parcial: diferenca < 0, restante: diferenca < 0 ? Math.abs(diferenca) : 0 };
+  fecharModal(); save();
 }
 
-function desfazerPgto(id) {
-  const m = getMes($('mes').value);
-  delete m.fixasPago[id];
-  save();
-}
-// ------------------------------------
-
-function salvarSalarios() {
-  const m = getMes($('mes').value);
-  m.salarios.eu = parseFloat($('salEu').value.replace(',', '.')) || 0;
-  m.salarios.esp = parseFloat($('salEsp').value.replace(',', '.')) || 0;
-  save();
-}
+function desfazerPgto(id) { delete getMes($('mes').value).fixasPago[id]; save(); }
 
 function addFixa(){
   const nome=$('fxNome').value.trim();
@@ -538,6 +684,13 @@ function pularFixa(id){
   m.puladas[id] = true; delete m.adiadas[id]; save();
 }
 
+function salvarSalarios() {
+  const m = getMes($('mes').value);
+  m.salarios.eu = parseFloat($('salEu').value.replace(',', '.')) || 0;
+  m.salarios.esp = parseFloat($('salEsp').value.replace(',', '.')) || 0;
+  save();
+}
+
 function addExtra(){
   const m = getMes($('mes').value);
   const valor = parseFloat($('exValor').value.replace(',', '.'));
@@ -550,31 +703,28 @@ function delExtra(id){ const m = getMes($('mes').value); m.extras = m.extras.fil
 
 function addIfood(){
   const valor = parseFloat($('ifValor').value.replace(',', '.'));
-  if(!valor) return alert('Informe o valor do pedido');
-  getMes($('mes').value).ifood.push({id:Date.now(), data:$('ifData').value, tipo:$('ifTipo').value, desc:$('ifDesc').value, valor});
+  if(!valor) return alert('Informe o valor');
+  getMes($('mes').value).ifood.push({id:Date.now(), data:$('ifData').value, tipo:$('ifTipo').value, desc:$('ifDesc').value, pessoa:$('ifPessoa').value, valor});
   $('ifDesc').value=''; $('ifValor').value='';
   save();
 }
 function delIfood(id){ const m = getMes($('mes').value); m.ifood = m.ifood.filter(e=>e.id!==id); save(); }
 function repeatIfood(id){
   const e = getMes($('mes').value).ifood.find(x=>x.id===id);
-  if(e){ $('ifData').value=ymd(new Date()); $('ifTipo').value=e.tipo; $('ifDesc').value=e.desc; $('ifValor').value=e.valor; $('ifValor').focus(); }
+  if(e){ $('ifData').value=ymd(new Date()); $('ifTipo').value=e.tipo; $('ifDesc').value=e.desc; $('ifPessoa').value=e.pessoa; $('ifValor').value=e.valor; $('ifValor').focus(); }
 }
 
 function addOutro(){
   const valor = parseFloat($('oValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
-  getMes($('mes').value).outros.push({id:Date.now(), data:$('oData').value, desc:$('oDesc').value||$('oCat').value, cat:$('oCat').value, valor});
+  getMes($('mes').value).outros.push({id:Date.now(), data:$('oData').value, desc:$('oDesc').value||$('oCat').value, cat:$('oCat').value, pessoa:$('oPessoa').value, valor});
   $('oDesc').value=''; $('oValor').value='';
   save();
 }
 function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
 
-function setLimiteIfood(){
-  const v = parseFloat($('cfgIfood').value.replace(',', '.'));
-  if(v>0){ state.cfg.limiteIfood = v; save(); }
-}
 
+// --- RENDERIZAÇÃO GERAL ---
 function render(){
   if(!state) return;
   const mes = $('mes').value;
@@ -589,86 +739,133 @@ function render(){
   $('sFix').textContent = fmt(fixPago);
   $('sIf').textContent = fmt(ifd);
   $('sOut').textContent = fmt(out);
-  $('sSal').textContent = fmt(rec - fixPago - ifd - out);
-  $('sSal').className = 'val ' + ((rec - fixPago - ifd - out) >= 0 ? 'pos' : 'neg');
+  const saldo = rec - fixPago - ifd - out;
+  $('sSal').textContent = fmt(saldo);
+  $('sSal').className = 'val ' + (saldo >= 0 ? 'pos' : 'neg');
 
+  // Divisão do casal
+  const gastoEu = m.ifood.filter(e=>e.pessoa==='Eu').reduce((s,e)=>s+e.valor,0) + m.outros.filter(e=>e.pessoa==='Eu').reduce((s,e)=>s+e.valor,0);
+  const gastoEsp = m.ifood.filter(e=>e.pessoa==='Esposa').reduce((s,e)=>s+e.valor,0) + m.outros.filter(e=>e.pessoa==='Esposa').reduce((s,e)=>s+e.valor,0);
+  const totalDiv = gastoEu + gastoEsp || 1;
+  $('gastoEu').textContent = fmt(gastoEu);
+  $('gastoEsposa').textContent = fmt(gastoEsp);
+  $('barEu').style.width = (gastoEu/totalDiv*100)+'%';
+  $('barEsposa').style.width = (gastoEsp/totalDiv*100)+'%';
+
+  // Insights
+  const ins = [];
+  if(saldo < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês. Revejam os gastos variáveis!'});
+  if(rec > 0) {
+    const taxaPoup = (saldo/rec)*100;
+    if(taxaPoup > 20) ins.push({tipo:'ok', ttl:'Ótima Poupança', txt:`Vocês conseguiram guardar ${taxaPoup.toFixed(1)}% da renda este mês!`});
+    else if(taxaPoup > 0) ins.push({tipo:'info', ttl:'Dá para melhorar', txt:`A taxa de poupança foi de ${taxaPoup.toFixed(1)}%. O ideal é acima de 20%.`});
+  }
+  if(ifd > state.cfg.limiteIfood) ins.push({tipo:'warn', ttl:'iFood Estourado', txt:`Vocês passaram do limite do iFood em ${fmt(ifd-state.cfg.limiteIfood)}.`});
+  
+  $('insights').innerHTML = ins.length ? ins.map(i=>`<div class="insight ${i.tipo}"><i class="ph-fill ${i.tipo==='danger'?'ph-warning-circle':i.tipo==='ok'?'ph-check-circle':'ph-info'}"></i><div class="txt"><div class="ttl">${i.ttl}</div>${i.txt}</div></div>`).join('') : '<p class="empty">Tudo tranquilo por aqui.</p>';
+
+  // Inputs básicos
   $('salEu').value = m.salarios.eu || '';
   $('salEsp').value = m.salarios.esp || '';
+  $('cfgIfood').value = state.cfg.limiteIfood || '';
 
+  // Tabela Fixas
   $('fixasBody').innerHTML = state.fixas.map(f => {
     const pgto = m.fixasPago[f.id];
-    const adiada = m.adiadas[f.id];
-    const pulada = m.puladas[f.id];
-    
-    // Monta a data de vencimento exata
     let vencStr = m.vencimentos[f.id];
     if(!vencStr) {
        const diaStr = String(f.dia).padStart(2, '0');
-       vencStr = `${mes}-${diaStr}`; // YYYY-MM-DD
+       vencStr = `${mes}-${diaStr}`;
     }
-    const vencFormatado = vencStr.split('-').reverse().join('/'); // DD/MM/YYYY
+    const vencFormatado = vencStr.split('-').reverse().join('/');
 
     let badge = '<span class="badge pendente">Pendente</span>';
     let txtPago = '-';
-
     if(pgto) {
-      txtPago = `<div>${fmt(pgto.valor)}</div><div style="font-size:10px;color:var(--text-muted)">${pgto.data.split('-').reverse().join('/')}</div>`;
-      
-      if (pgto.parcial) {
-        badge = `<span class="badge parcial">Parcial (Falta ${fmt(pgto.restante)})</span>`;
-      } else if (pgto.juros > 0) {
-        badge = `<span class="badge pago">✓ Pago (Juros ${fmt(pgto.juros)})</span>`;
-      } else {
-        badge = `<span class="badge pago">✓ Pago Integral</span>`;
-      }
-    } else if(adiada) {
-      badge = `<span class="badge adiada">Rolada p/ ${adiada}</span>`;
-    } else if(pulada) {
-      badge = '<span class="badge pulada">Pulada</span>';
-    }
+      txtPago = `<div>${fmt(pgto.valor)}</div>`;
+      if (pgto.parcial) badge = `<span class="badge parcial">Parcial</span>`;
+      else if (pgto.juros > 0) badge = `<span class="badge pago">Pago c/ Juros</span>`;
+      else badge = `<span class="badge pago">Pago</span>`;
+    } else if(m.adiadas[f.id]) badge = `<span class="badge adiada">Rolada</span>`;
+    else if(m.puladas[f.id]) badge = '<span class="badge pulada">Pulada</span>';
 
     return `<tr>
       <td><strong>${f.nome}</strong></td>
-      <td>
-        ${vencFormatado}
-        <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')" title="Editar vencimento deste mês">✎</button>
-      </td>
-      <td>
-        ${fmt(f.valor)} 
-        <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')" title="Editar valor">✎</button>
-      </td>
+      <td>${vencFormatado} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')">✎</button></td>
+      <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
       <td>${txtPago}</td>
       <td>${badge}</td>
-      <td>
-        ${!pgto && !adiada && !pulada 
-          ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button>
-             <button class="roll sm" onclick="rolarFixa('${f.id}')">Rolar</button>
-             <button class="skip sm" onclick="pularFixa('${f.id}')">Pular</button>` 
-          : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}
-      </td>
+      <td>${!pgto && !m.adiadas[f.id] && !m.puladas[f.id] ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button> <button class="skip sm" onclick="pularFixa('${f.id}')">Pular</button>` : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}</td>
     </tr>`;
   }).join('');
 
-  $('extrasBody').innerHTML = m.extras.map(e => `
-    <tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td>
-    <td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>
-  `).join('');
+  // Extras
+  $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
 
-  $('ifBody').innerHTML = m.ifood.map(e => `
-    <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.desc}</td><td class="neg">${fmt(e.valor)}</td>
-    <td><button class="ok sm" onclick="repeatIfood(${e.id})">🔁</button> <button class="danger" onclick="delIfood(${e.id})">x</button></td></tr>
-  `).join('');
+  // iFood
+  $('ifBody').innerHTML = m.ifood.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delIfood(${e.id})">x</button></td></tr>`).join('');
+  const pctIf = Math.min(100, (ifd/(state.cfg.limiteIfood||1))*100);
+  $('ifBar').style.width = pctIf+'%'; $('ifBar').style.background = pctIf>90?'var(--danger)':pctIf>70?'var(--warning)':'var(--success)';
+  $('ifUsado').textContent = fmt(ifd); $('ifLimite').textContent = fmt(state.cfg.limiteIfood);
 
-  $('outrosBody').innerHTML = m.outros.map(e => `
-    <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td class="neg">${fmt(e.valor)}</td>
-    <td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>
-  `).join('');
+  // Outros & Orçamentos
+  const catGastos = {};
+  m.outros.forEach(e => catGastos[e.cat] = (catGastos[e.cat]||0) + e.valor);
+  $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
+  
+  let alertsHtml = '';
+  CATS.forEach(c => {
+    const teto = state.cfg.orcamentos[c] || 0;
+    const gasto = catGastos[c] || 0;
+    if(teto > 0 && gasto > 0) {
+      const pct = (gasto/teto)*100;
+      let cor = 'var(--success)'; let msg = 'Dentro do limite';
+      if(pct > 100) { cor = 'var(--danger)'; msg = 'Teto ESTOURADO!'; }
+      else if(pct > 80) { cor = 'var(--warning)'; msg = 'Atenção: Quase no limite'; }
+      
+      alertsHtml += `<div style="margin-bottom:8px;font-size:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px"><span>${c}</span><span>${fmt(gasto)} / ${fmt(teto)} (${msg})</span></div>
+        <div class="bar" style="height:6px;margin-top:0"><div style="width:${Math.min(pct,100)}%;background:${cor}"></div></div>
+      </div>`;
+    }
+  });
+  $('budgetAlerts').innerHTML = alertsHtml;
 
-  const lim = state.cfg.limiteIfood || 1;
-  $('ifUsado').textContent = fmt(ifd); $('ifLimite').textContent = fmt(lim);
-  const pct = Math.min(100, (ifd/lim)*100);
-  $('ifBar').style.width = pct + '%';
-  $('ifBar').style.background = pct > 90 ? 'var(--danger)' : pct > 70 ? 'var(--warning)' : 'var(--success)';
+  // Config orçamentos
+  if(!$('configOrcamentos').innerHTML) {
+    $('configOrcamentos').innerHTML = CATS.map(c => `<div><label>${c}</label><input type="number" id="orc_${c}" value="${state.cfg.orcamentos[c]||''}" placeholder="0,00"></div>`).join('');
+  }
+
+  // Dívidas
+  $('dividasBody').innerHTML = state.dividas.map(d => {
+    const pct = (d.pagas/d.qtd)*100;
+    return `<div class="progress-box">
+      <div class="progress-title"><span>${d.nome}</span><span>${fmt(d.total)}</span></div>
+      <div class="progress-info"><span>Parcela: ${fmt(d.parcela)}</span><span>${d.pagas} de ${d.qtd} pagas</span></div>
+      <div class="bar"><div style="width:${pct}%;background:var(--danger)"></div></div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="ok sm" onclick="pagarParcela(${d.id})">+ Pagar Parcela</button>
+        <button class="danger sm" onclick="delDivida(${d.id})">Excluir</button>
+      </div>
+    </div>`;
+  }).join('') || '<p class="empty">Nenhuma dívida cadastrada. Parabéns!</p>';
+  
+  if($('simDivida').options.length !== state.dividas.length) {
+    $('simDivida').innerHTML = '<option value="">Selecione...</option>' + state.dividas.map(d=>`<option value="${d.id}">${d.nome} (Faltam ${d.qtd-d.pagas})</option>`).join('');
+  }
+
+  // Metas
+  $('metasBody').innerHTML = state.metas.map(m => {
+    const pct = Math.min(100, (m.atual/m.alvo)*100);
+    return `<div class="progress-box">
+      <div class="progress-title"><span>${m.nome}</span><span>${fmt(m.atual)} / ${fmt(m.alvo)}</span></div>
+      <div class="bar"><div style="width:${pct}%;background:var(--success)"></div></div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="ok sm" onclick="aportarMeta(${m.id})">+ Guardar Dinheiro</button>
+        <button class="danger sm" onclick="delMeta(${m.id})">Excluir</button>
+      </div>
+    </div>`;
+  }).join('') || '<p class="empty">Nenhuma meta criada. Que tal começar uma reserva?</p>';
 }
 
 document.querySelectorAll('.tab').forEach(b=>{
@@ -676,6 +873,9 @@ document.querySelectorAll('.tab').forEach(b=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
     b.classList.add('active'); $('panel-'+b.dataset.tab).classList.add('active');
+    // Força render para atualizar orçamentos caso mude algo
+    if(b.dataset.tab === 'config') $('configOrcamentos').innerHTML = '';
+    render();
   });
 });
 
