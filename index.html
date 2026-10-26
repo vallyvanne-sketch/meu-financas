@@ -200,10 +200,10 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-fixas">
       <div class="card">
         <h2><i class="ph-fill ph-receipt"></i> Contas fixas do mês</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> para definir o dia real de vencimento e o valor base. Depois, clique em <strong>Pagar</strong>.</div></div>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> para definir o vencimento exato (dd/mm/aaaa) e o valor base desta conta para <strong>este mês</strong>.</div></div>
         <div class="table-responsive">
           <table>
-            <thead><tr><th>Conta</th><th>Venc.</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Conta</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="fixasBody"></tbody>
           </table>
         </div>
@@ -213,7 +213,7 @@ tr:last-child td{border-bottom:0}
         <div class="row">
           <input type="text" id="fxNome" placeholder="Nome">
           <input type="number" id="fxValor" placeholder="Valor (R$)" step="0.01">
-          <input type="number" id="fxDia" placeholder="Dia venc.">
+          <input type="number" id="fxDia" placeholder="Dia venc. (1-31)">
           <button class="btn-primary" onclick="addFixa()">Adicionar</button>
         </div>
       </div>
@@ -410,10 +410,11 @@ function resetarTudo() {
 
 function getMes(y){
   if(!state.meses) state.meses = {};
-  if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], fixasPago:{}, adiadas:{}, puladas:{} };
+  if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], fixasPago:{}, adiadas:{}, puladas:{}, vencimentos:{} };
   const m = state.meses[y];
   m.salarios = m.salarios || {eu:0,esp:0}; m.extras = m.extras || []; m.ifood = m.ifood || []; m.outros = m.outros || [];
   m.fixasPago = m.fixasPago || {}; m.adiadas = m.adiadas || {}; m.puladas = m.puladas || {};
+  m.vencimentos = m.vencimentos || {}; // Armazena datas exatas por mês
   return m;
 }
 
@@ -426,19 +427,35 @@ function editFixaValor(id) {
   save();
 }
 
-// NOVA FUNÇÃO PARA EDITAR O DIA DO VENCIMENTO
-function editFixaDia(id) {
+// NOVA FUNÇÃO: Editar a data completa de vencimento por mês
+function editVencimentoMes(id) {
+  const mes = $('mes').value;
+  const m = getMes(mes);
   const f = state.fixas.find(x => x.id === id);
-  if (!f) return;
-  const v = prompt(`Digite o dia do vencimento (1 a 31) para "${f.nome}":`, f.dia);
-  if (v === null) return;
-  const num = parseInt(v);
-  if (num >= 1 && num <= 31) {
-    f.dia = num;
-    save();
+  
+  // Se já tem data salva para o mês, usa ela. Se não, gera baseada no "dia" padrão.
+  let dataAtual = m.vencimentos[id];
+  if (!dataAtual) {
+     const diaStr = String(f.dia).padStart(2, '0');
+     dataAtual = `${diaStr}/${mes.split('-')[1]}/${mes.split('-')[0]}`;
   } else {
-    alert('Por favor, digite um dia válido entre 1 e 31.');
+     const partes = dataAtual.split('-');
+     dataAtual = `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
+
+  const v = prompt(`Digite a data exata de vencimento para ${f.nome} (DD/MM/AAAA):`, dataAtual);
+  if (!v) return;
+  
+  const partes = v.split('/');
+  if(partes.length === 3) {
+      const novaDataFormatada = `${partes[2]}-${partes[1]}-${partes[0]}`; // YYYY-MM-DD
+      if(!isNaN(new Date(novaDataFormatada).getTime())) {
+          m.vencimentos[id] = novaDataFormatada;
+          save();
+          return;
+      }
+  }
+  alert('Data inválida. Use o formato DD/MM/AAAA.');
 }
 
 // --- LÓGICA DO MODAL DE PAGAMENTO ---
@@ -449,8 +466,8 @@ function abrirModalPgto(id) {
   $('modal-id').value = id;
   $('modal-nome').textContent = f.nome;
   $('modal-previsto').textContent = fmt(f.valor);
-  $('modal-valor').value = f.valor; // Sugere o valor cheio
-  $('modal-data').value = ymd(new Date()); // Data de hoje
+  $('modal-valor').value = f.valor; 
+  $('modal-data').value = ymd(new Date());
   
   $('modal-pgto').style.display = 'flex';
   $('modal-valor').focus();
@@ -583,6 +600,14 @@ function render(){
     const adiada = m.adiadas[f.id];
     const pulada = m.puladas[f.id];
     
+    // Monta a data de vencimento exata
+    let vencStr = m.vencimentos[f.id];
+    if(!vencStr) {
+       const diaStr = String(f.dia).padStart(2, '0');
+       vencStr = `${mes}-${diaStr}`; // YYYY-MM-DD
+    }
+    const vencFormatado = vencStr.split('-').reverse().join('/'); // DD/MM/YYYY
+
     let badge = '<span class="badge pendente">Pendente</span>';
     let txtPago = '-';
 
@@ -605,8 +630,8 @@ function render(){
     return `<tr>
       <td><strong>${f.nome}</strong></td>
       <td>
-        dia ${f.dia}
-        <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaDia('${f.id}')" title="Editar vencimento">✎</button>
+        ${vencFormatado}
+        <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')" title="Editar vencimento deste mês">✎</button>
       </td>
       <td>
         ${fmt(f.valor)} 
