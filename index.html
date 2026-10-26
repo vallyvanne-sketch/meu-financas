@@ -2,8 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Finanças do Casal — Pro</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Finanças do Casal</title>
+
+<!-- Configurações de App (PWA) para iOS e Android -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Finanças">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Finan%C3%A7as%20do%20Casal%22%2C%22short_name%22%3A%22Finan%C3%A7as%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f1f5f9%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2937%2F2937783.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,11 +35,11 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 6px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text-main);font-size:14px;transition:background .3s,color .3s}
+body{margin:0;background:var(--bg);color:var(--text-main);font-size:14px;transition:background .3s,color .3s; padding-bottom: 20px;}
 button{font-family:inherit;cursor:pointer;transition:all .2s;border:none;outline:none}
 input,select{font-family:inherit;outline:none;transition:border .2s, box-shadow .2s}
-header{background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-[data-theme="dark"] header{background:rgba(15,23,42,0.7)}
+header{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+[data-theme="dark"] header{background:rgba(15,23,42,0.85)}
 header .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 16px;max-width:1200px;margin:0 auto}
 .logo-area{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px;color:var(--text-main)}
 .logo-area i{color:var(--primary);font-size:24px}
@@ -55,7 +62,8 @@ h2 i{color:var(--primary);font-size:20px}
 .stat .lbl{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase}
 .stat .val{font-size:24px;font-weight:800}
 .pos{color:var(--success)!important}.neg{color:var(--danger)!important}.muted{color:var(--text-muted)}
-.tabs-wrap{overflow-x:auto;margin-bottom:24px;padding-bottom:4px}
+.tabs-wrap{overflow-x:auto;margin-bottom:24px;padding-bottom:4px; scrollbar-width: none;}
+.tabs-wrap::-webkit-scrollbar { display: none; }
 .tabs{display:inline-flex;background:var(--surface);padding:4px;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow-sm);min-width:100%}
 .tab{padding:10px 18px;border:none;background:transparent;color:var(--text-muted);font-weight:600;font-size:13px;border-radius:10px;white-space:nowrap;display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
 .tab.active{background:var(--primary);color:#fff}
@@ -99,7 +107,12 @@ tr:last-child td{border-bottom:0}
 #app-screen{display:none}
 #status-offline { display:none; background:var(--danger); color:white; text-align:center; padding:8px; font-size:12px; font-weight:bold; position:fixed; bottom:0; width:100%; z-index:999;}
 
-/* Estilos Específicos de Dívidas e Metas */
+/* Painel de Resumo de Pagamentos */
+.pay-summary { display: flex; justify-content: space-between; background: var(--bg); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.pay-summary div { display: flex; flex-direction: column; gap: 4px; }
+.pay-summary .lbl { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
+.pay-summary .val { font-size: 18px; font-weight: 800; }
+
 .progress-box { margin-bottom: 16px; background: var(--bg); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
 .progress-title { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
 .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
@@ -133,7 +146,7 @@ tr:last-child td{border-bottom:0}
   </div>
 </div>
 
-<!-- MODAL DE PAGAMENTO DE CONTA FIXA -->
+<!-- MODAL DE PAGAMENTO -->
 <div id="modal-pgto">
   <div class="modal-box">
     <h3>Pagar Conta</h3>
@@ -153,8 +166,7 @@ tr:last-child td{border-bottom:0}
       </div>
     </div>
     <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">
-      💡 <strong>Juros/Multa:</strong> Se pagar mais que o previsto, o sistema calcula.<br>
-      ✂️ <strong>Parcial:</strong> Se pagar menos, avisará quanto sobrou.
+      💡 Se pagar mais, ele calcula juros. Se pagar menos, marca como parcial.
     </div>
     <div class="modal-actions">
       <button class="ghost" onclick="fecharModal()">Cancelar</button>
@@ -179,10 +191,10 @@ tr:last-child td{border-bottom:0}
   <main class="wrap">
     <div class="stats">
       <div class="stat"><div class="stat-icon rec"><i class="ph-fill ph-arrow-down-left"></i></div><div class="lbl">Receita</div><div class="val pos" id="sRec">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon fix"><i class="ph-fill ph-house"></i></div><div class="lbl">Contas Fixas</div><div class="val" id="sFix">R$ 0,00</div></div>
+      <div class="stat"><div class="stat-icon fix"><i class="ph-fill ph-house"></i></div><div class="lbl">Contas Pagas</div><div class="val" id="sFix">R$ 0,00</div></div>
       <div class="stat"><div class="stat-icon ifd"><i class="ph-fill ph-fork-knife"></i></div><div class="lbl">iFood</div><div class="val neg" id="sIf">R$ 0,00</div></div>
       <div class="stat"><div class="stat-icon out"><i class="ph-fill ph-shopping-cart"></i></div><div class="lbl">Outros</div><div class="val neg" id="sOut">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon sal"><i class="ph-fill ph-scales"></i></div><div class="lbl">Saldo</div><div class="val" id="sSal">R$ 0,00</div></div>
+      <div class="stat"><div class="stat-icon sal"><i class="ph-fill ph-scales"></i></div><div class="lbl">Saldo em Conta</div><div class="val" id="sSal">R$ 0,00</div></div>
     </div>
 
     <div class="tabs-wrap">
@@ -200,8 +212,14 @@ tr:last-child td{border-bottom:0}
 
     <!-- DASHBOARD -->
     <section class="panel active" id="panel-dash">
-      <div class="card"><h2><i class="ph-fill ph-lightbulb"></i> Diagnóstico Automático</h2><div id="insights" class="insights"></div></div>
-      
+      <div class="card">
+        <h2><i class="ph-fill ph-bell-ringing"></i> Central de Avisos</h2>
+        <div id="alertasVencimento" class="insights"></div>
+      </div>
+      <div class="card">
+        <h2><i class="ph-fill ph-lightbulb"></i> Diagnóstico Automático</h2>
+        <div id="insights" class="insights"></div>
+      </div>
       <div class="card">
         <h2><i class="ph-fill ph-users"></i> Divisão do Casal (Gastos variáveis)</h2>
         <div class="row">
@@ -222,8 +240,17 @@ tr:last-child td{border-bottom:0}
     <!-- CONTAS FIXAS -->
     <section class="panel" id="panel-fixas">
       <div class="card">
-        <h2><i class="ph-fill ph-receipt"></i> Contas fixas</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis</strong> para mudar data/valor. Use <strong>Pagar</strong> para colocar o valor real.</div></div>
+        <h2><i class="ph-fill ph-receipt"></i> Contas Fixas</h2>
+        
+        <!-- Resumo de Pagamentos -->
+        <div class="pay-summary">
+          <div><span class="lbl">Total Previsto</span><span class="val" id="sumTotal">R$ 0,00</span></div>
+          <div><span class="lbl">Já Pago</span><span class="val pos" id="sumPago">R$ 0,00</span></div>
+          <div><span class="lbl">Falta Pagar</span><span class="val neg" id="sumFalta">R$ 0,00</span></div>
+          <div><span class="lbl">Status</span><span class="val" id="sumStatus" style="font-size:14px; margin-top:4px;">0/0 Pagas</span></div>
+        </div>
+
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique em <strong>Pagar</strong> e o sistema atualizará o resumo acima na hora.</div></div>
         <div class="table-responsive">
           <table>
             <thead><tr><th>Conta</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
@@ -312,22 +339,19 @@ tr:last-child td{border-bottom:0}
       <div class="card">
         <h2><i class="ph-fill ph-receipt-x"></i> Minhas Dívidas</h2>
         <div class="row" style="margin-bottom:16px">
-          <input type="text" id="dvNome" placeholder="Nome (ex: Empréstimo)">
-          <input type="number" id="dvTotal" placeholder="Valor Total (R$)" step="0.01">
-          <input type="number" id="dvParcela" placeholder="Parcela Mensal (R$)" step="0.01">
-          <input type="number" id="dvQtd" placeholder="Total de Parcelas">
-          <input type="number" id="dvPagas" placeholder="Parcelas Pagas" value="0">
+          <input type="text" id="dvNome" placeholder="Nome">
+          <input type="number" id="dvTotal" placeholder="Total (R$)" step="0.01">
+          <input type="number" id="dvParcela" placeholder="Parcela (R$)" step="0.01">
+          <input type="number" id="dvQtd" placeholder="Parcelas">
+          <input type="number" id="dvPagas" placeholder="Pagas" value="0">
           <button class="btn-primary" onclick="addDivida()">Add</button>
         </div>
-        
         <div id="dividasBody"></div>
-
         <div class="simulator-box">
-          <h4><i class="ph ph-magic-wand"></i> Simulador de Quitação Acelerada</h4>
-          <p style="font-size:12px;margin:0 0 8px;color:var(--text-muted)">Selecione uma dívida e diga quanto a mais vocês podem pagar por mês.</p>
+          <h4><i class="ph ph-magic-wand"></i> Simulador de Quitação</h4>
           <div class="row">
             <select id="simDivida" onchange="simularQuitacao()"></select>
-            <input type="number" id="simExtra" placeholder="Extra por mês (R$)" step="0.01" oninput="simularQuitacao()">
+            <input type="number" id="simExtra" placeholder="Extra/mês (R$)" step="0.01" oninput="simularQuitacao()">
           </div>
           <div class="simulator-res" id="simResultado"></div>
         </div>
@@ -350,6 +374,11 @@ tr:last-child td{border-bottom:0}
     <!-- CONFIG -->
     <section class="panel" id="panel-config">
       <div class="card">
+        <h2><i class="ph-fill ph-bell"></i> Ativar Notificações</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Permita que o sistema envie avisos de vencimento no seu celular.</p>
+        <button class="btn-primary" style="width:100%" onclick="pedirPermissaoNotificacao()"><i class="ph ph-bell-ringing"></i> Permitir Notificações</button>
+      </div>
+      <div class="card">
         <h2><i class="ph-fill ph-fork-knife"></i> Limite do iFood (R$)</h2>
         <div class="row">
           <input type="number" id="cfgIfood" step="0.01" placeholder="Ex: 300">
@@ -357,14 +386,13 @@ tr:last-child td{border-bottom:0}
         </div>
       </div>
       <div class="card">
-        <h2><i class="ph-fill ph-chart-bar"></i> Teto de Gastos (Orçamento)</h2>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Defina o limite para cada categoria. O sistema avisará se passar.</p>
+        <h2><i class="ph-fill ph-chart-bar"></i> Teto de Gastos</h2>
         <div class="row" id="configOrcamentos"></div>
         <button class="btn-primary" style="margin-top:12px;width:100%" onclick="salvarOrcamentos()">Salvar Tetos</button>
       </div>
       <div class="card">
         <h2><i class="ph-fill ph-warning"></i> Zona de Perigo</h2>
-        <button class="danger" style="padding:12px;width:100%" onclick="resetarTudo()">🗑️ Resetar Tudo do Zero</button>
+        <button class="danger" style="padding:12px;width:100%" onclick="resetarTudo()">🗑️ Resetar Tudo</button>
       </div>
     </section>
   </main>
@@ -400,10 +428,7 @@ const defaultState = {
 };
 
 let state = JSON.parse(localStorage.getItem('financas_local'));
-if (!state || !state.fixas) {
-    state = JSON.parse(JSON.stringify(defaultState));
-    localStorage.setItem('financas_local', JSON.stringify(state));
-}
+if (!state || !state.fixas) { state = JSON.parse(JSON.stringify(defaultState)); localStorage.setItem('financas_local', JSON.stringify(state)); }
 if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
 if (!state.cfg.orcamentos) state.cfg.orcamentos = {};
@@ -478,8 +503,53 @@ $('btn-theme').addEventListener('click', () => {
   render();
 });
 
+// Notificações
+function pedirPermissaoNotificacao() {
+  if (!("Notification" in window)) {
+    alert("Este navegador não suporta notificações desktop.");
+    return;
+  }
+  Notification.requestPermission().then(function (permission) {
+    if (permission === "granted") {
+      alert("Notificações ativadas! Você será avisado sobre vencimentos.");
+      checkNotificacoes();
+    } else {
+      alert("Você recusou as notificações.");
+    }
+  });
+}
+
+function checkNotificacoes() {
+  if (Notification.permission !== "granted") return;
+  const mes = $('mes').value;
+  const m = getMes(mes);
+  const hoje = new Date();
+  const diaHoje = hoje.getDate();
+  
+  state.fixas.forEach(f => {
+    if (m.fixasPago[f.id] || m.puladas[f.id] || m.adiadas[f.id]) return;
+    
+    let vencStr = m.vencimentos[f.id];
+    if(!vencStr) {
+       const diaStr = String(f.dia).padStart(2, '0');
+       vencStr = `${mes}-${diaStr}`;
+    }
+    const venc = new Date(vencStr + 'T12:00:00');
+    const diffTime = venc - hoje;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Notifica se faltam 3 dias ou menos, ou se já venceu
+    if (diffDays >= 0 && diffDays <= 3) {
+      new Notification("Vencimento Próximo!", { body: `A conta "${f.nome}" vence em ${diffDays} dias.`, icon: "https://cdn-icons-png.flaticon.com/512/2937/2937783.png" });
+    } else if (diffDays < 0) {
+      new Notification("Conta Atrasada!", { body: `A conta "${f.nome}" venceu há ${Math.abs(diffDays)} dias.`, icon: "https://cdn-icons-png.flaticon.com/512/2937/2937783.png" });
+    }
+  });
+}
+
+// Funções de Estado
 function resetarTudo() {
-  if(confirm("CUIDADO: Isso apagará TUDO (dívidas, metas, histórico). Tem certeza?")) {
+  if(confirm("CUIDADO: Isso apagará TUDO. Tem certeza?")) {
     localStorage.removeItem('financas_local');
     state = JSON.parse(JSON.stringify(defaultState));
     if (currentUser) db.ref('users/' + currentUser.uid + '/state').set(state).then(() => window.location.reload());
@@ -497,105 +567,7 @@ function getMes(y){
   return m;
 }
 
-// --- MÓDULO DÍVIDAS ---
-function addDivida(){
-  const nome = $('dvNome').value.trim();
-  const total = parseFloat($('dvTotal').value.replace(',','.'))||0;
-  const parcela = parseFloat($('dvParcela').value.replace(',','.'))||0;
-  const qtd = parseInt($('dvQtd').value)||0;
-  const pagas = parseInt($('dvPagas').value)||0;
-  
-  if(!nome || total<=0 || qtd<=0) return alert('Preencha os dados da dívida corretamente.');
-  
-  state.dividas.push({id:Date.now(), nome, total, parcela, qtd, pagas});
-  $('dvNome').value='';$('dvTotal').value='';$('dvParcela').value='';$('dvQtd').value='';$('dvPagas').value='0';
-  save();
-}
-
-function pagarParcela(id) {
-  const d = state.dividas.find(x=>x.id===id);
-  if(d && d.pagas < d.qtd) {
-    d.pagas++;
-    save();
-  }
-}
-
-function delDivida(id) {
-  if(confirm('Apagar esta dívida?')) {
-    state.dividas = state.dividas.filter(x=>x.id!==id);
-    save();
-  }
-}
-
-function simularQuitacao() {
-  const id = parseInt($('simDivida').value);
-  const extra = parseFloat($('simExtra').value.replace(',','.'))||0;
-  const d = state.dividas.find(x=>x.id===id);
-  const res = $('simResultado');
-  
-  if(!d) { res.innerHTML = 'Selecione uma dívida.'; return; }
-  
-  const restam = d.qtd - d.pagas;
-  if(restam <= 0) { res.innerHTML = '🎉 Esta dívida já está quitada!'; return; }
-  
-  // Cálculo simples (sem juros compostos complexos, apenas divisão do saldo devedor)
-  const saldoDevedor = restam * d.parcela;
-  const novoPagamento = d.parcela + extra;
-  const novosMeses = Math.ceil(saldoDevedor / novoPagamento);
-  const economiaMeses = restam - novosMeses;
-  
-  res.innerHTML = `Saldo devedor: ${fmt(saldoDevedor)}<br>
-                   Pagando ${fmt(novoPagamento)}/mês, vocês quitam em <strong>${novosMeses} meses</strong>.<br>
-                   ${economiaMeses > 0 ? `Economia de ${economiaMeses} meses!` : 'Adicione um valor extra para ver a economia.'}`;
-}
-
-// --- MÓDULO METAS ---
-function addMeta(){
-  const nome = $('mtNome').value.trim();
-  const alvo = parseFloat($('mtAlvo').value.replace(',','.'))||0;
-  if(!nome || alvo<=0) return alert('Preencha os dados da meta.');
-  state.metas.push({id:Date.now(), nome, alvo, atual:0});
-  $('mtNome').value='';$('mtAlvo').value='';
-  save();
-}
-
-function aportarMeta(id) {
-  const m = state.metas.find(x=>x.id===id);
-  if(!m) return;
-  const v = prompt(`Quanto você quer guardar na meta "${m.nome}"?`, '50');
-  if(!v) return;
-  const valor = parseFloat(v.replace(',','.'))||0;
-  if(valor > 0) {
-    m.atual += valor;
-    // Opcional: registrar no mês atual como "Outros" para não sumir do saldo
-    getMes($('mes').value).outros.push({id:Date.now(), data:ymd(new Date()), desc:'Aporte Meta: '+m.nome, cat:'Outros', pessoa:'Casal', valor});
-    save();
-  }
-}
-
-function delMeta(id) {
-  if(confirm('Apagar esta meta?')) {
-    state.metas = state.metas.filter(x=>x.id!==id);
-    save();
-  }
-}
-
-// --- MÓDULO CONFIG / ORÇAMENTO ---
-function setLimiteIfood(){
-  const v = parseFloat($('cfgIfood').value.replace(',', '.'));
-  if(v>0){ state.cfg.limiteIfood = v; save(); }
-}
-
-function salvarOrcamentos() {
-  CATS.forEach(c => {
-    const val = parseFloat($('orc_'+c).value.replace(',','.'))||0;
-    state.cfg.orcamentos[c] = val;
-  });
-  save();
-  alert('Tetos de gastos salvos!');
-}
-
-// --- CONTAS FIXAS E PAGAMENTOS ---
+// Funções Contas Fixas
 function editFixaValor(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
@@ -609,7 +581,6 @@ function editVencimentoMes(id) {
   const mes = $('mes').value;
   const m = getMes(mes);
   const f = state.fixas.find(x => x.id === id);
-  
   let dataAtual = m.vencimentos[id];
   if (!dataAtual) {
      const diaStr = String(f.dia).padStart(2, '0');
@@ -618,10 +589,8 @@ function editVencimentoMes(id) {
      const partes = dataAtual.split('-');
      dataAtual = `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
-
-  const v = prompt(`Digite a data exata de vencimento para ${f.nome} (DD/MM/AAAA):`, dataAtual);
+  const v = prompt(`Data exata para ${f.nome} (DD/MM/AAAA):`, dataAtual);
   if (!v) return;
-  
   const partes = v.split('/');
   if(partes.length === 3) {
       const novaDataFormatada = `${partes[2]}-${partes[1]}-${partes[0]}`;
@@ -631,7 +600,7 @@ function editVencimentoMes(id) {
           return;
       }
   }
-  alert('Data inválida. Use o formato DD/MM/AAAA.');
+  alert('Data inválida.');
 }
 
 function abrirModalPgto(id) {
@@ -666,24 +635,15 @@ function desfazerPgto(id) { delete getMes($('mes').value).fixasPago[id]; save();
 
 function addFixa(){
   const nome=$('fxNome').value.trim();
-  if(!nome) return alert('Informe o nome da conta');
+  if(!nome) return alert('Informe o nome');
   state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
   $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value='';
   save();
 }
 
-function rolarFixa(id){
-  const m = getMes($('mes').value);
-  const alvo = prompt(`Rolar para qual mês? (AAAA-MM)`, '2026-11');
-  if(!alvo || alvo === $('mes').value) return;
-  m.adiadas[id] = alvo; delete m.puladas[id]; save();
-}
+function pularFixa(id){ const m = getMes($('mes').value); m.puladas[id] = true; delete m.adiadas[id]; save(); }
 
-function pularFixa(id){
-  const m = getMes($('mes').value);
-  m.puladas[id] = true; delete m.adiadas[id]; save();
-}
-
+// Outras Receitas/Despesas
 function salvarSalarios() {
   const m = getMes($('mes').value);
   m.salarios.eu = parseFloat($('salEu').value.replace(',', '.')) || 0;
@@ -709,10 +669,6 @@ function addIfood(){
   save();
 }
 function delIfood(id){ const m = getMes($('mes').value); m.ifood = m.ifood.filter(e=>e.id!==id); save(); }
-function repeatIfood(id){
-  const e = getMes($('mes').value).ifood.find(x=>x.id===id);
-  if(e){ $('ifData').value=ymd(new Date()); $('ifTipo').value=e.tipo; $('ifDesc').value=e.desc; $('ifPessoa').value=e.pessoa; $('ifValor').value=e.valor; $('ifValor').focus(); }
-}
 
 function addOutro(){
   const valor = parseFloat($('oValor').value.replace(',', '.'));
@@ -723,8 +679,58 @@ function addOutro(){
 }
 function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
 
+// Metas e Dívidas
+function addDivida(){
+  const nome = $('dvNome').value.trim();
+  const total = parseFloat($('dvTotal').value.replace(',','.'))||0;
+  const parcela = parseFloat($('dvParcela').value.replace(',','.'))||0;
+  const qtd = parseInt($('dvQtd').value)||0;
+  const pagas = parseInt($('dvPagas').value)||0;
+  if(!nome || total<=0 || qtd<=0) return alert('Preencha corretamente.');
+  state.dividas.push({id:Date.now(), nome, total, parcela, qtd, pagas});
+  $('dvNome').value='';$('dvTotal').value='';$('dvParcela').value='';$('dvQtd').value='';$('dvPagas').value='0';
+  save();
+}
+function pagarParcela(id) { const d = state.dividas.find(x=>x.id===id); if(d && d.pagas < d.qtd) { d.pagas++; save(); } }
+function delDivida(id) { if(confirm('Apagar?')) { state.dividas = state.dividas.filter(x=>x.id!==id); save(); } }
+function simularQuitacao() {
+  const id = parseInt($('simDivida').value);
+  const extra = parseFloat($('simExtra').value.replace(',','.'))||0;
+  const d = state.dividas.find(x=>x.id===id);
+  const res = $('simResultado');
+  if(!d) { res.innerHTML = 'Selecione.'; return; }
+  const restam = d.qtd - d.pagas;
+  if(restam <= 0) { res.innerHTML = '🎉 Quitada!'; return; }
+  const saldoDevedor = restam * d.parcela;
+  const novoPagamento = d.parcela + extra;
+  const novosMeses = Math.ceil(saldoDevedor / novoPagamento);
+  const economiaMeses = restam - novosMeses;
+  res.innerHTML = `Saldo: ${fmt(saldoDevedor)}<br>Pagando ${fmt(novoPagamento)}/mês, quita em <strong>${novosMeses} meses</strong>.<br>${economiaMeses > 0 ? `Economia de ${economiaMeses} meses!` : ''}`;
+}
 
-// --- RENDERIZAÇÃO GERAL ---
+function addMeta(){
+  const nome = $('mtNome').value.trim();
+  const alvo = parseFloat($('mtAlvo').value.replace(',','.'))||0;
+  if(!nome || alvo<=0) return alert('Preencha os dados.');
+  state.metas.push({id:Date.now(), nome, alvo, atual:0});
+  $('mtNome').value='';$('mtAlvo').value='';
+  save();
+}
+function aportarMeta(id) {
+  const m = state.metas.find(x=>x.id===id);
+  if(!m) return;
+  const v = prompt(`Quanto guardar em "${m.nome}"?`, '50');
+  if(!v) return;
+  const valor = parseFloat(v.replace(',','.'))||0;
+  if(valor > 0) { m.atual += valor; getMes($('mes').value).outros.push({id:Date.now(), data:ymd(new Date()), desc:'Aporte: '+m.nome, cat:'Outros', pessoa:'Casal', valor}); save(); }
+}
+function delMeta(id) { if(confirm('Apagar?')) { state.metas = state.metas.filter(x=>x.id!==id); save(); } }
+
+// Configs
+function setLimiteIfood(){ const v = parseFloat($('cfgIfood').value.replace(',', '.')); if(v>0){ state.cfg.limiteIfood = v; save(); } }
+function salvarOrcamentos() { CATS.forEach(c => { state.cfg.orcamentos[c] = parseFloat($('orc_'+c).value.replace(',','.'))||0; }); save(); alert('Tetos salvos!'); }
+
+// RENDERIZAÇÃO
 function render(){
   if(!state) return;
   const mes = $('mes').value;
@@ -752,19 +758,44 @@ function render(){
   $('barEu').style.width = (gastoEu/totalDiv*100)+'%';
   $('barEsposa').style.width = (gastoEsp/totalDiv*100)+'%';
 
+  // Painel Resumo Contas Fixas
+  let sumPrevisto = 0, sumPago = 0, countPagas = 0;
+  state.fixas.forEach(f => {
+    const pgto = m.fixasPago[f.id];
+    if (!m.puladas[f.id] && !m.adiadas[f.id]) sumPrevisto += f.valor;
+    if (pgto) { sumPago += pgto.valor; countPagas++; }
+  });
+  $('sumTotal').textContent = fmt(sumPrevisto);
+  $('sumPago').textContent = fmt(sumPago);
+  $('sumFalta').textContent = fmt(Math.max(0, sumPrevisto - sumPago));
+  $('sumStatus').textContent = `${countPagas} de ${state.fixas.length} pagas`;
+
+  // Alertas de Vencimento (Dashboard)
+  const alertas = [];
+  const hoje = new Date();
+  const diaHoje = hoje.getDate();
+  state.fixas.forEach(f => {
+    if(m.fixasPago[f.id] || m.puladas[f.id] || m.adiadas[f.id]) return;
+    let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
+    const venc = new Date(vencStr + 'T12:00:00');
+    const diffDays = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) alertas.push({tipo:'danger', ttl:'Conta Atrasada!', txt:`A conta <strong>${f.nome}</strong> venceu há ${Math.abs(diffDays)} dias.`});
+    else if (diffDays <= 3) alertas.push({tipo:'warn', ttl:'Vence em breve', txt:`A conta <strong>${f.nome}</strong> vence em ${diffDays} dias.`});
+  });
+  $('alertasVencimento').innerHTML = alertas.length ? alertas.map(a=>`<div class="insight ${a.tipo}"><i class="ph-fill ph-warning-circle"></i><div class="txt"><div class="ttl">${a.ttl}</div>${a.txt}</div></div>`).join('') : '<p class="empty">Nenhuma conta atrasada ou perto de vencer.</p>';
+
   // Insights
   const ins = [];
-  if(saldo < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês. Revejam os gastos variáveis!'});
+  if(saldo < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês. Revejam os gastos!'});
   if(rec > 0) {
     const taxaPoup = (saldo/rec)*100;
-    if(taxaPoup > 20) ins.push({tipo:'ok', ttl:'Ótima Poupança', txt:`Vocês conseguiram guardar ${taxaPoup.toFixed(1)}% da renda este mês!`});
-    else if(taxaPoup > 0) ins.push({tipo:'info', ttl:'Dá para melhorar', txt:`A taxa de poupança foi de ${taxaPoup.toFixed(1)}%. O ideal é acima de 20%.`});
+    if(taxaPoup > 20) ins.push({tipo:'ok', ttl:'Ótima Poupança', txt:`Vocês conseguiram guardar ${taxaPoup.toFixed(1)}% da renda.`});
+    else if(taxaPoup > 0) ins.push({tipo:'info', ttl:'Dá para melhorar', txt:`A taxa de poupança foi de ${taxaPoup.toFixed(1)}%.`});
   }
-  if(ifd > state.cfg.limiteIfood) ins.push({tipo:'warn', ttl:'iFood Estourado', txt:`Vocês passaram do limite do iFood em ${fmt(ifd-state.cfg.limiteIfood)}.`});
-  
   $('insights').innerHTML = ins.length ? ins.map(i=>`<div class="insight ${i.tipo}"><i class="ph-fill ${i.tipo==='danger'?'ph-warning-circle':i.tipo==='ok'?'ph-check-circle':'ph-info'}"></i><div class="txt"><div class="ttl">${i.ttl}</div>${i.txt}</div></div>`).join('') : '<p class="empty">Tudo tranquilo por aqui.</p>';
 
-  // Inputs básicos
+  // Inputs
   $('salEu').value = m.salarios.eu || '';
   $('salEsp').value = m.salarios.esp || '';
   $('cfgIfood').value = state.cfg.limiteIfood || '';
@@ -772,11 +803,7 @@ function render(){
   // Tabela Fixas
   $('fixasBody').innerHTML = state.fixas.map(f => {
     const pgto = m.fixasPago[f.id];
-    let vencStr = m.vencimentos[f.id];
-    if(!vencStr) {
-       const diaStr = String(f.dia).padStart(2, '0');
-       vencStr = `${mes}-${diaStr}`;
-    }
+    let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const vencFormatado = vencStr.split('-').reverse().join('/');
 
     let badge = '<span class="badge pendente">Pendente</span>';
@@ -784,8 +811,7 @@ function render(){
     if(pgto) {
       txtPago = `<div>${fmt(pgto.valor)}</div>`;
       if (pgto.parcial) badge = `<span class="badge parcial">Parcial</span>`;
-      else if (pgto.juros > 0) badge = `<span class="badge pago">Pago c/ Juros</span>`;
-      else badge = `<span class="badge pago">Pago</span>`;
+      else badge = `<span class="badge pago">✓ Pago</span>`;
     } else if(m.adiadas[f.id]) badge = `<span class="badge adiada">Rolada</span>`;
     else if(m.puladas[f.id]) badge = '<span class="badge pulada">Pulada</span>';
 
@@ -795,48 +821,37 @@ function render(){
       <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
       <td>${txtPago}</td>
       <td>${badge}</td>
-      <td>${!pgto && !m.adiadas[f.id] && !m.puladas[f.id] ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button> <button class="skip sm" onclick="pularFixa('${f.id}')">Pular</button>` : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}</td>
+      <td>${!pgto && !m.adiadas[f.id] && !m.puladas[f.id] ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button>` : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}</td>
     </tr>`;
   }).join('');
 
-  // Extras
+  // Outros
   $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
-
-  // iFood
   $('ifBody').innerHTML = m.ifood.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delIfood(${e.id})">x</button></td></tr>`).join('');
+  $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
+
   const pctIf = Math.min(100, (ifd/(state.cfg.limiteIfood||1))*100);
   $('ifBar').style.width = pctIf+'%'; $('ifBar').style.background = pctIf>90?'var(--danger)':pctIf>70?'var(--warning)':'var(--success)';
   $('ifUsado').textContent = fmt(ifd); $('ifLimite').textContent = fmt(state.cfg.limiteIfood);
 
-  // Outros & Orçamentos
+  // Orçamentos
   const catGastos = {};
   m.outros.forEach(e => catGastos[e.cat] = (catGastos[e.cat]||0) + e.valor);
-  $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
-  
   let alertsHtml = '';
   CATS.forEach(c => {
     const teto = state.cfg.orcamentos[c] || 0;
     const gasto = catGastos[c] || 0;
     if(teto > 0 && gasto > 0) {
       const pct = (gasto/teto)*100;
-      let cor = 'var(--success)'; let msg = 'Dentro do limite';
-      if(pct > 100) { cor = 'var(--danger)'; msg = 'Teto ESTOURADO!'; }
-      else if(pct > 80) { cor = 'var(--warning)'; msg = 'Atenção: Quase no limite'; }
-      
-      alertsHtml += `<div style="margin-bottom:8px;font-size:12px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:2px"><span>${c}</span><span>${fmt(gasto)} / ${fmt(teto)} (${msg})</span></div>
-        <div class="bar" style="height:6px;margin-top:0"><div style="width:${Math.min(pct,100)}%;background:${cor}"></div></div>
-      </div>`;
+      let cor = pct>100?'var(--danger)':pct>80?'var(--warning)':'var(--success)';
+      alertsHtml += `<div style="margin-bottom:8px;font-size:12px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span>${c}</span><span>${fmt(gasto)} / ${fmt(teto)}</span></div><div class="bar" style="height:6px;margin-top:0"><div style="width:${Math.min(pct,100)}%;background:${cor}"></div></div></div>`;
     }
   });
   $('budgetAlerts').innerHTML = alertsHtml;
 
-  // Config orçamentos
-  if(!$('configOrcamentos').innerHTML) {
-    $('configOrcamentos').innerHTML = CATS.map(c => `<div><label>${c}</label><input type="number" id="orc_${c}" value="${state.cfg.orcamentos[c]||''}" placeholder="0,00"></div>`).join('');
-  }
+  if(!$('configOrcamentos').innerHTML) $('configOrcamentos').innerHTML = CATS.map(c => `<div><label>${c}</label><input type="number" id="orc_${c}" value="${state.cfg.orcamentos[c]||''}" placeholder="0,00"></div>`).join('');
 
-  // Dívidas
+  // Dívidas e Metas
   $('dividasBody').innerHTML = state.dividas.map(d => {
     const pct = (d.pagas/d.qtd)*100;
     return `<div class="progress-box">
@@ -850,30 +865,27 @@ function render(){
     </div>`;
   }).join('') || '<p class="empty">Nenhuma dívida cadastrada. Parabéns!</p>';
   
-  if($('simDivida').options.length !== state.dividas.length) {
-    $('simDivida').innerHTML = '<option value="">Selecione...</option>' + state.dividas.map(d=>`<option value="${d.id}">${d.nome} (Faltam ${d.qtd-d.pagas})</option>`).join('');
-  }
+  if($('simDivida').options.length !== state.dividas.length) $('simDivida').innerHTML = '<option value="">Selecione...</option>' + state.dividas.map(d=>`<option value="${d.id}">${d.nome} (Faltam ${d.qtd-d.pagas})</option>`).join('');
 
-  // Metas
-  $('metasBody').innerHTML = state.metas.map(m => {
-    const pct = Math.min(100, (m.atual/m.alvo)*100);
+  $('metasBody').innerHTML = state.metas.map(meta => {
+    const pct = Math.min(100, (meta.atual/meta.alvo)*100);
     return `<div class="progress-box">
-      <div class="progress-title"><span>${m.nome}</span><span>${fmt(m.atual)} / ${fmt(m.alvo)}</span></div>
+      <div class="progress-title"><span>${meta.nome}</span><span>${fmt(meta.atual)} / ${fmt(meta.alvo)}</span></div>
       <div class="bar"><div style="width:${pct}%;background:var(--success)"></div></div>
       <div style="margin-top:8px;display:flex;gap:8px">
-        <button class="ok sm" onclick="aportarMeta(${m.id})">+ Guardar Dinheiro</button>
-        <button class="danger sm" onclick="delMeta(${m.id})">Excluir</button>
+        <button class="ok sm" onclick="aportarMeta(${meta.id})">+ Guardar Dinheiro</button>
+        <button class="danger sm" onclick="delMeta(${meta.id})">Excluir</button>
       </div>
     </div>`;
-  }).join('') || '<p class="empty">Nenhuma meta criada. Que tal começar uma reserva?</p>';
+  }).join('') || '<p class="empty">Nenhuma meta criada.</p>';
 }
 
+// Navegação de Abas
 document.querySelectorAll('.tab').forEach(b=>{
   b.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
     b.classList.add('active'); $('panel-'+b.dataset.tab).classList.add('active');
-    // Força render para atualizar orçamentos caso mude algo
     if(b.dataset.tab === 'config') $('configOrcamentos').innerHTML = '';
     render();
   });
@@ -884,7 +896,10 @@ $('ifData').value = ymd(new Date());
 $('oData').value = ymd(new Date());
 $('oCat').innerHTML = CATS.map(c=>`<option>${c}</option>`).join('');
 $('mes').addEventListener('change', render);
+
+// Executa o render e checa as notificações no carregamento
 render();
+setTimeout(checkNotificacoes, 3000);
 </script>
 </body>
 </html>
