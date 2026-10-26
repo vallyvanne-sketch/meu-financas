@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Finanças do Casal</title>
+<title>Finanças Vanny & Tami</title>
 
-<!-- Configurações de App (PWA) para iOS e Android -->
+<!-- Configurações de App (PWA) -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finanças">
 <meta name="theme-color" content="#4f46e5">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Finan%C3%A7as%20do%20Casal%22%2C%22short_name%22%3A%22Finan%C3%A7as%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f1f5f9%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2937%2F2937783.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Finan%C3%A7as%20Vanny%20e%20Tami%22%2C%22short_name%22%3A%22Finan%C3%A7as%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f1f5f9%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2937%2F2937783.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,7 @@ header .wrap{display:flex;justify-content:space-between;align-items:center;flex-
 .card{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
 h2{margin:0 0 16px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
 h2 i{color:var(--primary);font-size:20px}
-.stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:24px}
+.stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:24px}
 .stat{background:var(--surface);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
 .stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
 .stat-icon.rec{background:var(--success-light);color:var(--success)}
@@ -68,7 +68,7 @@ h2 i{color:var(--primary);font-size:20px}
 .tab{padding:10px 18px;border:none;background:transparent;color:var(--text-muted);font-weight:600;font-size:13px;border-radius:10px;white-space:nowrap;display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
 .tab.active{background:var(--primary);color:#fff}
 .panel{display:none}.panel.active{display:block}
-.row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
 input,select{padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-main);font-size:13px;width:100%}
 button.btn-primary{background:var(--primary);color:#fff;padding:10px 16px;border-radius:var(--radius-sm);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px}
 button.ghost{background:var(--bg);color:var(--text-main);padding:10px 16px;border-radius:var(--radius-sm);font-weight:600;border:1px solid var(--border)}
@@ -90,6 +90,9 @@ tr:last-child td{border-bottom:0}
 .badge.adiada{background:var(--primary-light);color:var(--primary)}
 .badge.pulada{background:var(--bg);color:var(--text-muted)}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
+.badge.vanny{background:#e0e7ff;color:#4338ca}
+.badge.tami{background:#fce7f3;color:#be185d}
+.badge.casal{background:var(--border);color:var(--text-muted)}
 .bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar>div{height:100%;transition:width .4s ease}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
@@ -107,18 +110,15 @@ tr:last-child td{border-bottom:0}
 #app-screen{display:none}
 #status-offline { display:none; background:var(--danger); color:white; text-align:center; padding:8px; font-size:12px; font-weight:bold; position:fixed; bottom:0; width:100%; z-index:999;}
 
-/* Painel de Resumo de Pagamentos */
-.pay-summary { display: flex; justify-content: space-between; background: var(--bg); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-.pay-summary div { display: flex; flex-direction: column; gap: 4px; }
-.pay-summary .lbl { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
-.pay-summary .val { font-size: 18px; font-weight: 800; }
-
-.progress-box { margin-bottom: 16px; background: var(--bg); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
-.progress-title { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-.progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-.simulator-box { background: var(--warning-light); padding: 16px; border-radius: var(--radius-sm); margin-top: 16px; border: 1px solid var(--warning); }
-.simulator-box h4 { margin: 0 0 8px; color: var(--text-main); font-size: 14px; }
-.simulator-res { font-weight: 800; color: var(--warning); font-size: 16px; margin-top: 8px; }
+/* Painel Individual */
+.personal-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+.personal-box h3 { margin: 0 0 8px; font-size: 18px; color: var(--text-main); }
+.personal-box .total { font-size: 28px; font-weight: 800; margin-bottom: 16px; }
+.personal-box.vanny .total { color: #4338ca; }
+.personal-box.tami .total { color: #be185d; }
+.personal-breakdown { text-align: left; font-size: 13px; margin-bottom: 16px; }
+.personal-breakdown div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+.personal-breakdown div:last-child { border-bottom: none; }
 
 /* Modal de Pagamento */
 #modal-pgto { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
@@ -135,7 +135,7 @@ tr:last-child td{border-bottom:0}
 
 <div id="login-screen">
   <div class="login-card">
-    <h2 style="justify-content:center;"><i class="ph-fill ph-wallet"></i> Acesso do Casal</h2>
+    <h2 style="justify-content:center;"><i class="ph-fill ph-wallet"></i> Vanny & Tami</h2>
     <div class="row" style="grid-template-columns:1fr;gap:12px;margin-top:24px">
       <input type="email" id="login-email" placeholder="E-mail">
       <input type="password" id="login-password" placeholder="Senha">
@@ -165,9 +165,6 @@ tr:last-child td{border-bottom:0}
         <input type="date" id="modal-data">
       </div>
     </div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">
-      💡 Se pagar mais, ele calcula juros. Se pagar menos, marca como parcial.
-    </div>
     <div class="modal-actions">
       <button class="ghost" onclick="fecharModal()">Cancelar</button>
       <button class="btn-primary" onclick="confirmarPagamento()">Confirmar</button>
@@ -176,10 +173,10 @@ tr:last-child td{border-bottom:0}
 </div>
 
 <div id="app-screen">
-  <div id="status-offline">⚠️ Sem conexão com a nuvem. Seus dados estão sendo salvos apenas neste aparelho.</div>
+  <div id="status-offline">⚠️ Sem conexão. Salvando apenas neste aparelho.</div>
   <header>
     <div class="wrap">
-      <div class="logo-area"><i class="ph-fill ph-wallet"></i> Finanças do Casal</div>
+      <div class="logo-area"><i class="ph-fill ph-wallet"></i> Finanças V&T</div>
       <div class="header-controls">
         <input type="month" id="mes">
         <button class="btn-icon" id="btn-theme"><i class="ph ph-moon"></i></button>
@@ -192,14 +189,15 @@ tr:last-child td{border-bottom:0}
     <div class="stats">
       <div class="stat"><div class="stat-icon rec"><i class="ph-fill ph-arrow-down-left"></i></div><div class="lbl">Receita</div><div class="val pos" id="sRec">R$ 0,00</div></div>
       <div class="stat"><div class="stat-icon fix"><i class="ph-fill ph-house"></i></div><div class="lbl">Contas Pagas</div><div class="val" id="sFix">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon ifd"><i class="ph-fill ph-fork-knife"></i></div><div class="lbl">iFood</div><div class="val neg" id="sIf">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon out"><i class="ph-fill ph-shopping-cart"></i></div><div class="lbl">Outros</div><div class="val neg" id="sOut">R$ 0,00</div></div>
+      <div class="stat"><div class="stat-icon ifd"><i class="ph-fill ph-fork-knife"></i></div><div class="lbl">iFood Total</div><div class="val neg" id="sIf">R$ 0,00</div></div>
+      <div class="stat"><div class="stat-icon out"><i class="ph-fill ph-shopping-cart"></i></div><div class="lbl">Outros Total</div><div class="val neg" id="sOut">R$ 0,00</div></div>
       <div class="stat"><div class="stat-icon sal"><i class="ph-fill ph-scales"></i></div><div class="lbl">Saldo em Conta</div><div class="val" id="sSal">R$ 0,00</div></div>
     </div>
 
     <div class="tabs-wrap">
       <div class="tabs">
         <button class="tab active" data-tab="dash"><i class="ph ph-chart-pie-slice"></i> Dash</button>
+        <button class="tab" data-tab="individual"><i class="ph ph-users"></i> Individual</button>
         <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Fixas</button>
         <button class="tab" data-tab="receitas"><i class="ph ph-money"></i> Receitas</button>
         <button class="tab" data-tab="ifood"><i class="ph ph-fork-knife"></i> iFood</button>
@@ -220,20 +218,53 @@ tr:last-child td{border-bottom:0}
         <h2><i class="ph-fill ph-lightbulb"></i> Diagnóstico Automático</h2>
         <div id="insights" class="insights"></div>
       </div>
+    </section>
+
+    <!-- ABA INDIVIDUAL -->
+    <section class="panel" id="panel-individual">
       <div class="card">
-        <h2><i class="ph-fill ph-users"></i> Divisão do Casal (Gastos variáveis)</h2>
+        <h2><i class="ph-fill ph-users"></i> Placar do Mês</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Aqui mostramos apenas os gastos pessoais de cada um (iFood, Outros e Contas Fixas marcadas como suas).</p>
         <div class="row">
-          <div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600">Você gastou</div>
-            <div style="font-size:24px;font-weight:800;color:var(--primary)" id="gastoEu">R$ 0,00</div>
-            <div class="bar" style="margin-top:4px"><div id="barEu" style="width:0%;background:var(--primary)"></div></div>
+          <!-- Vanny -->
+          <div class="personal-box vanny">
+            <h3>Vanny</h3>
+            <div class="total" id="indVannyTotal">R$ 0,00</div>
+            <div class="personal-breakdown">
+              <div><span>iFood:</span> <strong id="indVannyIfood">R$ 0,00</strong></div>
+              <div><span>Outros:</span> <strong id="indVannyOutros">R$ 0,00</strong></div>
+              <div><span>Contas Fixas:</span> <strong id="indVannyFixas">R$ 0,00</strong></div>
+            </div>
           </div>
-          <div>
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600">Esposa gastou</div>
-            <div style="font-size:24px;font-weight:800;color:var(--warning)" id="gastoEsposa">R$ 0,00</div>
-            <div class="bar" style="margin-top:4px"><div id="barEsposa" style="width:0%;background:var(--warning)"></div></div>
+          <!-- Tami -->
+          <div class="personal-box tami">
+            <h3>Tami</h3>
+            <div class="total" id="indTamiTotal">R$ 0,00</div>
+            <div class="personal-breakdown">
+              <div><span>iFood:</span> <strong id="indTamiIfood">R$ 0,00</strong></div>
+              <div><span>Outros:</span> <strong id="indTamiOutros">R$ 0,00</strong></div>
+              <div><span>Contas Fixas:</span> <strong id="indTamiFixas">R$ 0,00</strong></div>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="ph-fill ph-target"></i> Teto Pessoal</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Defina um limite de gastos individuais para segurar a onda.</p>
+        <div class="row" style="margin-bottom:16px">
+          <div>
+            <label>Limite da Vanny (R$)</label>
+            <input type="number" id="limiteVanny" step="0.01" onchange="salvarLimites()">
+          </div>
+          <div>
+            <label>Limite da Tami (R$)</label>
+            <input type="number" id="limiteTami" step="0.01" onchange="salvarLimites()">
+          </div>
+        </div>
+
+        <div id="alertaVanny" style="margin-bottom:16px;"></div>
+        <div id="alertaTami"></div>
       </div>
     </section>
 
@@ -241,19 +272,10 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-fixas">
       <div class="card">
         <h2><i class="ph-fill ph-receipt"></i> Contas Fixas</h2>
-        
-        <!-- Resumo de Pagamentos -->
-        <div class="pay-summary">
-          <div><span class="lbl">Total Previsto</span><span class="val" id="sumTotal">R$ 0,00</span></div>
-          <div><span class="lbl">Já Pago</span><span class="val pos" id="sumPago">R$ 0,00</span></div>
-          <div><span class="lbl">Falta Pagar</span><span class="val neg" id="sumFalta">R$ 0,00</span></div>
-          <div><span class="lbl">Status</span><span class="val" id="sumStatus" style="font-size:14px; margin-top:4px;">0/0 Pagas</span></div>
-        </div>
-
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique em <strong>Pagar</strong> e o sistema atualizará o resumo acima na hora.</div></div>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Use o lápis para mudar a data/valor e o seletor para definir de quem é a conta.</div></div>
         <div class="table-responsive">
           <table>
-            <thead><tr><th>Conta</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Conta / Dono</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="fixasBody"></tbody>
           </table>
         </div>
@@ -262,8 +284,9 @@ tr:last-child td{border-bottom:0}
         <h2><i class="ph-fill ph-plus-circle"></i> Adicionar conta fixa</h2>
         <div class="row">
           <input type="text" id="fxNome" placeholder="Nome">
+          <select id="fxDono"><option>Casal</option><option>Vanny</option><option>Tami</option></select>
           <input type="number" id="fxValor" placeholder="Valor (R$)" step="0.01">
-          <input type="number" id="fxDia" placeholder="Dia venc. (1-31)">
+          <input type="number" id="fxDia" placeholder="Dia venc.">
           <button class="btn-primary" onclick="addFixa()">Adicionar</button>
         </div>
       </div>
@@ -272,10 +295,10 @@ tr:last-child td{border-bottom:0}
     <!-- RECEITAS -->
     <section class="panel" id="panel-receitas">
       <div class="card">
-        <h2><i class="ph-fill ph-bank"></i> Salário líquido</h2>
+        <h2><i class="ph-fill ph-bank"></i> Salários</h2>
         <div class="row">
-          <div><label>Salário Você</label><input type="number" id="salEu" step="0.01"></div>
-          <div><label>Salário Esposa</label><input type="number" id="salEsp" step="0.01"></div>
+          <div><label>Salário Vanny</label><input type="number" id="salEu" step="0.01"></div>
+          <div><label>Salário Tami</label><input type="number" id="salEsp" step="0.01"></div>
         </div>
         <button class="btn-primary" style="margin-top:12px;width:100%" onclick="salvarSalarios()"><i class="ph ph-check"></i> Salvar Salários</button>
       </div>
@@ -283,14 +306,14 @@ tr:last-child td{border-bottom:0}
         <h2><i class="ph-fill ph-hand-coins"></i> Rendas extras</h2>
         <div class="row" style="margin-bottom:16px">
           <input type="text" id="exDesc" placeholder="Descrição">
-          <select id="exPessoa"><option>Eu</option><option>Esposa</option><option>Casal</option></select>
+          <select id="exPessoa"><option>Vanny</option><option>Tami</option><option>Casal</option></select>
           <input type="number" id="exValor" placeholder="Valor (R$)" step="0.01">
           <label style="font-size:12px;display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px">
             <input type="checkbox" id="exRecurring" style="width:auto"> Fixa
           </label>
           <button class="btn-primary" onclick="addExtra()">Adicionar</button>
         </div>
-        <div class="table-responsive"><table><thead><tr><th>Descrição</th><th>Pessoa</th><th>Valor</th><th></th></tr></thead><tbody id="extrasBody"></tbody></table></div>
+        <div class="table-responsive"><table><thead><tr><th>Descrição</th><th>Quem</th><th>Valor</th><th></th></tr></thead><tbody id="extrasBody"></tbody></table></div>
       </div>
     </section>
 
@@ -298,16 +321,11 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-ifood">
       <div class="card">
         <h2><i class="ph-fill ph-fork-knife"></i> iFood</h2>
-        <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px">
-          <span>Usado: <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
-          <span>Limite: <strong id="ifLimite">R$ 0,00</strong></span>
-        </div>
-        <div class="bar" style="height:16px;margin-bottom:16px"><div id="ifBar" style="width:0%;background:var(--success)"></div></div>
         <div class="row" style="margin-bottom:16px">
           <input type="date" id="ifData">
           <select id="ifTipo"><option>Almoço</option><option>Lanche</option><option>Café</option><option>Jantar</option></select>
           <input type="text" id="ifDesc" placeholder="Descrição">
-          <select id="ifPessoa"><option>Eu</option><option>Esposa</option></select>
+          <select id="ifPessoa"><option>Vanny</option><option>Tami</option></select>
           <input type="number" id="ifValor" placeholder="Valor (R$)" step="0.01">
           <button class="btn-primary" onclick="addIfood()">Add</button>
         </div>
@@ -323,13 +341,10 @@ tr:last-child td{border-bottom:0}
           <input type="date" id="oData">
           <input type="text" id="oDesc" placeholder="Descrição">
           <select id="oCat"></select>
-          <select id="oPessoa"><option>Eu</option><option>Esposa</option></select>
+          <select id="oPessoa"><option>Vanny</option><option>Tami</option><option>Casal</option></select>
           <input type="number" id="oValor" placeholder="Valor (R$)" step="0.01">
           <button class="btn-primary" onclick="addOutro()">Add</button>
         </div>
-        
-        <div id="budgetAlerts"></div>
-
         <div class="table-responsive"><table><thead><tr><th>Data</th><th>Descrição</th><th>Cat.</th><th>Quem</th><th>Valor</th><th></th></tr></thead><tbody id="outrosBody"></tbody></table></div>
       </div>
     </section>
@@ -337,7 +352,7 @@ tr:last-child td{border-bottom:0}
     <!-- DÍVIDAS -->
     <section class="panel" id="panel-dividas">
       <div class="card">
-        <h2><i class="ph-fill ph-receipt-x"></i> Minhas Dívidas</h2>
+        <h2><i class="ph-fill ph-receipt-x"></i> Dívidas</h2>
         <div class="row" style="margin-bottom:16px">
           <input type="text" id="dvNome" placeholder="Nome">
           <input type="number" id="dvTotal" placeholder="Total (R$)" step="0.01">
@@ -375,20 +390,14 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-config">
       <div class="card">
         <h2><i class="ph-fill ph-bell"></i> Ativar Notificações</h2>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Permita que o sistema envie avisos de vencimento no seu celular.</p>
         <button class="btn-primary" style="width:100%" onclick="pedirPermissaoNotificacao()"><i class="ph ph-bell-ringing"></i> Permitir Notificações</button>
       </div>
       <div class="card">
-        <h2><i class="ph-fill ph-fork-knife"></i> Limite do iFood (R$)</h2>
+        <h2><i class="ph-fill ph-fork-knife"></i> Limite Geral do iFood (R$)</h2>
         <div class="row">
-          <input type="number" id="cfgIfood" step="0.01" placeholder="Ex: 300">
+          <input type="number" id="cfgIfood" step="0.01" placeholder="Ex: 600">
           <button class="btn-primary" onclick="setLimiteIfood()">Salvar</button>
         </div>
-      </div>
-      <div class="card">
-        <h2><i class="ph-fill ph-chart-bar"></i> Teto de Gastos</h2>
-        <div class="row" id="configOrcamentos"></div>
-        <button class="btn-primary" style="margin-top:12px;width:100%" onclick="salvarOrcamentos()">Salvar Tetos</button>
       </div>
       <div class="card">
         <h2><i class="ph-fill ph-warning"></i> Zona de Perigo</h2>
@@ -413,14 +422,14 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 const defaultState = {
-  cfg: { limiteIfood: 300, orcamentos: {} },
+  cfg: { limiteIfood: 600, limitesIndividuais: { vanny: 400, tami: 400 } },
   fixas: [
-    {id:'f1', nome:'Construtora', valor:0, dia:5}, {id:'f2', nome:'Caixa', valor:0, dia:10},
-    {id:'f3', nome:'Condomínio', valor:0, dia:10}, {id:'f4', nome:'Spacelink', valor:0, dia:15},
-    {id:'f5', nome:'Energia', valor:0, dia:20}, {id:'f6', nome:'IPTU', valor:0, dia:20},
-    {id:'f7', nome:'Fatura NEON', valor:0, dia:15}, {id:'f8', nome:'Fatura Santander', valor:0, dia:10},
-    {id:'f9', nome:'Fatura Afinz', valor:0, dia:15}, {id:'f10', nome:'Fatura Digio', valor:0, dia:12},
-    {id:'f11', nome:'Fatura Mercado Pago', valor:0, dia:8}, {id:'f12', nome:'Água', valor:0, dia:20}
+    {id:'f1', nome:'Construtora', valor:0, dia:5, dono:'Casal'}, {id:'f2', nome:'Caixa', valor:0, dia:10, dono:'Casal'},
+    {id:'f3', nome:'Condomínio', valor:0, dia:10, dono:'Casal'}, {id:'f4', nome:'Spacelink', valor:0, dia:15, dono:'Casal'},
+    {id:'f5', nome:'Energia', valor:0, dia:20, dono:'Casal'}, {id:'f6', nome:'IPTU', valor:0, dia:20, dono:'Casal'},
+    {id:'f7', nome:'Fatura NEON', valor:0, dia:15, dono:'Casal'}, {id:'f8', nome:'Fatura Santander', valor:0, dia:10, dono:'Casal'},
+    {id:'f9', nome:'Fatura Afinz', valor:0, dia:15, dono:'Casal'}, {id:'f10', nome:'Fatura Digio', valor:0, dia:12, dono:'Casal'},
+    {id:'f11', nome:'Fatura Mercado Pago', valor:0, dia:8, dono:'Casal'}, {id:'f12', nome:'Água', valor:0, dia:20, dono:'Casal'}
   ],
   dividas: [],
   metas: [],
@@ -429,9 +438,11 @@ const defaultState = {
 
 let state = JSON.parse(localStorage.getItem('financas_local'));
 if (!state || !state.fixas) { state = JSON.parse(JSON.stringify(defaultState)); localStorage.setItem('financas_local', JSON.stringify(state)); }
+if (!state.cfg.limitesIndividuais) state.cfg.limitesIndividuais = { vanny: 400, tami: 400 };
 if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
-if (!state.cfg.orcamentos) state.cfg.orcamentos = {};
+// Garante que todas as contas fixas tenham um dono
+state.fixas.forEach(f => { if(!f.dono) f.dono = 'Casal'; });
 
 let currentUser = null;
 const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Vestuário','Casa','Outros'];
@@ -456,9 +467,10 @@ function loadStateFromFirebase() {
     const data = snapshot.val();
     if (data && data.fixas) {
       state = data;
+      if(!state.cfg.limitesIndividuais) state.cfg.limitesIndividuais = { vanny: 400, tami: 400 };
       if(!state.dividas) state.dividas = [];
       if(!state.metas) state.metas = [];
-      if(!state.cfg.orcamentos) state.cfg.orcamentos = {};
+      state.fixas.forEach(f => { if(!f.dono) f.dono = 'Casal'; });
       localStorage.setItem('financas_local', JSON.stringify(state));
       $('status-offline').style.display = 'none';
     } else {
@@ -471,7 +483,6 @@ function loadStateFromFirebase() {
   });
 }
 
-// Autenticação
 $('btn-login').addEventListener('click', () => {
   auth.signInWithEmailAndPassword($('login-email').value, $('login-password').value)
     .catch(e => $('login-error').textContent = "Erro: " + e.message);
@@ -503,19 +514,10 @@ $('btn-theme').addEventListener('click', () => {
   render();
 });
 
-// Notificações
 function pedirPermissaoNotificacao() {
-  if (!("Notification" in window)) {
-    alert("Este navegador não suporta notificações desktop.");
-    return;
-  }
-  Notification.requestPermission().then(function (permission) {
-    if (permission === "granted") {
-      alert("Notificações ativadas! Você será avisado sobre vencimentos.");
-      checkNotificacoes();
-    } else {
-      alert("Você recusou as notificações.");
-    }
+  if (!("Notification" in window)) { alert("Navegador sem suporte."); return; }
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") { alert("Notificações ativadas!"); checkNotificacoes(); }
   });
 }
 
@@ -524,30 +526,16 @@ function checkNotificacoes() {
   const mes = $('mes').value;
   const m = getMes(mes);
   const hoje = new Date();
-  const diaHoje = hoje.getDate();
-  
   state.fixas.forEach(f => {
     if (m.fixasPago[f.id] || m.puladas[f.id] || m.adiadas[f.id]) return;
-    
-    let vencStr = m.vencimentos[f.id];
-    if(!vencStr) {
-       const diaStr = String(f.dia).padStart(2, '0');
-       vencStr = `${mes}-${diaStr}`;
-    }
+    let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const venc = new Date(vencStr + 'T12:00:00');
-    const diffTime = venc - hoje;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    // Notifica se faltam 3 dias ou menos, ou se já venceu
-    if (diffDays >= 0 && diffDays <= 3) {
-      new Notification("Vencimento Próximo!", { body: `A conta "${f.nome}" vence em ${diffDays} dias.`, icon: "https://cdn-icons-png.flaticon.com/512/2937/2937783.png" });
-    } else if (diffDays < 0) {
-      new Notification("Conta Atrasada!", { body: `A conta "${f.nome}" venceu há ${Math.abs(diffDays)} dias.`, icon: "https://cdn-icons-png.flaticon.com/512/2937/2937783.png" });
-    }
+    const diffDays = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
+    if (diffDays >= 0 && diffDays <= 3) new Notification("Vencimento Próximo!", { body: `A conta "${f.nome}" vence em ${diffDays} dias.` });
+    else if (diffDays < 0) new Notification("Conta Atrasada!", { body: `A conta "${f.nome}" venceu há ${Math.abs(diffDays)} dias.` });
   });
 }
 
-// Funções de Estado
 function resetarTudo() {
   if(confirm("CUIDADO: Isso apagará TUDO. Tem certeza?")) {
     localStorage.removeItem('financas_local');
@@ -567,38 +555,41 @@ function getMes(y){
   return m;
 }
 
-// Funções Contas Fixas
 function editFixaValor(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
-  const v = prompt(`Digite o valor PREVISTO (base) para "${f.nome}":`, f.valor);
+  const v = prompt(`Valor PREVISTO para "${f.nome}":`, f.valor);
   if (v === null) return;
   f.valor = parseFloat(v.replace(',', '.')) || 0;
   save();
+}
+
+function changeFixaDono(id) {
+  const f = state.fixas.find(x => x.id === id);
+  if (!f) return;
+  const v = prompt(`Digite o dono da conta "${f.nome}" (Casal, Vanny ou Tami):`, f.dono);
+  if (!v) return;
+  const vLower = v.trim().toLowerCase();
+  if (vLower === 'vanny' || vLower === 'tami' || vLower === 'casal') {
+    f.dono = vLower.charAt(0).toUpperCase() + vLower.slice(1);
+    save();
+  } else {
+    alert('Inválido. Digite Casal, Vanny ou Tami.');
+  }
 }
 
 function editVencimentoMes(id) {
   const mes = $('mes').value;
   const m = getMes(mes);
   const f = state.fixas.find(x => x.id === id);
-  let dataAtual = m.vencimentos[id];
-  if (!dataAtual) {
-     const diaStr = String(f.dia).padStart(2, '0');
-     dataAtual = `${diaStr}/${mes.split('-')[1]}/${mes.split('-')[0]}`;
-  } else {
-     const partes = dataAtual.split('-');
-     dataAtual = `${partes[2]}/${partes[1]}/${partes[0]}`;
-  }
+  let dataAtual = m.vencimentos[id] || `${String(f.dia).padStart(2, '0')}/${mes.split('-')[1]}/${mes.split('-')[0]}`;
+  if (m.vencimentos[id]) { const p = m.vencimentos[id].split('-'); dataAtual = `${p[2]}/${p[1]}/${p[0]}`; }
   const v = prompt(`Data exata para ${f.nome} (DD/MM/AAAA):`, dataAtual);
   if (!v) return;
-  const partes = v.split('/');
-  if(partes.length === 3) {
-      const novaDataFormatada = `${partes[2]}-${partes[1]}-${partes[0]}`;
-      if(!isNaN(new Date(novaDataFormatada).getTime())) {
-          m.vencimentos[id] = novaDataFormatada;
-          save();
-          return;
-      }
+  const p = v.split('/');
+  if(p.length === 3) {
+      const novaData = `${p[2]}-${p[1]}-${p[0]}`;
+      if(!isNaN(new Date(novaData).getTime())) { m.vencimentos[id] = novaData; save(); return; }
   }
   alert('Data inválida.');
 }
@@ -614,50 +605,41 @@ function abrirModalPgto(id) {
   $('modal-pgto').style.display = 'flex';
   $('modal-valor').focus();
 }
-
 function fecharModal() { $('modal-pgto').style.display = 'none'; }
-
 function confirmarPagamento() {
   const id = $('modal-id').value;
   const valorReal = parseFloat($('modal-valor').value.replace(',', '.')) || 0;
   const dataPgto = $('modal-data').value;
   if (valorReal <= 0 || !dataPgto) return alert('Preencha valor e data.');
-  
   const f = state.fixas.find(x => x.id === id);
   const m = getMes($('mes').value);
   const diferenca = valorReal - f.valor;
-  
   m.fixasPago[id] = { valor: valorReal, data: dataPgto, previsto: f.valor, juros: diferenca > 0 ? diferenca : 0, parcial: diferenca < 0, restante: diferenca < 0 ? Math.abs(diferenca) : 0 };
   fecharModal(); save();
 }
-
 function desfazerPgto(id) { delete getMes($('mes').value).fixasPago[id]; save(); }
 
 function addFixa(){
   const nome=$('fxNome').value.trim();
   if(!nome) return alert('Informe o nome');
-  state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
+  state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1, dono:$('fxDono').value});
   $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value='';
   save();
 }
-
 function pularFixa(id){ const m = getMes($('mes').value); m.puladas[id] = true; delete m.adiadas[id]; save(); }
 
-// Outras Receitas/Despesas
 function salvarSalarios() {
   const m = getMes($('mes').value);
   m.salarios.eu = parseFloat($('salEu').value.replace(',', '.')) || 0;
   m.salarios.esp = parseFloat($('salEsp').value.replace(',', '.')) || 0;
   save();
 }
-
 function addExtra(){
   const m = getMes($('mes').value);
   const valor = parseFloat($('exValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
   m.extras.push({id:Date.now(), desc:$('exDesc').value||'Extra', pessoa:$('exPessoa').value, valor, recurring:$('exRecurring').checked});
-  $('exDesc').value=''; $('exValor').value='';
-  save();
+  $('exDesc').value=''; $('exValor').value=''; save();
 }
 function delExtra(id){ const m = getMes($('mes').value); m.extras = m.extras.filter(e=>e.id!==id); save(); }
 
@@ -665,8 +647,7 @@ function addIfood(){
   const valor = parseFloat($('ifValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
   getMes($('mes').value).ifood.push({id:Date.now(), data:$('ifData').value, tipo:$('ifTipo').value, desc:$('ifDesc').value, pessoa:$('ifPessoa').value, valor});
-  $('ifDesc').value=''; $('ifValor').value='';
-  save();
+  $('ifDesc').value=''; $('ifValor').value=''; save();
 }
 function delIfood(id){ const m = getMes($('mes').value); m.ifood = m.ifood.filter(e=>e.id!==id); save(); }
 
@@ -674,12 +655,17 @@ function addOutro(){
   const valor = parseFloat($('oValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
   getMes($('mes').value).outros.push({id:Date.now(), data:$('oData').value, desc:$('oDesc').value||$('oCat').value, cat:$('oCat').value, pessoa:$('oPessoa').value, valor});
-  $('oDesc').value=''; $('oValor').value='';
-  save();
+  $('oDesc').value=''; $('oValor').value=''; save();
 }
 function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
 
-// Metas e Dívidas
+function salvarLimites() {
+  state.cfg.limitesIndividuais.vanny = parseFloat($('limiteVanny').value.replace(',','.'))||0;
+  state.cfg.limitesIndividuais.tami = parseFloat($('limiteTami').value.replace(',','.'))||0;
+  save();
+  alert('Limites pessoais salvos!');
+}
+
 function addDivida(){
   const nome = $('dvNome').value.trim();
   const total = parseFloat($('dvTotal').value.replace(',','.'))||0;
@@ -688,8 +674,7 @@ function addDivida(){
   const pagas = parseInt($('dvPagas').value)||0;
   if(!nome || total<=0 || qtd<=0) return alert('Preencha corretamente.');
   state.dividas.push({id:Date.now(), nome, total, parcela, qtd, pagas});
-  $('dvNome').value='';$('dvTotal').value='';$('dvParcela').value='';$('dvQtd').value='';$('dvPagas').value='0';
-  save();
+  $('dvNome').value='';$('dvTotal').value='';$('dvParcela').value='';$('dvQtd').value='';$('dvPagas').value='0'; save();
 }
 function pagarParcela(id) { const d = state.dividas.find(x=>x.id===id); if(d && d.pagas < d.qtd) { d.pagas++; save(); } }
 function delDivida(id) { if(confirm('Apagar?')) { state.dividas = state.dividas.filter(x=>x.id!==id); save(); } }
@@ -713,8 +698,7 @@ function addMeta(){
   const alvo = parseFloat($('mtAlvo').value.replace(',','.'))||0;
   if(!nome || alvo<=0) return alert('Preencha os dados.');
   state.metas.push({id:Date.now(), nome, alvo, atual:0});
-  $('mtNome').value='';$('mtAlvo').value='';
-  save();
+  $('mtNome').value='';$('mtAlvo').value=''; save();
 }
 function aportarMeta(id) {
   const m = state.metas.find(x=>x.id===id);
@@ -726,11 +710,8 @@ function aportarMeta(id) {
 }
 function delMeta(id) { if(confirm('Apagar?')) { state.metas = state.metas.filter(x=>x.id!==id); save(); } }
 
-// Configs
 function setLimiteIfood(){ const v = parseFloat($('cfgIfood').value.replace(',', '.')); if(v>0){ state.cfg.limiteIfood = v; save(); } }
-function salvarOrcamentos() { CATS.forEach(c => { state.cfg.orcamentos[c] = parseFloat($('orc_'+c).value.replace(',','.'))||0; }); save(); alert('Tetos salvos!'); }
 
-// RENDERIZAÇÃO
 function render(){
   if(!state) return;
   const mes = $('mes').value;
@@ -749,37 +730,56 @@ function render(){
   $('sSal').textContent = fmt(saldo);
   $('sSal').className = 'val ' + (saldo >= 0 ? 'pos' : 'neg');
 
-  // Divisão do casal
-  const gastoEu = m.ifood.filter(e=>e.pessoa==='Eu').reduce((s,e)=>s+e.valor,0) + m.outros.filter(e=>e.pessoa==='Eu').reduce((s,e)=>s+e.valor,0);
-  const gastoEsp = m.ifood.filter(e=>e.pessoa==='Esposa').reduce((s,e)=>s+e.valor,0) + m.outros.filter(e=>e.pessoa==='Esposa').reduce((s,e)=>s+e.valor,0);
-  const totalDiv = gastoEu + gastoEsp || 1;
-  $('gastoEu').textContent = fmt(gastoEu);
-  $('gastoEsposa').textContent = fmt(gastoEsp);
-  $('barEu').style.width = (gastoEu/totalDiv*100)+'%';
-  $('barEsposa').style.width = (gastoEsp/totalDiv*100)+'%';
-
-  // Painel Resumo Contas Fixas
-  let sumPrevisto = 0, sumPago = 0, countPagas = 0;
+  // --- CÁLCULOS INDIVIDUAIS ---
+  let vannyIfood = 0, tamiIfood = 0, vannyOutros = 0, tamiOutros = 0, vannyFixas = 0, tamiFixas = 0;
+  
+  m.ifood.forEach(e => { if(e.pessoa === 'Vanny') vannyIfood += e.valor; else if (e.pessoa === 'Tami') tamiIfood += e.valor; });
+  m.outros.forEach(e => { if(e.pessoa === 'Vanny') vannyOutros += e.valor; else if (e.pessoa === 'Tami') tamiOutros += e.valor; });
+  
   state.fixas.forEach(f => {
-    const pgto = m.fixasPago[f.id];
-    if (!m.puladas[f.id] && !m.adiadas[f.id]) sumPrevisto += f.valor;
-    if (pgto) { sumPago += pgto.valor; countPagas++; }
+    const pago = m.fixasPago[f.id];
+    if(pago) {
+      if(f.dono === 'Vanny') vannyFixas += pago.valor;
+      else if(f.dono === 'Tami') tamiFixas += pago.valor;
+    }
   });
-  $('sumTotal').textContent = fmt(sumPrevisto);
-  $('sumPago').textContent = fmt(sumPago);
-  $('sumFalta').textContent = fmt(Math.max(0, sumPrevisto - sumPago));
-  $('sumStatus').textContent = `${countPagas} de ${state.fixas.length} pagas`;
 
-  // Alertas de Vencimento (Dashboard)
+  const vannyTotal = vannyIfood + vannyOutros + vannyFixas;
+  const tamiTotal = tamiIfood + tamiOutros + tamiFixas;
+
+  $('indVannyTotal').textContent = fmt(vannyTotal);
+  $('indVannyIfood').textContent = fmt(vannyIfood);
+  $('indVannyOutros').textContent = fmt(vannyOutros);
+  $('indVannyFixas').textContent = fmt(vannyFixas);
+
+  $('indTamiTotal').textContent = fmt(tamiTotal);
+  $('indTamiIfood').textContent = fmt(tamiIfood);
+  $('indTamiOutros').textContent = fmt(tamiOutros);
+  $('indTamiFixas').textContent = fmt(tamiFixas);
+
+  // Limites Pessoais
+  $('limiteVanny').value = state.cfg.limitesIndividuais.vanny || '';
+  $('limiteTami').value = state.cfg.limitesIndividuais.tami || '';
+  
+  const limV = state.cfg.limitesIndividuais.vanny || 1;
+  const limT = state.cfg.limitesIndividuais.tami || 1;
+  const pctV = Math.min(100, (vannyTotal/limV)*100);
+  const pctT = Math.min(100, (tamiTotal/limT)*100);
+  
+  const corV = pctV>100?'var(--danger)':pctV>80?'var(--warning)':'var(--success)';
+  const corT = pctT>100?'var(--danger)':pctT>80?'var(--warning)':'var(--success)';
+  
+  $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(vannyTotal)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
+  $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(tamiTotal)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
+
+  // Alertas de Vencimento
   const alertas = [];
   const hoje = new Date();
-  const diaHoje = hoje.getDate();
   state.fixas.forEach(f => {
     if(m.fixasPago[f.id] || m.puladas[f.id] || m.adiadas[f.id]) return;
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const venc = new Date(vencStr + 'T12:00:00');
     const diffDays = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
-    
     if (diffDays < 0) alertas.push({tipo:'danger', ttl:'Conta Atrasada!', txt:`A conta <strong>${f.nome}</strong> venceu há ${Math.abs(diffDays)} dias.`});
     else if (diffDays <= 3) alertas.push({tipo:'warn', ttl:'Vence em breve', txt:`A conta <strong>${f.nome}</strong> vence em ${diffDays} dias.`});
   });
@@ -787,7 +787,7 @@ function render(){
 
   // Insights
   const ins = [];
-  if(saldo < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês. Revejam os gastos!'});
+  if(saldo < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês.'});
   if(rec > 0) {
     const taxaPoup = (saldo/rec)*100;
     if(taxaPoup > 20) ins.push({tipo:'ok', ttl:'Ótima Poupança', txt:`Vocês conseguiram guardar ${taxaPoup.toFixed(1)}% da renda.`});
@@ -805,18 +805,18 @@ function render(){
     const pgto = m.fixasPago[f.id];
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const vencFormatado = vencStr.split('-').reverse().join('/');
-
     let badge = '<span class="badge pendente">Pendente</span>';
     let txtPago = '-';
     if(pgto) {
       txtPago = `<div>${fmt(pgto.valor)}</div>`;
-      if (pgto.parcial) badge = `<span class="badge parcial">Parcial</span>`;
-      else badge = `<span class="badge pago">✓ Pago</span>`;
+      badge = pgto.parcial ? `<span class="badge parcial">Parcial</span>` : `<span class="badge pago">✓ Pago</span>`;
     } else if(m.adiadas[f.id]) badge = `<span class="badge adiada">Rolada</span>`;
     else if(m.puladas[f.id]) badge = '<span class="badge pulada">Pulada</span>';
 
+    const corDono = f.dono==='Vanny'?'vanny':f.dono==='Tami'?'tami':'casal';
+
     return `<tr>
-      <td><strong>${f.nome}</strong></td>
+      <td><strong>${f.nome}</strong><br><span class="badge ${corDono}" style="font-size:9px;padding:2px 6px;cursor:pointer" onclick="changeFixaDono('${f.id}')">${f.dono}</span></td>
       <td>${vencFormatado} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')">✎</button></td>
       <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
       <td>${txtPago}</td>
@@ -831,25 +831,7 @@ function render(){
   $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
 
   const pctIf = Math.min(100, (ifd/(state.cfg.limiteIfood||1))*100);
-  $('ifBar').style.width = pctIf+'%'; $('ifBar').style.background = pctIf>90?'var(--danger)':pctIf>70?'var(--warning)':'var(--success)';
   $('ifUsado').textContent = fmt(ifd); $('ifLimite').textContent = fmt(state.cfg.limiteIfood);
-
-  // Orçamentos
-  const catGastos = {};
-  m.outros.forEach(e => catGastos[e.cat] = (catGastos[e.cat]||0) + e.valor);
-  let alertsHtml = '';
-  CATS.forEach(c => {
-    const teto = state.cfg.orcamentos[c] || 0;
-    const gasto = catGastos[c] || 0;
-    if(teto > 0 && gasto > 0) {
-      const pct = (gasto/teto)*100;
-      let cor = pct>100?'var(--danger)':pct>80?'var(--warning)':'var(--success)';
-      alertsHtml += `<div style="margin-bottom:8px;font-size:12px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span>${c}</span><span>${fmt(gasto)} / ${fmt(teto)}</span></div><div class="bar" style="height:6px;margin-top:0"><div style="width:${Math.min(pct,100)}%;background:${cor}"></div></div></div>`;
-    }
-  });
-  $('budgetAlerts').innerHTML = alertsHtml;
-
-  if(!$('configOrcamentos').innerHTML) $('configOrcamentos').innerHTML = CATS.map(c => `<div><label>${c}</label><input type="number" id="orc_${c}" value="${state.cfg.orcamentos[c]||''}" placeholder="0,00"></div>`).join('');
 
   // Dívidas e Metas
   $('dividasBody').innerHTML = state.dividas.map(d => {
@@ -863,7 +845,7 @@ function render(){
         <button class="danger sm" onclick="delDivida(${d.id})">Excluir</button>
       </div>
     </div>`;
-  }).join('') || '<p class="empty">Nenhuma dívida cadastrada. Parabéns!</p>';
+  }).join('') || '<p class="empty">Nenhuma dívida cadastrada.</p>';
   
   if($('simDivida').options.length !== state.dividas.length) $('simDivida').innerHTML = '<option value="">Selecione...</option>' + state.dividas.map(d=>`<option value="${d.id}">${d.nome} (Faltam ${d.qtd-d.pagas})</option>`).join('');
 
@@ -880,13 +862,11 @@ function render(){
   }).join('') || '<p class="empty">Nenhuma meta criada.</p>';
 }
 
-// Navegação de Abas
 document.querySelectorAll('.tab').forEach(b=>{
   b.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
     b.classList.add('active'); $('panel-'+b.dataset.tab).classList.add('active');
-    if(b.dataset.tab === 'config') $('configOrcamentos').innerHTML = '';
     render();
   });
 });
@@ -897,7 +877,6 @@ $('oData').value = ymd(new Date());
 $('oCat').innerHTML = CATS.map(c=>`<option>${c}</option>`).join('');
 $('mes').addEventListener('change', render);
 
-// Executa o render e checa as notificações no carregamento
 render();
 setTimeout(checkNotificacoes, 3000);
 </script>
