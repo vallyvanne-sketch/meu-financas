@@ -151,7 +151,7 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-fixas">
       <div class="card">
         <h2><i class="ph-fill ph-receipt"></i> Contas fixas do mês</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Se já pagou, clique em <strong>Pagar</strong>. Se vai pagar mês que vem, use <strong>Rolar</strong>.</div></div>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> ao lado do valor R$ 0,00 para colocar o valor real da conta. Depois, clique em <strong>Pagar</strong>.</div></div>
         <div class="table-responsive">
           <table><thead><tr><th>Conta</th><th>Venc.</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead><tbody id="fixasBody"></tbody></table>
         </div>
@@ -236,7 +236,6 @@ tr:last-child td{border-bottom:0}
       </div>
       <div class="card">
         <h2><i class="ph-fill ph-warning"></i> Problemas com o sistema?</h2>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Se a lista de contas sumir ou os botões pararem, clique no botão abaixo para limpar a memória e recomeçar do zero.</p>
         <button class="danger" style="padding:12px;font-size:14px" onclick="resetarTudo()">🗑️ Resetar Tudo do Zero</button>
       </div>
     </section>
@@ -244,7 +243,6 @@ tr:last-child td{border-bottom:0}
 </div>
 
 <script>
-// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDZC-qqbktn2IfL-V94rmaqdxImvhg951I",
   authDomain: "financas-casal-264e6.firebaseapp.com",
@@ -258,7 +256,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// Estado Inicial
 const defaultState = {
   cfg: { limiteIfood: 300 },
   fixas: [
@@ -272,7 +269,6 @@ const defaultState = {
   meses: {}
 };
 
-// BLINDAGEM: Se a memória do navegador estiver corrompida, ele força o defaultState
 let state = JSON.parse(localStorage.getItem('financas_local'));
 if (!state || !state.fixas || !Array.isArray(state.fixas) || state.fixas.length === 0) {
     state = JSON.parse(JSON.stringify(defaultState));
@@ -288,7 +284,7 @@ const ym  = d => d.toISOString().slice(0,7);
 
 function save() {
   localStorage.setItem('financas_local', JSON.stringify(state));
-  render(); // Atualiza a tela IMEDIATAMENTE
+  render();
   
   if (currentUser) {
     db.ref('users/' + currentUser.uid + '/state').set(state)
@@ -339,6 +335,13 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+$('btn-theme').addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  $('btn-theme').innerHTML = isDark ? '<i class="ph ph-moon"></i>' : '<i class="ph ph-sun"></i>';
+  render();
+});
+
 function resetarTudo() {
   if(confirm("Isso vai apagar todos os dados e restaurar as 12 contas iniciais. Tem certeza?")) {
     localStorage.removeItem('financas_local');
@@ -361,6 +364,16 @@ function getMes(y){
   m.salarios = m.salarios || {eu:0,esp:0}; m.extras = m.extras || []; m.ifood = m.ifood || []; m.outros = m.outros || [];
   m.fixasPago = m.fixasPago || {}; m.adiadas = m.adiadas || {}; m.puladas = m.puladas || {};
   return m;
+}
+
+// NOVA FUNÇÃO: Editar o valor da conta fixa
+function editFixaValor(id) {
+  const f = state.fixas.find(x => x.id === id);
+  if (!f) return;
+  const v = prompt(`Digite o valor previsto para "${f.nome}":`, f.valor);
+  if (v === null) return;
+  f.valor = parseFloat(v.replace(',', '.')) || 0;
+  save();
 }
 
 function salvarSalarios() {
@@ -458,7 +471,7 @@ function render(){
   $('salEu').value = m.salarios.eu || '';
   $('salEsp').value = m.salarios.esp || '';
 
-  // Tabela de Fixas
+  // Tabela de Fixas (Adicionado o botão de lápis ✎)
   $('fixasBody').innerHTML = state.fixas.map(f => {
     const pago = m.fixasPago[f.id] != null;
     const adiada = m.adiadas[f.id];
@@ -469,7 +482,11 @@ function render(){
     else if(pulada) badge = '<span class="badge pulada">Pulada</span>';
 
     return `<tr>
-      <td><strong>${f.nome}</strong></td><td>dia ${f.dia}</td><td>${fmt(f.valor)}</td>
+      <td><strong>${f.nome}</strong></td><td>dia ${f.dia}</td>
+      <td>
+        ${fmt(f.valor)} 
+        <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')" title="Editar valor">✎</button>
+      </td>
       <td>${pago ? fmt(m.fixasPago[f.id]) : '-'}</td><td>${badge}</td>
       <td>
         ${!pago && !adiada && !pulada 
@@ -515,13 +532,12 @@ document.querySelectorAll('.tab').forEach(b=>{
   });
 });
 
-// Inicialização
 $('mes').value = ym(new Date());
 $('ifData').value = ymd(new Date());
 $('oData').value = ymd(new Date());
 $('oCat').innerHTML = CATS.map(c=>`<option>${c}</option>`).join('');
 $('mes').addEventListener('change', render);
-render(); // Desenha na tela imediatamente, ignorando se o Firebase está lento.
+render();
 </script>
 </body>
 </html>
