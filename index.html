@@ -44,7 +44,6 @@ header .wrap{display:flex;justify-content:space-between;align-items:center;flex-
 .card{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
 h2{margin:0 0 16px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
 h2 i{color:var(--primary);font-size:20px}
-h2 .sub{font-size:12px;font-weight:500;color:var(--text-muted);margin-left:auto}
 .stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:24px}
 .stat{background:var(--surface);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
 .stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
@@ -147,8 +146,6 @@ tr:last-child td{border-bottom:0}
 
     <section class="panel active" id="panel-dash">
       <div class="card"><h2><i class="ph-fill ph-lightbulb"></i> Insights automáticos</h2><div id="insights" class="insights"></div></div>
-      <div class="card"><h2><i class="ph-fill ph-chart-bar"></i> Evolução</h2><div id="chart"></div></div>
-      <div class="card"><h2><i class="ph-fill ph-chart-donut"></i> Gastos por categoria</h2><div id="cats"></div></div>
     </section>
 
     <section class="panel" id="panel-fixas">
@@ -197,7 +194,6 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-ifood">
       <div class="card">
         <h2><i class="ph-fill ph-fork-knife"></i> iFood</h2>
-        <div class="hint" style="background:var(--danger-light);color:var(--danger);display:none" id="ifoodWarn"></div>
         <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px">
           <span>Usado: <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
           <span>Limite: <strong id="ifLimite">R$ 0,00</strong></span>
@@ -238,11 +234,17 @@ tr:last-child td{border-bottom:0}
           <button class="btn-primary" onclick="setLimiteIfood()">Salvar</button>
         </div>
       </div>
+      <div class="card">
+        <h2><i class="ph-fill ph-warning"></i> Problemas com o sistema?</h2>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Se a lista de contas sumir ou os botões pararem, clique no botão abaixo para limpar a memória e recomeçar do zero.</p>
+        <button class="danger" style="padding:12px;font-size:14px" onclick="resetarTudo()">🗑️ Resetar Tudo do Zero</button>
+      </div>
     </section>
   </main>
 </div>
 
 <script>
+// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDZC-qqbktn2IfL-V94rmaqdxImvhg951I",
   authDomain: "financas-casal-264e6.firebaseapp.com",
@@ -252,12 +254,11 @@ const firebaseConfig = {
   messagingSenderId: "195068207969",
   appId: "1:195068207969:web:69eb7a2a90ed8199ccdb20"
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// ESTADO INICIAL (O app já nasce com as 12 contas para a tela NUNCA ficar vazia)
+// Estado Inicial
 const defaultState = {
   cfg: { limiteIfood: 300 },
   fixas: [
@@ -271,32 +272,28 @@ const defaultState = {
   meses: {}
 };
 
-let state = JSON.parse(localStorage.getItem('financas_local')) || JSON.parse(JSON.stringify(defaultState));
-let currentUser = null;
-let firebaseConectado = false;
+// BLINDAGEM: Se a memória do navegador estiver corrompida, ele força o defaultState
+let state = JSON.parse(localStorage.getItem('financas_local'));
+if (!state || !state.fixas || !Array.isArray(state.fixas) || state.fixas.length === 0) {
+    state = JSON.parse(JSON.stringify(defaultState));
+    localStorage.setItem('financas_local', JSON.stringify(state));
+}
 
+let currentUser = null;
 const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Outros'];
 const $ = id => document.getElementById(id);
 const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const ymd = d => d.toISOString().slice(0,10);
 const ym  = d => d.toISOString().slice(0,7);
 
-// SALVAMENTO BLINDADO: Salva no navegador na hora, tenta salvar na nuvem em seguida
 function save() {
   localStorage.setItem('financas_local', JSON.stringify(state));
   render(); // Atualiza a tela IMEDIATAMENTE
   
   if (currentUser) {
     db.ref('users/' + currentUser.uid + '/state').set(state)
-      .then(() => { 
-         firebaseConectado = true; 
-         $('status-offline').style.display = 'none'; 
-      })
-      .catch(err => {
-         firebaseConectado = false;
-         $('status-offline').style.display = 'block';
-         console.warn("Salvando apenas localmente. Erro Firebase:", err.message);
-      });
+      .then(() => { $('status-offline').style.display = 'none'; })
+      .catch(err => { $('status-offline').style.display = 'block'; });
   }
 }
 
@@ -304,19 +301,15 @@ function loadStateFromFirebase() {
   if (!currentUser) return;
   db.ref('users/' + currentUser.uid + '/state').on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data) {
+    if (data && data.fixas && data.fixas.length > 0) {
       state = data;
-      if (!state.fixas) state.fixas = JSON.parse(JSON.stringify(defaultState.fixas));
       localStorage.setItem('financas_local', JSON.stringify(state));
-      firebaseConectado = true;
       $('status-offline').style.display = 'none';
     } else {
-      save(); // Envia os dados iniciais para a nuvem
+      save();
     }
     render();
   }, (error) => {
-    // Se a nuvem der erro (Regras bloqueadas), ele ignora e usa o LocalStorage
-    firebaseConectado = false;
     $('status-offline').style.display = 'block';
     render();
   });
@@ -346,12 +339,20 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-$('btn-theme').addEventListener('click', () => {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  $('btn-theme').innerHTML = isDark ? '<i class="ph ph-moon"></i>' : '<i class="ph ph-sun"></i>';
-  render();
-});
+function resetarTudo() {
+  if(confirm("Isso vai apagar todos os dados e restaurar as 12 contas iniciais. Tem certeza?")) {
+    localStorage.removeItem('financas_local');
+    state = JSON.parse(JSON.stringify(defaultState));
+    if (currentUser) {
+      db.ref('users/' + currentUser.uid + '/state').set(state).then(() => {
+        alert("Sistema resetado com sucesso!");
+        window.location.reload();
+      });
+    } else {
+      window.location.reload();
+    }
+  }
+}
 
 function getMes(y){
   if(!state.meses) state.meses = {};
@@ -504,8 +505,6 @@ function render(){
   const pct = Math.min(100, (ifd/lim)*100);
   $('ifBar').style.width = pct + '%';
   $('ifBar').style.background = pct > 90 ? 'var(--danger)' : pct > 70 ? 'var(--warning)' : 'var(--success)';
-
-  $('cfgIfood').value = state.cfg.limiteIfood;
 }
 
 document.querySelectorAll('.tab').forEach(b=>{
@@ -516,13 +515,13 @@ document.querySelectorAll('.tab').forEach(b=>{
   });
 });
 
-// Inicialização Segura
+// Inicialização
 $('mes').value = ym(new Date());
 $('ifData').value = ymd(new Date());
 $('oData').value = ymd(new Date());
 $('oCat').innerHTML = CATS.map(c=>`<option>${c}</option>`).join('');
 $('mes').addEventListener('change', render);
-render(); // Desenha na tela IMEDIATAMENTE ao carregar, sem esperar nuvem.
+render(); // Desenha na tela imediatamente, ignorando se o Firebase está lento.
 </script>
 </body>
 </html>
