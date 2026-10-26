@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Finanças Vanny & Tami</title>
 
-<!-- Configurações de App (PWA) -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finanças">
@@ -27,12 +26,14 @@
   --success: #10b981; --success-light: #d1fae5; --danger: #ef4444; --danger-light: #fee2e2;
   --warning: #f59e0b; --warning-light: #fef3c7; --shadow-sm: 0 1px 3px rgba(15,23,42,.05);
   --shadow-md: 0 4px 6px -1px rgba(15,23,42,.05); --radius: 16px; --radius-sm: 10px;
+  --vanny-color: #4338ca; --tami-color: #be185d;
 }
 [data-theme="dark"] {
   --bg: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
   --border: #334155; --primary: #6366f1; --primary-hover: #818cf8; --primary-light: #312e81;
   --success-light: #064e3b; --danger-light: #7f1d1d; --warning-light: #78350f;
   --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 6px rgba(0,0,0,.4);
+  --vanny-color: #818cf8; --tami-color: #f472b6;
 }
 *{box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--text-main);font-size:14px;transition:background .3s,color .3s; padding-bottom: 20px;}
@@ -51,16 +52,15 @@ header .wrap{display:flex;justify-content:space-between;align-items:center;flex-
 .card{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
 h2{margin:0 0 16px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
 h2 i{color:var(--primary);font-size:20px}
-.stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:24px}
-.stat{background:var(--surface);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
-.stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
-.stat-icon.rec{background:var(--success-light);color:var(--success)}
-.stat-icon.fix{background:var(--primary-light);color:var(--primary)}
-.stat-icon.ifd{background:var(--danger-light);color:var(--danger)}
-.stat-icon.out{background:var(--warning-light);color:var(--warning)}
-.stat-icon.sal{background:var(--bg);color:var(--text-main)}
-.stat .lbl{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase}
-.stat .val{font-size:24px;font-weight:800}
+
+/* Cards do Topo */
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:24px}
+.stat{background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.stat .lbl{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase}
+.stat .val{font-size:20px;font-weight:800}
+.stat.vanny .val { color: var(--vanny-color); }
+.stat.tami .val { color: var(--tami-color); }
+
 .pos{color:var(--success)!important}.neg{color:var(--danger)!important}.muted{color:var(--text-muted)}
 .tabs-wrap{overflow-x:auto;margin-bottom:24px;padding-bottom:4px; scrollbar-width: none;}
 .tabs-wrap::-webkit-scrollbar { display: none; }
@@ -74,8 +74,6 @@ button.btn-primary{background:var(--primary);color:#fff;padding:10px 16px;border
 button.ghost{background:var(--bg);color:var(--text-main);padding:10px 16px;border-radius:var(--radius-sm);font-weight:600;border:1px solid var(--border)}
 button.danger{background:var(--danger-light);color:var(--danger);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
 button.ok{background:var(--success-light);color:var(--success);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
-button.roll{background:var(--primary-light);color:var(--primary);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
-button.skip{background:var(--bg);color:var(--text-muted);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
 button.sm{padding:6px 10px;font-size:12px;width:auto}
 .table-responsive{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
@@ -86,12 +84,9 @@ tr:last-child td{border-bottom:0}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700}
 .badge.pago{background:var(--success-light);color:var(--success)}
 .badge.pendente{background:var(--warning-light);color:var(--warning)}
-.badge.atraso{background:var(--danger-light);color:var(--danger)}
-.badge.adiada{background:var(--primary-light);color:var(--primary)}
-.badge.pulada{background:var(--bg);color:var(--text-muted)}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
-.badge.vanny{background:#e0e7ff;color:#4338ca}
-.badge.tami{background:#fce7f3;color:#be185d}
+.badge.vanny{background:#e0e7ff;color:var(--vanny-color)}
+.badge.tami{background:#fce7f3;color:var(--tami-color)}
 .badge.casal{background:var(--border);color:var(--text-muted)}
 .bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar>div{height:100%;transition:width .4s ease}
@@ -101,7 +96,6 @@ tr:last-child td{border-bottom:0}
 .insight.ok{background:var(--success-light);color:var(--success)}
 .insight.warn{background:var(--warning-light);color:var(--warning)}
 .insight.danger{background:var(--danger-light);color:var(--danger)}
-.insight.info{background:var(--primary-light);color:var(--primary)}
 .insight .txt{color:var(--text-main);font-size:12px;line-height:1.4}
 .insight .ttl{font-weight:700;font-size:14px;margin-bottom:4px;}
 .hint{background:var(--primary-light);border-radius:var(--radius-sm);padding:14px;font-size:13px;margin-bottom:16px;display:flex;gap:12px;align-items:center}
@@ -110,12 +104,12 @@ tr:last-child td{border-bottom:0}
 #app-screen{display:none}
 #status-offline { display:none; background:var(--danger); color:white; text-align:center; padding:8px; font-size:12px; font-weight:bold; position:fixed; bottom:0; width:100%; z-index:999;}
 
-/* Painel Individual */
-.personal-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
-.personal-box h3 { margin: 0 0 8px; font-size: 18px; color: var(--text-main); }
+/* Aba Individual */
+.personal-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
+.personal-box h3 { margin: 0 0 8px; font-size: 18px; }
 .personal-box .total { font-size: 28px; font-weight: 800; margin-bottom: 16px; }
-.personal-box.vanny .total { color: #4338ca; }
-.personal-box.tami .total { color: #be185d; }
+.personal-box.vanny h3, .personal-box.vanny .total { color: var(--vanny-color); }
+.personal-box.tami h3, .personal-box.tami .total { color: var(--tami-color); }
 .personal-breakdown { text-align: left; font-size: 13px; margin-bottom: 16px; }
 .personal-breakdown div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); }
 .personal-breakdown div:last-child { border-bottom: none; }
@@ -186,12 +180,13 @@ tr:last-child td{border-bottom:0}
   </header>
 
   <main class="wrap">
+    <!-- PAINEL GERAL -->
     <div class="stats">
-      <div class="stat"><div class="stat-icon rec"><i class="ph-fill ph-arrow-down-left"></i></div><div class="lbl">Receita</div><div class="val pos" id="sRec">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon fix"><i class="ph-fill ph-house"></i></div><div class="lbl">Contas Pagas</div><div class="val" id="sFix">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon ifd"><i class="ph-fill ph-fork-knife"></i></div><div class="lbl">iFood Total</div><div class="val neg" id="sIf">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon out"><i class="ph-fill ph-shopping-cart"></i></div><div class="lbl">Outros Total</div><div class="val neg" id="sOut">R$ 0,00</div></div>
-      <div class="stat"><div class="stat-icon sal"><i class="ph-fill ph-scales"></i></div><div class="lbl">Saldo em Conta</div><div class="val" id="sSal">R$ 0,00</div></div>
+      <div class="stat"><div class="lbl">Receita Total</div><div class="val pos" id="sRec">R$ 0,00</div></div>
+      <div class="stat"><div class="lbl">Gastos Casal</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
+      <div class="stat vanny"><div class="lbl">Gastos Vanny</div><div class="val" id="sGastosVanny">R$ 0,00</div></div>
+      <div class="stat tami"><div class="lbl">Gastos Tami</div><div class="val" id="sGastosTami">R$ 0,00</div></div>
+      <div class="stat" style="background:var(--primary-light); border-color:var(--primary)"><div class="lbl" style="color:var(--primary)">Saldo Final</div><div class="val" id="sSal" style="color:var(--primary)">R$ 0,00</div></div>
     </div>
 
     <div class="tabs-wrap">
@@ -220,20 +215,20 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-    <!-- ABA INDIVIDUAL -->
+    <!-- ABA INDIVIDUAL (NÃO SOMA COM O CASAL) -->
     <section class="panel" id="panel-individual">
       <div class="card">
-        <h2><i class="ph-fill ph-users"></i> Placar do Mês</h2>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Aqui mostramos apenas os gastos pessoais de cada um (iFood, Outros e Contas Fixas marcadas como suas).</p>
+        <h2><i class="ph-fill ph-users"></i> Placar Individual do Mês</h2>
+        <div class="hint" style="background:var(--warning-light); border:1px solid var(--warning)"><i class="ph-fill ph-warning" style="color:var(--warning)"></i> <div><strong>Atenção:</strong> Aqui mostramos <strong>apenas</strong> os gastos pessoais de cada uma. As contas compartilhadas (Casal) não entram nestes valores.</div></div>
         <div class="row">
           <!-- Vanny -->
           <div class="personal-box vanny">
             <h3>Vanny</h3>
             <div class="total" id="indVannyTotal">R$ 0,00</div>
             <div class="personal-breakdown">
-              <div><span>iFood:</span> <strong id="indVannyIfood">R$ 0,00</strong></div>
-              <div><span>Outros:</span> <strong id="indVannyOutros">R$ 0,00</strong></div>
-              <div><span>Contas Fixas:</span> <strong id="indVannyFixas">R$ 0,00</strong></div>
+              <div><span>iFood Pessoal:</span> <strong id="indVannyIfood">R$ 0,00</strong></div>
+              <div><span>Outros Pessoais:</span> <strong id="indVannyOutros">R$ 0,00</strong></div>
+              <div><span>Contas Fixas (Só suas):</span> <strong id="indVannyFixas">R$ 0,00</strong></div>
             </div>
           </div>
           <!-- Tami -->
@@ -241,9 +236,9 @@ tr:last-child td{border-bottom:0}
             <h3>Tami</h3>
             <div class="total" id="indTamiTotal">R$ 0,00</div>
             <div class="personal-breakdown">
-              <div><span>iFood:</span> <strong id="indTamiIfood">R$ 0,00</strong></div>
-              <div><span>Outros:</span> <strong id="indTamiOutros">R$ 0,00</strong></div>
-              <div><span>Contas Fixas:</span> <strong id="indTamiFixas">R$ 0,00</strong></div>
+              <div><span>iFood Pessoal:</span> <strong id="indTamiIfood">R$ 0,00</strong></div>
+              <div><span>Outros Pessoais:</span> <strong id="indTamiOutros">R$ 0,00</strong></div>
+              <div><span>Contas Fixas (Só suas):</span> <strong id="indTamiFixas">R$ 0,00</strong></div>
             </div>
           </div>
         </div>
@@ -272,7 +267,7 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-fixas">
       <div class="card">
         <h2><i class="ph-fill ph-receipt"></i> Contas Fixas</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Use o lápis para mudar a data/valor e o seletor para definir de quem é a conta.</div></div>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique na etiqueta colorida para mudar de quem é a conta (Casal, Vanny ou Tami).</div></div>
         <div class="table-responsive">
           <table>
             <thead><tr><th>Conta / Dono</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
@@ -284,7 +279,7 @@ tr:last-child td{border-bottom:0}
         <h2><i class="ph-fill ph-plus-circle"></i> Adicionar conta fixa</h2>
         <div class="row">
           <input type="text" id="fxNome" placeholder="Nome">
-          <select id="fxDono"><option>Casal</option><option>Vanny</option><option>Tami</option></select>
+          <select id="fxDono"><option value="Casal">Casal</option><option value="Vanny">Vanny</option><option value="Tami">Tami</option></select>
           <input type="number" id="fxValor" placeholder="Valor (R$)" step="0.01">
           <input type="number" id="fxDia" placeholder="Dia venc.">
           <button class="btn-primary" onclick="addFixa()">Adicionar</button>
@@ -325,7 +320,7 @@ tr:last-child td{border-bottom:0}
           <input type="date" id="ifData">
           <select id="ifTipo"><option>Almoço</option><option>Lanche</option><option>Café</option><option>Jantar</option></select>
           <input type="text" id="ifDesc" placeholder="Descrição">
-          <select id="ifPessoa"><option>Vanny</option><option>Tami</option></select>
+          <select id="ifPessoa"><option>Vanny</option><option>Tami</option><option>Casal</option></select>
           <input type="number" id="ifValor" placeholder="Valor (R$)" step="0.01">
           <button class="btn-primary" onclick="addIfood()">Add</button>
         </div>
@@ -441,7 +436,6 @@ if (!state || !state.fixas) { state = JSON.parse(JSON.stringify(defaultState)); 
 if (!state.cfg.limitesIndividuais) state.cfg.limitesIndividuais = { vanny: 400, tami: 400 };
 if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
-// Garante que todas as contas fixas tenham um dono
 state.fixas.forEach(f => { if(!f.dono) f.dono = 'Casal'; });
 
 let currentUser = null;
@@ -567,7 +561,7 @@ function editFixaValor(id) {
 function changeFixaDono(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
-  const v = prompt(`Digite o dono da conta "${f.nome}" (Casal, Vanny ou Tami):`, f.dono);
+  const v = prompt(`Dono da conta "${f.nome}" (Casal, Vanny ou Tami):`, f.dono);
   if (!v) return;
   const vLower = v.trim().toLowerCase();
   if (vLower === 'vanny' || vLower === 'tami' || vLower === 'casal') {
@@ -717,42 +711,55 @@ function render(){
   const mes = $('mes').value;
   const m = getMes(mes);
   
-  const fixPago = Object.values(m.fixasPago).reduce((s,v)=>s+(v.valor||0),0);
-  const ifd = m.ifood.reduce((s,e)=>s+e.valor,0);
-  const out = m.outros.reduce((s,e)=>s+e.valor,0);
-  const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
+  // --- CÁLCULO DOS TOTAIS ISOLADOS ---
+  let totalGastoCasal = 0, totalGastoVanny = 0, totalGastoTami = 0;
   
-  $('sRec').textContent = fmt(rec);
-  $('sFix').textContent = fmt(fixPago);
-  $('sIf').textContent = fmt(ifd);
-  $('sOut').textContent = fmt(out);
-  const saldo = rec - fixPago - ifd - out;
-  $('sSal').textContent = fmt(saldo);
-  $('sSal').className = 'val ' + (saldo >= 0 ? 'pos' : 'neg');
+  let vannyIfood = 0, tamiIfood = 0, casalIfood = 0;
+  let vannyOutros = 0, tamiOutros = 0, casalOutros = 0;
+  let vannyFixas = 0, tamiFixas = 0, casalFixas = 0;
 
-  // --- CÁLCULOS INDIVIDUAIS ---
-  let vannyIfood = 0, tamiIfood = 0, vannyOutros = 0, tamiOutros = 0, vannyFixas = 0, tamiFixas = 0;
-  
-  m.ifood.forEach(e => { if(e.pessoa === 'Vanny') vannyIfood += e.valor; else if (e.pessoa === 'Tami') tamiIfood += e.valor; });
-  m.outros.forEach(e => { if(e.pessoa === 'Vanny') vannyOutros += e.valor; else if (e.pessoa === 'Tami') tamiOutros += e.valor; });
-  
+  // iFood
+  m.ifood.forEach(e => { 
+    if(e.pessoa === 'Vanny') { vannyIfood += e.valor; totalGastoVanny += e.valor; }
+    else if (e.pessoa === 'Tami') { tamiIfood += e.valor; totalGastoTami += e.valor; }
+    else { casalIfood += e.valor; totalGastoCasal += e.valor; }
+  });
+
+  // Outros
+  m.outros.forEach(e => { 
+    if(e.pessoa === 'Vanny') { vannyOutros += e.valor; totalGastoVanny += e.valor; }
+    else if (e.pessoa === 'Tami') { tamiOutros += e.valor; totalGastoTami += e.valor; }
+    else { casalOutros += e.valor; totalGastoCasal += e.valor; }
+  });
+
+  // Fixas
   state.fixas.forEach(f => {
     const pago = m.fixasPago[f.id];
     if(pago) {
-      if(f.dono === 'Vanny') vannyFixas += pago.valor;
-      else if(f.dono === 'Tami') tamiFixas += pago.valor;
+      if(f.dono === 'Vanny') { vannyFixas += pago.valor; totalGastoVanny += pago.valor; }
+      else if (f.dono === 'Tami') { tamiFixas += pago.valor; totalGastoTami += pago.valor; }
+      else { casalFixas += pago.valor; totalGastoCasal += pago.valor; }
     }
   });
 
-  const vannyTotal = vannyIfood + vannyOutros + vannyFixas;
-  const tamiTotal = tamiIfood + tamiOutros + tamiFixas;
+  const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
+  const totalGeral = totalGastoCasal + totalGastoVanny + totalGastoTami;
+  const saldo = rec - totalGeral;
 
-  $('indVannyTotal').textContent = fmt(vannyTotal);
+  // Placar Principal (Dashboard)
+  $('sRec').textContent = fmt(rec);
+  $('sGastosCasal').textContent = fmt(totalGastoCasal);
+  $('sGastosVanny').textContent = fmt(totalGastoVanny);
+  $('sGastosTami').textContent = fmt(totalGastoTami);
+  $('sSal').textContent = fmt(saldo);
+
+  // Aba Individual
+  $('indVannyTotal').textContent = fmt(totalGastoVanny);
   $('indVannyIfood').textContent = fmt(vannyIfood);
   $('indVannyOutros').textContent = fmt(vannyOutros);
   $('indVannyFixas').textContent = fmt(vannyFixas);
 
-  $('indTamiTotal').textContent = fmt(tamiTotal);
+  $('indTamiTotal').textContent = fmt(totalGastoTami);
   $('indTamiIfood').textContent = fmt(tamiIfood);
   $('indTamiOutros').textContent = fmt(tamiOutros);
   $('indTamiFixas').textContent = fmt(tamiFixas);
@@ -763,14 +770,14 @@ function render(){
   
   const limV = state.cfg.limitesIndividuais.vanny || 1;
   const limT = state.cfg.limitesIndividuais.tami || 1;
-  const pctV = Math.min(100, (vannyTotal/limV)*100);
-  const pctT = Math.min(100, (tamiTotal/limT)*100);
+  const pctV = Math.min(100, (totalGastoVanny/limV)*100);
+  const pctT = Math.min(100, (totalGastoTami/limT)*100);
   
   const corV = pctV>100?'var(--danger)':pctV>80?'var(--warning)':'var(--success)';
   const corT = pctT>100?'var(--danger)':pctT>80?'var(--warning)':'var(--success)';
   
-  $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(vannyTotal)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
-  $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(tamiTotal)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
+  $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(totalGastoVanny)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
+  $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(totalGastoTami)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
 
   // Alertas de Vencimento
   const alertas = [];
@@ -829,9 +836,6 @@ function render(){
   $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
   $('ifBody').innerHTML = m.ifood.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delIfood(${e.id})">x</button></td></tr>`).join('');
   $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
-
-  const pctIf = Math.min(100, (ifd/(state.cfg.limiteIfood||1))*100);
-  $('ifUsado').textContent = fmt(ifd); $('ifLimite').textContent = fmt(state.cfg.limiteIfood);
 
   // Dívidas e Metas
   $('dividasBody').innerHTML = state.dividas.map(d => {
