@@ -81,6 +81,7 @@ tr:last-child td{border-bottom:0}
 .badge.atraso{background:var(--danger-light);color:var(--danger)}
 .badge.adiada{background:var(--primary-light);color:var(--primary)}
 .badge.pulada{background:var(--bg);color:var(--text-muted)}
+.badge.parcial{background:var(--warning-light);color:var(--warning)}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
 .insight{padding:16px;border-radius:var(--radius-sm);display:flex;gap:12px}
 .insight.ok{background:var(--success-light);color:var(--success)}
@@ -94,6 +95,24 @@ tr:last-child td{border-bottom:0}
 .login-card{background:var(--surface);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-md);max-width:400px;width:100%;border:1px solid var(--border)}
 #app-screen{display:none}
 #status-offline { display:none; background:var(--danger); color:white; text-align:center; padding:8px; font-size:12px; font-weight:bold; position:fixed; bottom:0; width:100%; z-index:999;}
+
+/* Estilo do Modal de Pagamento */
+#modal-pgto {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.modal-box {
+  background: var(--surface); border-radius: var(--radius); padding: 24px;
+  width: 100%; max-width: 450px; box-shadow: var(--shadow-md); border: 1px solid var(--border);
+}
+.modal-box h3 { margin: 0 0 16px; font-size: 18px; color: var(--primary); }
+.modal-box .info { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
+.modal-box .info div { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.modal-box .info div:last-child { margin-bottom: 0; }
+.modal-box label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+.modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+.modal-actions button { flex: 1; padding: 12px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -108,6 +127,36 @@ tr:last-child td{border-bottom:0}
       <button class="ghost" id="btn-signup">Criar nova conta</button>
     </div>
     <p id="login-error" style="color:var(--danger); font-size:12px; text-align:center; margin-top:16px;"></p>
+  </div>
+</div>
+
+<!-- MODAL DE PAGAMENTO -->
+<div id="modal-pgto">
+  <div class="modal-box">
+    <h3>Pagar Conta</h3>
+    <div class="info">
+      <div><span>Conta:</span> <strong id="modal-nome"></strong></div>
+      <div><span>Valor Previsto:</span> <strong id="modal-previsto"></strong></div>
+    </div>
+    <input type="hidden" id="modal-id">
+    <div class="row" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px;">
+      <div>
+        <label>Valor Real Pago (R$)</label>
+        <input type="number" id="modal-valor" step="0.01" placeholder="0,00">
+      </div>
+      <div>
+        <label>Data do Pagamento</label>
+        <input type="date" id="modal-data">
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">
+      💡 <strong>Juros/Multa:</strong> Se o valor pago for maior que o previsto, o sistema calculará os juros automaticamente.<br>
+      ✂️ <strong>Pagamento Parcial:</strong> Se pagar menos, o sistema avisará quanto sobrou e marcará como Parcial.
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primary" onclick="confirmarPagamento()">Confirmar</button>
+    </div>
   </div>
 </div>
 
@@ -151,9 +200,12 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-fixas">
       <div class="card">
         <h2><i class="ph-fill ph-receipt"></i> Contas fixas do mês</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> ao lado do valor R$ 0,00 para colocar o valor real da conta. Depois, clique em <strong>Pagar</strong>.</div></div>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique no <strong>lápis (✎)</strong> para definir o valor base de cada conta. Depois, clique em <strong>Pagar</strong> para colocar o valor real, data e juros.</div></div>
         <div class="table-responsive">
-          <table><thead><tr><th>Conta</th><th>Venc.</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead><tbody id="fixasBody"></tbody></table>
+          <table>
+            <thead><tr><th>Conta</th><th>Venc.</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="fixasBody"></tbody>
+          </table>
         </div>
       </div>
       <div class="card">
@@ -285,7 +337,6 @@ const ym  = d => d.toISOString().slice(0,7);
 function save() {
   localStorage.setItem('financas_local', JSON.stringify(state));
   render();
-  
   if (currentUser) {
     db.ref('users/' + currentUser.uid + '/state').set(state)
       .then(() => { $('status-offline').style.display = 'none'; })
@@ -366,15 +417,68 @@ function getMes(y){
   return m;
 }
 
-// NOVA FUNÇÃO: Editar o valor da conta fixa
 function editFixaValor(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
-  const v = prompt(`Digite o valor previsto para "${f.nome}":`, f.valor);
+  const v = prompt(`Digite o valor PREVISTO (base) para "${f.nome}":`, f.valor);
   if (v === null) return;
   f.valor = parseFloat(v.replace(',', '.')) || 0;
   save();
 }
+
+// --- LÓGICA DO MODAL DE PAGAMENTO ---
+function abrirModalPgto(id) {
+  const f = state.fixas.find(x => x.id === id);
+  if (!f) return;
+  
+  $('modal-id').value = id;
+  $('modal-nome').textContent = f.nome;
+  $('modal-previsto').textContent = fmt(f.valor);
+  $('modal-valor').value = f.valor; // Sugere o valor cheio
+  $('modal-data').value = ymd(new Date()); // Data de hoje
+  
+  $('modal-pgto').style.display = 'flex';
+  $('modal-valor').focus();
+}
+
+function fecharModal() {
+  $('modal-pgto').style.display = 'none';
+}
+
+function confirmarPagamento() {
+  const id = $('modal-id').value;
+  const valorReal = parseFloat($('modal-valor').value.replace(',', '.')) || 0;
+  const dataPgto = $('modal-data').value;
+  
+  if (valorReal <= 0) return alert('Digite um valor válido.');
+  if (!dataPgto) return alert('Selecione a data de pagamento.');
+
+  const f = state.fixas.find(x => x.id === id);
+  const m = getMes($('mes').value);
+  
+  const previsto = f.valor;
+  const diferenca = valorReal - previsto;
+  
+  // Salva os dados detalhados do pagamento
+  m.fixasPago[id] = {
+    valor: valorReal,
+    data: dataPgto,
+    previsto: previsto,
+    juros: diferenca > 0 ? diferenca : 0,
+    parcial: diferenca < 0 ? true : false,
+    restante: diferenca < 0 ? Math.abs(diferenca) : 0
+  };
+  
+  fecharModal();
+  save();
+}
+
+function desfazerPgto(id) {
+  const m = getMes($('mes').value);
+  delete m.fixasPago[id];
+  save();
+}
+// ------------------------------------
 
 function salvarSalarios() {
   const m = getMes($('mes').value);
@@ -388,17 +492,6 @@ function addFixa(){
   if(!nome) return alert('Informe o nome da conta');
   state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
   $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value='';
-  save();
-}
-
-function togglePago(id){
-  const m = getMes($('mes').value);
-  const f = state.fixas.find(x=>x.id===id);
-  if(m.fixasPago[id] != null){ delete m.fixasPago[id]; save(); return; }
-  if(m.adiadas[id] || m.puladas[id]){ delete m.adiadas[id]; delete m.puladas[id]; save(); return; }
-  const v = prompt(`Valor pago de "${f.nome}":`, f.valor||'');
-  if(v===null) return;
-  m.fixasPago[id] = parseFloat(v.replace(',', '.'))||0;
   save();
 }
 
@@ -456,7 +549,8 @@ function render(){
   const mes = $('mes').value;
   const m = getMes(mes);
   
-  const fixPago = Object.values(m.fixasPago).reduce((s,v)=>s+v,0);
+  // Soma os gastos reais (o que saiu do bolso)
+  const fixPago = Object.values(m.fixasPago).reduce((s,v)=>s+(v.valor||0),0);
   const ifd = m.ifood.reduce((s,e)=>s+e.valor,0);
   const out = m.outros.reduce((s,e)=>s+e.valor,0);
   const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
@@ -471,15 +565,29 @@ function render(){
   $('salEu').value = m.salarios.eu || '';
   $('salEsp').value = m.salarios.esp || '';
 
-  // Tabela de Fixas (Adicionado o botão de lápis ✎)
   $('fixasBody').innerHTML = state.fixas.map(f => {
-    const pago = m.fixasPago[f.id] != null;
+    const pgto = m.fixasPago[f.id];
     const adiada = m.adiadas[f.id];
     const pulada = m.puladas[f.id];
+    
     let badge = '<span class="badge pendente">Pendente</span>';
-    if(pago) badge = '<span class="badge pago">✓ Pago</span>';
-    else if(adiada) badge = `<span class="badge adiada">Rolada p/ ${adiada}</span>`;
-    else if(pulada) badge = '<span class="badge pulada">Pulada</span>';
+    let txtPago = '-';
+
+    if(pgto) {
+      txtPago = `<div>${fmt(pgto.valor)}</div><div style="font-size:10px;color:var(--text-muted)">${pgto.data.split('-').reverse().join('/')}</div>`;
+      
+      if (pgto.parcial) {
+        badge = `<span class="badge parcial">Parcial (Falta ${fmt(pgto.restante)})</span>`;
+      } else if (pgto.juros > 0) {
+        badge = `<span class="badge pago">✓ Pago (Juros ${fmt(pgto.juros)})</span>`;
+      } else {
+        badge = `<span class="badge pago">✓ Pago Integral</span>`;
+      }
+    } else if(adiada) {
+      badge = `<span class="badge adiada">Rolada p/ ${adiada}</span>`;
+    } else if(pulada) {
+      badge = '<span class="badge pulada">Pulada</span>';
+    }
 
     return `<tr>
       <td><strong>${f.nome}</strong></td><td>dia ${f.dia}</td>
@@ -487,36 +595,33 @@ function render(){
         ${fmt(f.valor)} 
         <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')" title="Editar valor">✎</button>
       </td>
-      <td>${pago ? fmt(m.fixasPago[f.id]) : '-'}</td><td>${badge}</td>
+      <td>${txtPago}</td>
+      <td>${badge}</td>
       <td>
-        ${!pago && !adiada && !pulada 
-          ? `<button class="ok sm" onclick="togglePago('${f.id}')">Pagar</button>
+        ${!pgto && !adiada && !pulada 
+          ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button>
              <button class="roll sm" onclick="rolarFixa('${f.id}')">Rolar</button>
              <button class="skip sm" onclick="pularFixa('${f.id}')">Pular</button>` 
-          : `<button class="danger sm" onclick="togglePago('${f.id}')">Desfazer</button>`}
+          : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}
       </td>
     </tr>`;
   }).join('');
 
-  // Tabela de Extras
   $('extrasBody').innerHTML = m.extras.map(e => `
     <tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td>
     <td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>
   `).join('');
 
-  // Tabela de iFood
   $('ifBody').innerHTML = m.ifood.map(e => `
     <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.desc}</td><td class="neg">${fmt(e.valor)}</td>
     <td><button class="ok sm" onclick="repeatIfood(${e.id})">🔁</button> <button class="danger" onclick="delIfood(${e.id})">x</button></td></tr>
   `).join('');
 
-  // Tabela de Outros
   $('outrosBody').innerHTML = m.outros.map(e => `
     <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td class="neg">${fmt(e.valor)}</td>
     <td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>
   `).join('');
 
-  // Barra iFood
   const lim = state.cfg.limiteIfood || 1;
   $('ifUsado').textContent = fmt(ifd); $('ifLimite').textContent = fmt(lim);
   const pct = Math.min(100, (ifd/lim)*100);
