@@ -329,14 +329,15 @@ tbody tr:hover{background:var(--bg)}
         <h2><i class="ph-fill ph-bank"></i> Salário líquido</h2>
         <div class="row">
           <div>
-            <label style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:4px;display:block">Salário Eu (aperte Tab após digitar)</label>
-            <input type="number" id="salEu" step="0.01" onchange="setSalario('eu',this.value)">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:4px;display:block">Salário Eu</label>
+            <input type="number" id="salEu" step="0.01">
           </div>
           <div>
-            <label style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:4px;display:block">Salário Esposa (aperte Tab após digitar)</label>
-            <input type="number" id="salEsp" step="0.01" onchange="setSalario('esp',this.value)">
+            <label style="font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:4px;display:block">Salário Esposa</label>
+            <input type="number" id="salEsp" step="0.01">
           </div>
         </div>
+        <button class="btn-primary" style="margin-top:12px; width:100%" onclick="salvarSalarios()"><i class="ph ph-check"></i> Salvar Salários</button>
       </div>
       <div class="card">
         <h2><i class="ph-fill ph-hand-coins"></i> Rendas extras <span class="sub" id="extrasTot"></span></h2>
@@ -523,7 +524,6 @@ function loadStateFromFirebase() {
     const data = snapshot.val();
     if (data) {
       state = data;
-      // Failsafe: se o banco tiver dados antigos sem as contas fixas, recria.
       if (!state.fixas || state.fixas.length === 0) {
          state.fixas = structuredClone(defaultState.fixas);
          save();
@@ -533,7 +533,7 @@ function loadStateFromFirebase() {
     } else {
       state = structuredClone(defaultState);
       save();
-      render(); // <--- CORREÇÃO AQUI: Manda desenhar a tela imediatamente!
+      render(); 
     }
   });
 }
@@ -570,7 +570,6 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// Lógica do Tema Escuro
 const themeBtn = $('btn-theme');
 const currentTheme = localStorage.getItem('theme') || 'light';
 document.documentElement.setAttribute('data-theme', currentTheme);
@@ -737,8 +736,19 @@ function generateInsights(y){
 }
 
 // AÇÕES
+function salvarSalarios() {
+  const vEu = parseFloat($('salEu').value.replace(',', '.')) || 0;
+  const vEsp = parseFloat($('salEsp').value.replace(',', '.')) || 0;
+  const m = getMes($('mes').value);
+  m.salarios.eu = vEu;
+  m.salarios.esp = vEsp;
+  save();
+  render();
+  alert('Salários salvos com sucesso!');
+}
+
 function addFixa(){
-  const nome=$('fxNome').value.trim(), valor=parseFloat($('fxValor').value)||0, dia=parseInt($('fxDia').value)||1;
+  const nome=$('fxNome').value.trim(), valor=parseFloat($('fxValor').value.replace(',', '.'))||0, dia=parseInt($('fxDia').value)||1;
   if(!nome){alert('Informe o nome');return}
   state.fixas.push({id:'f'+Date.now(), nome, valor, dia});
   $('fxNome').value='';$('fxValor').value='';$('fxDia').value='';
@@ -753,7 +763,7 @@ function editFixaValor(id){
   const f=state.fixas.find(x=>x.id===id);if(!f)return;
   const v=prompt(`Novo valor previsto para "${f.nome}":`, f.valor);
   if(v===null)return;
-  f.valor=parseFloat(v)||0;save();render();
+  f.valor=parseFloat(v.replace(',', '.'))||0;save();render();
 }
 function togglePago(id){
   const mes = $('mes').value, m = getMes(mes);
@@ -762,7 +772,7 @@ function togglePago(id){
   if(m.adiadas?.[id] || m.puladas?.[id]){ delete m.adiadas[id]; delete m.puladas[id]; save(); render(); return; }
   const v = prompt(`Valor pago de "${f.nome}" (previsto ${fmt(f.valor)}):`, f.valor||'');
   if(v===null) return;
-  m.fixasPago[id] = parseFloat(v)||0;
+  m.fixasPago[id] = parseFloat(v.replace(',', '.'))||0;
   save(); render();
 }
 function rolarFixa(id){
@@ -803,9 +813,8 @@ function pularTodasPendentes(){
   pend.forEach(f => m.puladas[f.id] = true);
   save(); render();
 }
-function setSalario(quem,v){const m=getMes($('mes').value);m.salarios[quem]=parseFloat(v)||0;save();render();}
 function addExtra(){
-  const desc=$('exDesc').value.trim()||'Renda extra', pessoa=$('exPessoa').value, valor=parseFloat($('exValor').value);
+  const desc=$('exDesc').value.trim()||'Renda extra', pessoa=$('exPessoa').value, valor=parseFloat($('exValor').value.replace(',', '.'));
   if(!valor||valor<=0){alert('Informe o valor');return}
   const m=getMes($('mes').value);
   m.extras.push({id:Date.now(), desc, pessoa, valor, recurring:$('exRecurring').checked});
@@ -814,12 +823,12 @@ function addExtra(){
 }
 function delExtra(id){const m=getMes($('mes').value);m.extras=m.extras.filter(e=>e.id!==id);save();render();}
 function setLimiteIfood(){
-  const v=parseFloat($('cfgIfood').value);
+  const v=parseFloat($('cfgIfood').value.replace(',', '.'));
   if(!v||v<=0){alert('Valor inválido');return}
   state.cfg.limiteIfood=v;save();render();
 }
 function addIfood(){
-  const valor=parseFloat($('ifValor').value);
+  const valor=parseFloat($('ifValor').value.replace(',', '.'));
   if(!valor||valor<=0){alert('Informe o valor');return}
   const m=getMes($('mes').value);
   m.ifood.push({id:Date.now(), data:$('ifData').value||ymd(new Date()), tipo:$('ifTipo').value, desc:$('ifDesc').value.trim(), valor});
@@ -834,7 +843,7 @@ function repeatIfood(id){
   $('ifValor').focus();
 }
 function addOutro(){
-  const valor=parseFloat($('oValor').value);
+  const valor=parseFloat($('oValor').value.replace(',', '.'));
   if(!valor||valor<=0){alert('Informe o valor');return}
   const m=getMes($('mes').value);
   m.outros.push({id:Date.now(), data:$('oData').value||ymd(new Date()), desc:$('oDesc').value.trim()||$('oCat').value, cat:$('oCat').value, pessoa:$('oPessoa').value, pagto:$('oPagto').value, valor});
