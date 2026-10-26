@@ -52,15 +52,12 @@ header .wrap{display:flex;justify-content:space-between;align-items:center;flex-
 .card{background:var(--surface);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
 h2{margin:0 0 16px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
 h2 i{color:var(--primary);font-size:20px}
-
-/* Cards do Topo */
 .stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:24px}
 .stat{background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
 .stat .lbl{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase}
 .stat .val{font-size:20px;font-weight:800}
 .stat.vanny .val { color: var(--vanny-color); }
 .stat.tami .val { color: var(--tami-color); }
-
 .pos{color:var(--success)!important}.neg{color:var(--danger)!important}.muted{color:var(--text-muted)}
 .tabs-wrap{overflow-x:auto;margin-bottom:24px;padding-bottom:4px; scrollbar-width: none;}
 .tabs-wrap::-webkit-scrollbar { display: none; }
@@ -85,9 +82,6 @@ tr:last-child td{border-bottom:0}
 .badge.pago{background:var(--success-light);color:var(--success)}
 .badge.pendente{background:var(--warning-light);color:var(--warning)}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
-.badge.vanny{background:#e0e7ff;color:var(--vanny-color)}
-.badge.tami{background:#fce7f3;color:var(--tami-color)}
-.badge.casal{background:var(--border);color:var(--text-muted)}
 .bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar>div{height:100%;transition:width .4s ease}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
@@ -183,7 +177,7 @@ tr:last-child td{border-bottom:0}
     <!-- PAINEL GERAL -->
     <div class="stats">
       <div class="stat"><div class="lbl">Receita Total</div><div class="val pos" id="sRec">R$ 0,00</div></div>
-      <div class="stat"><div class="lbl">Gastos Casal</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
+      <div class="stat"><div class="lbl">Gastos da Casa (Casal)</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
       <div class="stat vanny"><div class="lbl">Gastos Vanny</div><div class="val" id="sGastosVanny">R$ 0,00</div></div>
       <div class="stat tami"><div class="lbl">Gastos Tami</div><div class="val" id="sGastosTami">R$ 0,00</div></div>
       <div class="stat" style="background:var(--primary-light); border-color:var(--primary)"><div class="lbl" style="color:var(--primary)">Saldo Final</div><div class="val" id="sSal" style="color:var(--primary)">R$ 0,00</div></div>
@@ -192,11 +186,10 @@ tr:last-child td{border-bottom:0}
     <div class="tabs-wrap">
       <div class="tabs">
         <button class="tab active" data-tab="dash"><i class="ph ph-chart-pie-slice"></i> Dash</button>
-        <button class="tab" data-tab="individual"><i class="ph ph-users"></i> Individual</button>
-        <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Fixas</button>
+        <button class="tab" data-tab="individual"><i class="ph ph-users"></i> Individual (V&T)</button>
+        <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Contas da Casa</button>
         <button class="tab" data-tab="receitas"><i class="ph ph-money"></i> Receitas</button>
-        <button class="tab" data-tab="ifood"><i class="ph ph-fork-knife"></i> iFood</button>
-        <button class="tab" data-tab="outros"><i class="ph ph-shopping-cart"></i> Outros</button>
+        <button class="tab" data-tab="outros"><i class="ph ph-shopping-cart"></i> Outros (Casa)</button>
         <button class="tab" data-tab="dividas"><i class="ph ph-receipt-x"></i> Dívidas</button>
         <button class="tab" data-tab="metas"><i class="ph ph-target"></i> Metas</button>
         <button class="tab" data-tab="config"><i class="ph ph-gear"></i> Config</button>
@@ -215,62 +208,74 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-    <!-- ABA INDIVIDUAL (NÃO SOMA COM O CASAL) -->
+    <!-- ABA INDIVIDUAL (LANÇAMENTOS SEPARADOS) -->
     <section class="panel" id="panel-individual">
       <div class="card">
-        <h2><i class="ph-fill ph-users"></i> Placar Individual do Mês</h2>
-        <div class="hint" style="background:var(--warning-light); border:1px solid var(--warning)"><i class="ph-fill ph-warning" style="color:var(--warning)"></i> <div><strong>Atenção:</strong> Aqui mostramos <strong>apenas</strong> os gastos pessoais de cada uma. As contas compartilhadas (Casal) não entram nestes valores.</div></div>
-        <div class="row">
-          <!-- Vanny -->
+        <h2><i class="ph-fill ph-users"></i> Lançamentos Individuais</h2>
+        <div class="hint" style="background:var(--warning-light); border:1px solid var(--warning)"><i class="ph-fill ph-warning" style="color:var(--warning)"></i> <div><strong>Atenção:</strong> Tudo o que for lançado aqui <strong>não se mistura</strong> com as contas da casa (Fixas/Outros). É o gasto pessoal puro de cada uma.</div></div>
+        
+        <div class="row" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items: start;">
+          
+          <!-- VANNY -->
           <div class="personal-box vanny">
             <h3>Vanny</h3>
             <div class="total" id="indVannyTotal">R$ 0,00</div>
-            <div class="personal-breakdown">
-              <div><span>iFood Pessoal:</span> <strong id="indVannyIfood">R$ 0,00</strong></div>
-              <div><span>Outros Pessoais:</span> <strong id="indVannyOutros">R$ 0,00</strong></div>
-              <div><span>Contas Fixas (Só suas):</span> <strong id="indVannyFixas">R$ 0,00</strong></div>
+            
+            <div class="row" style="margin-bottom:12px">
+              <input type="text" id="vDesc" placeholder="O que você gastou?">
+              <input type="number" id="vValor" placeholder="R$" step="0.01">
+            </div>
+            <button class="btn-primary" style="width:100%; margin-bottom:16px; background:var(--vanny-color)" onclick="addPessoal('Vanny')">Adicionar Gasto Vanny</button>
+            
+            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+              <table>
+                <thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+                <tbody id="vannyPessoaisBody"></tbody>
+              </table>
             </div>
           </div>
-          <!-- Tami -->
+
+          <!-- TAMI -->
           <div class="personal-box tami">
             <h3>Tami</h3>
             <div class="total" id="indTamiTotal">R$ 0,00</div>
-            <div class="personal-breakdown">
-              <div><span>iFood Pessoal:</span> <strong id="indTamiIfood">R$ 0,00</strong></div>
-              <div><span>Outros Pessoais:</span> <strong id="indTamiOutros">R$ 0,00</strong></div>
-              <div><span>Contas Fixas (Só suas):</span> <strong id="indTamiFixas">R$ 0,00</strong></div>
+            
+            <div class="row" style="margin-bottom:12px">
+              <input type="text" id="tDesc" placeholder="O que você gastou?">
+              <input type="number" id="tValor" placeholder="R$" step="0.01">
+            </div>
+            <button class="btn-primary" style="width:100%; margin-bottom:16px; background:var(--tami-color)" onclick="addPessoal('Tami')">Adicionar Gasto Tami</button>
+            
+            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+              <table>
+                <thead><tr><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+                <tbody id="tamiPessoaisBody"></tbody>
+              </table>
             </div>
           </div>
+
         </div>
       </div>
 
       <div class="card">
         <h2><i class="ph-fill ph-target"></i> Teto Pessoal</h2>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Defina um limite de gastos individuais para segurar a onda.</p>
         <div class="row" style="margin-bottom:16px">
-          <div>
-            <label>Limite da Vanny (R$)</label>
-            <input type="number" id="limiteVanny" step="0.01" onchange="salvarLimites()">
-          </div>
-          <div>
-            <label>Limite da Tami (R$)</label>
-            <input type="number" id="limiteTami" step="0.01" onchange="salvarLimites()">
-          </div>
+          <div><label>Limite da Vanny (R$)</label><input type="number" id="limiteVanny" step="0.01" onchange="salvarLimites()"></div>
+          <div><label>Limite da Tami (R$)</label><input type="number" id="limiteTami" step="0.01" onchange="salvarLimites()"></div>
         </div>
-
         <div id="alertaVanny" style="margin-bottom:16px;"></div>
         <div id="alertaTami"></div>
       </div>
     </section>
 
-    <!-- CONTAS FIXAS -->
+    <!-- CONTAS DA CASA -->
     <section class="panel" id="panel-fixas">
       <div class="card">
-        <h2><i class="ph-fill ph-receipt"></i> Contas Fixas</h2>
-        <div class="hint"><i class="ph-fill ph-info"></i> <div>Clique na etiqueta colorida para mudar de quem é a conta (Casal, Vanny ou Tami).</div></div>
+        <h2><i class="ph-fill ph-house"></i> Contas Fixas da Casa</h2>
+        <div class="hint"><i class="ph-fill ph-info"></i> <div>Contas de luz, água, aluguel, etc. Aqui é o bolo geral do casal.</div></div>
         <div class="table-responsive">
           <table>
-            <thead><tr><th>Conta / Dono</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Conta</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="fixasBody"></tbody>
           </table>
         </div>
@@ -279,7 +284,6 @@ tr:last-child td{border-bottom:0}
         <h2><i class="ph-fill ph-plus-circle"></i> Adicionar conta fixa</h2>
         <div class="row">
           <input type="text" id="fxNome" placeholder="Nome">
-          <select id="fxDono"><option value="Casal">Casal</option><option value="Vanny">Vanny</option><option value="Tami">Tami</option></select>
           <input type="number" id="fxValor" placeholder="Valor (R$)" step="0.01">
           <input type="number" id="fxDia" placeholder="Dia venc.">
           <button class="btn-primary" onclick="addFixa()">Adicionar</button>
@@ -312,35 +316,19 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-    <!-- IFOOD -->
-    <section class="panel" id="panel-ifood">
-      <div class="card">
-        <h2><i class="ph-fill ph-fork-knife"></i> iFood</h2>
-        <div class="row" style="margin-bottom:16px">
-          <input type="date" id="ifData">
-          <select id="ifTipo"><option>Almoço</option><option>Lanche</option><option>Café</option><option>Jantar</option></select>
-          <input type="text" id="ifDesc" placeholder="Descrição">
-          <select id="ifPessoa"><option>Vanny</option><option>Tami</option><option>Casal</option></select>
-          <input type="number" id="ifValor" placeholder="Valor (R$)" step="0.01">
-          <button class="btn-primary" onclick="addIfood()">Add</button>
-        </div>
-        <div class="table-responsive"><table><thead><tr><th>Data</th><th>Tipo</th><th>Quem</th><th>Valor</th><th></th></tr></thead><tbody id="ifBody"></tbody></table></div>
-      </div>
-    </section>
-
-    <!-- OUTROS -->
+    <!-- OUTROS (CASA) -->
     <section class="panel" id="panel-outros">
       <div class="card">
-        <h2><i class="ph-fill ph-shopping-cart"></i> Outros gastos</h2>
+        <h2><i class="ph-fill ph-shopping-cart"></i> Outros gastos da Casa</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Gastos variáveis do casal (ex: Mercado, Farmácia). Para gastos pessoais, use a aba Individual.</p>
         <div class="row" style="margin-bottom:16px">
           <input type="date" id="oData">
           <input type="text" id="oDesc" placeholder="Descrição">
           <select id="oCat"></select>
-          <select id="oPessoa"><option>Vanny</option><option>Tami</option><option>Casal</option></select>
           <input type="number" id="oValor" placeholder="Valor (R$)" step="0.01">
-          <button class="btn-primary" onclick="addOutro()">Add</button>
+          <button class="btn-primary" onclick="addOutro()">Add Casa</button>
         </div>
-        <div class="table-responsive"><table><thead><tr><th>Data</th><th>Descrição</th><th>Cat.</th><th>Quem</th><th>Valor</th><th></th></tr></thead><tbody id="outrosBody"></tbody></table></div>
+        <div class="table-responsive"><table><thead><tr><th>Data</th><th>Descrição</th><th>Cat.</th><th>Valor</th><th></th></tr></thead><tbody id="outrosBody"></tbody></table></div>
       </div>
     </section>
 
@@ -357,13 +345,13 @@ tr:last-child td{border-bottom:0}
           <button class="btn-primary" onclick="addDivida()">Add</button>
         </div>
         <div id="dividasBody"></div>
-        <div class="simulator-box">
+        <div class="simulator-box" style="background:var(--warning-light); padding:16px; border-radius:10px; margin-top:16px;">
           <h4><i class="ph ph-magic-wand"></i> Simulador de Quitação</h4>
           <div class="row">
             <select id="simDivida" onchange="simularQuitacao()"></select>
             <input type="number" id="simExtra" placeholder="Extra/mês (R$)" step="0.01" oninput="simularQuitacao()">
           </div>
-          <div class="simulator-res" id="simResultado"></div>
+          <div class="simulator-res" id="simResultado" style="font-weight:800; font-size:16px; margin-top:8px;"></div>
         </div>
       </div>
     </section>
@@ -386,13 +374,6 @@ tr:last-child td{border-bottom:0}
       <div class="card">
         <h2><i class="ph-fill ph-bell"></i> Ativar Notificações</h2>
         <button class="btn-primary" style="width:100%" onclick="pedirPermissaoNotificacao()"><i class="ph ph-bell-ringing"></i> Permitir Notificações</button>
-      </div>
-      <div class="card">
-        <h2><i class="ph-fill ph-fork-knife"></i> Limite Geral do iFood (R$)</h2>
-        <div class="row">
-          <input type="number" id="cfgIfood" step="0.01" placeholder="Ex: 600">
-          <button class="btn-primary" onclick="setLimiteIfood()">Salvar</button>
-        </div>
       </div>
       <div class="card">
         <h2><i class="ph-fill ph-warning"></i> Zona de Perigo</h2>
@@ -419,12 +400,12 @@ const db = firebase.database();
 const defaultState = {
   cfg: { limiteIfood: 600, limitesIndividuais: { vanny: 400, tami: 400 } },
   fixas: [
-    {id:'f1', nome:'Construtora', valor:0, dia:5, dono:'Casal'}, {id:'f2', nome:'Caixa', valor:0, dia:10, dono:'Casal'},
-    {id:'f3', nome:'Condomínio', valor:0, dia:10, dono:'Casal'}, {id:'f4', nome:'Spacelink', valor:0, dia:15, dono:'Casal'},
-    {id:'f5', nome:'Energia', valor:0, dia:20, dono:'Casal'}, {id:'f6', nome:'IPTU', valor:0, dia:20, dono:'Casal'},
-    {id:'f7', nome:'Fatura NEON', valor:0, dia:15, dono:'Casal'}, {id:'f8', nome:'Fatura Santander', valor:0, dia:10, dono:'Casal'},
-    {id:'f9', nome:'Fatura Afinz', valor:0, dia:15, dono:'Casal'}, {id:'f10', nome:'Fatura Digio', valor:0, dia:12, dono:'Casal'},
-    {id:'f11', nome:'Fatura Mercado Pago', valor:0, dia:8, dono:'Casal'}, {id:'f12', nome:'Água', valor:0, dia:20, dono:'Casal'}
+    {id:'f1', nome:'Construtora', valor:0, dia:5}, {id:'f2', nome:'Caixa', valor:0, dia:10},
+    {id:'f3', nome:'Condomínio', valor:0, dia:10}, {id:'f4', nome:'Spacelink', valor:0, dia:15},
+    {id:'f5', nome:'Energia', valor:0, dia:20}, {id:'f6', nome:'IPTU', valor:0, dia:20},
+    {id:'f7', nome:'Fatura NEON', valor:0, dia:15}, {id:'f8', nome:'Fatura Santander', valor:0, dia:10},
+    {id:'f9', nome:'Fatura Afinz', valor:0, dia:15}, {id:'f10', nome:'Fatura Digio', valor:0, dia:12},
+    {id:'f11', nome:'Fatura Mercado Pago', valor:0, dia:8}, {id:'f12', nome:'Água', valor:0, dia:20}
   ],
   dividas: [],
   metas: [],
@@ -436,7 +417,6 @@ if (!state || !state.fixas) { state = JSON.parse(JSON.stringify(defaultState)); 
 if (!state.cfg.limitesIndividuais) state.cfg.limitesIndividuais = { vanny: 400, tami: 400 };
 if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
-state.fixas.forEach(f => { if(!f.dono) f.dono = 'Casal'; });
 
 let currentUser = null;
 const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Vestuário','Casa','Outros'];
@@ -464,7 +444,6 @@ function loadStateFromFirebase() {
       if(!state.cfg.limitesIndividuais) state.cfg.limitesIndividuais = { vanny: 400, tami: 400 };
       if(!state.dividas) state.dividas = [];
       if(!state.metas) state.metas = [];
-      state.fixas.forEach(f => { if(!f.dono) f.dono = 'Casal'; });
       localStorage.setItem('financas_local', JSON.stringify(state));
       $('status-offline').style.display = 'none';
     } else {
@@ -541,13 +520,35 @@ function resetarTudo() {
 
 function getMes(y){
   if(!state.meses) state.meses = {};
-  if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], fixasPago:{}, adiadas:{}, puladas:{}, vencimentos:{} };
+  if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], pessoais:[], fixasPago:{}, adiadas:{}, puladas:{}, vencimentos:{} };
   const m = state.meses[y];
-  m.salarios = m.salarios || {eu:0,esp:0}; m.extras = m.extras || []; m.ifood = m.ifood || []; m.outros = m.outros || [];
+  m.salarios = m.salarios || {eu:0,esp:0}; m.extras = m.extras || []; m.ifood = m.ifood || []; m.outros = m.outros || []; m.pessoais = m.pessoais || [];
   m.fixasPago = m.fixasPago || {}; m.adiadas = m.adiadas || {}; m.puladas = m.puladas || {};
   m.vencimentos = m.vencimentos || {};
   return m;
 }
+
+// --- LANÇAMENTO INDIVIDUAL ---
+function addPessoal(pessoa) {
+  const isV = pessoa === 'Vanny';
+  const desc = $(isV ? 'vDesc' : 'tDesc').value.trim();
+  const valor = parseFloat($(isV ? 'vValor' : 'tValor').value.replace(',', '.'));
+  
+  if(!desc || !valor) return alert('Preencha a descrição e o valor.');
+  
+  const m = getMes($('mes').value);
+  m.pessoais.push({id:Date.now(), data:ymd(new Date()), desc, pessoa, valor});
+  
+  $(isV ? 'vDesc' : 'tDesc').value = '';
+  $(isV ? 'vValor' : 'tValor').value = '';
+  save();
+}
+function delPessoal(id) {
+  const m = getMes($('mes').value);
+  m.pessoais = m.pessoais.filter(x=>x.id!==id);
+  save();
+}
+// ---------------------------
 
 function editFixaValor(id) {
   const f = state.fixas.find(x => x.id === id);
@@ -556,20 +557,6 @@ function editFixaValor(id) {
   if (v === null) return;
   f.valor = parseFloat(v.replace(',', '.')) || 0;
   save();
-}
-
-function changeFixaDono(id) {
-  const f = state.fixas.find(x => x.id === id);
-  if (!f) return;
-  const v = prompt(`Dono da conta "${f.nome}" (Casal, Vanny ou Tami):`, f.dono);
-  if (!v) return;
-  const vLower = v.trim().toLowerCase();
-  if (vLower === 'vanny' || vLower === 'tami' || vLower === 'casal') {
-    f.dono = vLower.charAt(0).toUpperCase() + vLower.slice(1);
-    save();
-  } else {
-    alert('Inválido. Digite Casal, Vanny ou Tami.');
-  }
 }
 
 function editVencimentoMes(id) {
@@ -616,7 +603,7 @@ function desfazerPgto(id) { delete getMes($('mes').value).fixasPago[id]; save();
 function addFixa(){
   const nome=$('fxNome').value.trim();
   if(!nome) return alert('Informe o nome');
-  state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1, dono:$('fxDono').value});
+  state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
   $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value='';
   save();
 }
@@ -637,18 +624,10 @@ function addExtra(){
 }
 function delExtra(id){ const m = getMes($('mes').value); m.extras = m.extras.filter(e=>e.id!==id); save(); }
 
-function addIfood(){
-  const valor = parseFloat($('ifValor').value.replace(',', '.'));
-  if(!valor) return alert('Informe o valor');
-  getMes($('mes').value).ifood.push({id:Date.now(), data:$('ifData').value, tipo:$('ifTipo').value, desc:$('ifDesc').value, pessoa:$('ifPessoa').value, valor});
-  $('ifDesc').value=''; $('ifValor').value=''; save();
-}
-function delIfood(id){ const m = getMes($('mes').value); m.ifood = m.ifood.filter(e=>e.id!==id); save(); }
-
 function addOutro(){
   const valor = parseFloat($('oValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
-  getMes($('mes').value).outros.push({id:Date.now(), data:$('oData').value, desc:$('oDesc').value||$('oCat').value, cat:$('oCat').value, pessoa:$('oPessoa').value, valor});
+  getMes($('mes').value).outros.push({id:Date.now(), data:$('oData').value, desc:$('oDesc').value||$('oCat').value, cat:$('oCat').value, pessoa:'Casal', valor});
   $('oDesc').value=''; $('oValor').value=''; save();
 }
 function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
@@ -704,65 +683,50 @@ function aportarMeta(id) {
 }
 function delMeta(id) { if(confirm('Apagar?')) { state.metas = state.metas.filter(x=>x.id!==id); save(); } }
 
-function setLimiteIfood(){ const v = parseFloat($('cfgIfood').value.replace(',', '.')); if(v>0){ state.cfg.limiteIfood = v; save(); } }
-
 function render(){
   if(!state) return;
   const mes = $('mes').value;
   const m = getMes(mes);
   
-  // --- CÁLCULO DOS TOTAIS ISOLADOS ---
-  let totalGastoCasal = 0, totalGastoVanny = 0, totalGastoTami = 0;
-  
-  let vannyIfood = 0, tamiIfood = 0, casalIfood = 0;
-  let vannyOutros = 0, tamiOutros = 0, casalOutros = 0;
-  let vannyFixas = 0, tamiFixas = 0, casalFixas = 0;
+  // --- CÁLCULOS ISOLADOS ---
+  // Gastos da Casa (Casal)
+  let gastoCasalFixas = 0;
+  state.fixas.forEach(f => { const p = m.fixasPago[f.id]; if(p) gastoCasalFixas += p.valor; });
+  const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
+  const gastoCasalTotal = gastoCasalFixas + gastoCasalOutros;
 
-  // iFood
-  m.ifood.forEach(e => { 
-    if(e.pessoa === 'Vanny') { vannyIfood += e.valor; totalGastoVanny += e.valor; }
-    else if (e.pessoa === 'Tami') { tamiIfood += e.valor; totalGastoTami += e.valor; }
-    else { casalIfood += e.valor; totalGastoCasal += e.valor; }
-  });
+  // Gastos Individuais (Vanny)
+  const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const vannyIfood = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0); // iFood antigo, se houver
+  const gastoVannyTotal = gastoVannyPessoais + vannyIfood;
 
-  // Outros
-  m.outros.forEach(e => { 
-    if(e.pessoa === 'Vanny') { vannyOutros += e.valor; totalGastoVanny += e.valor; }
-    else if (e.pessoa === 'Tami') { tamiOutros += e.valor; totalGastoTami += e.valor; }
-    else { casalOutros += e.valor; totalGastoCasal += e.valor; }
-  });
-
-  // Fixas
-  state.fixas.forEach(f => {
-    const pago = m.fixasPago[f.id];
-    if(pago) {
-      if(f.dono === 'Vanny') { vannyFixas += pago.valor; totalGastoVanny += pago.valor; }
-      else if (f.dono === 'Tami') { tamiFixas += pago.valor; totalGastoTami += pago.valor; }
-      else { casalFixas += pago.valor; totalGastoCasal += pago.valor; }
-    }
-  });
+  // Gastos Individuais (Tami)
+  const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const tamiIfood = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const gastoTamiTotal = gastoTamiPessoais + tamiIfood;
 
   const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
-  const totalGeral = totalGastoCasal + totalGastoVanny + totalGastoTami;
-  const saldo = rec - totalGeral;
+  const totalGasto = gastoCasalTotal + gastoVannyTotal + gastoTamiTotal;
+  const saldo = rec - totalGasto;
 
-  // Placar Principal (Dashboard)
+  // Placar Principal
   $('sRec').textContent = fmt(rec);
-  $('sGastosCasal').textContent = fmt(totalGastoCasal);
-  $('sGastosVanny').textContent = fmt(totalGastoVanny);
-  $('sGastosTami').textContent = fmt(totalGastoTami);
+  $('sGastosCasal').textContent = fmt(gastoCasalTotal);
+  $('sGastosVanny').textContent = fmt(gastoVannyTotal);
+  $('sGastosTami').textContent = fmt(gastoTamiTotal);
   $('sSal').textContent = fmt(saldo);
 
   // Aba Individual
-  $('indVannyTotal').textContent = fmt(totalGastoVanny);
-  $('indVannyIfood').textContent = fmt(vannyIfood);
-  $('indVannyOutros').textContent = fmt(vannyOutros);
-  $('indVannyFixas').textContent = fmt(vannyFixas);
+  $('indVannyTotal').textContent = fmt(gastoVannyTotal);
+  $('indTamiTotal').textContent = fmt(gastoTamiTotal);
 
-  $('indTamiTotal').textContent = fmt(totalGastoTami);
-  $('indTamiIfood').textContent = fmt(tamiIfood);
-  $('indTamiOutros').textContent = fmt(tamiOutros);
-  $('indTamiFixas').textContent = fmt(tamiFixas);
+  $('vannyPessoaisBody').innerHTML = m.pessoais.filter(p=>p.pessoa==='Vanny').map(p => `
+    <tr><td>${p.desc}</td><td class="neg">${fmt(p.valor)}</td><td><button class="danger" onclick="delPessoal(${p.id})">x</button></td></tr>
+  `).join('') || '<tr><td colspan="3" class="empty">Nenhum gasto lançado.</td></tr>';
+
+  $('tamiPessoaisBody').innerHTML = m.pessoais.filter(p=>p.pessoa==='Tami').map(p => `
+    <tr><td>${p.desc}</td><td class="neg">${fmt(p.valor)}</td><td><button class="danger" onclick="delPessoal(${p.id})">x</button></td></tr>
+  `).join('') || '<tr><td colspan="3" class="empty">Nenhum gasto lançado.</td></tr>';
 
   // Limites Pessoais
   $('limiteVanny').value = state.cfg.limitesIndividuais.vanny || '';
@@ -770,14 +734,14 @@ function render(){
   
   const limV = state.cfg.limitesIndividuais.vanny || 1;
   const limT = state.cfg.limitesIndividuais.tami || 1;
-  const pctV = Math.min(100, (totalGastoVanny/limV)*100);
-  const pctT = Math.min(100, (totalGastoTami/limT)*100);
+  const pctV = Math.min(100, (gastoVannyTotal/limV)*100);
+  const pctT = Math.min(100, (gastoTamiTotal/limT)*100);
   
   const corV = pctV>100?'var(--danger)':pctV>80?'var(--warning)':'var(--success)';
   const corT = pctT>100?'var(--danger)':pctT>80?'var(--warning)':'var(--success)';
   
-  $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(totalGastoVanny)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
-  $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(totalGastoTami)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
+  $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(gastoVannyTotal)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
+  $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(gastoTamiTotal)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
 
   // Alertas de Vencimento
   const alertas = [];
@@ -790,7 +754,7 @@ function render(){
     if (diffDays < 0) alertas.push({tipo:'danger', ttl:'Conta Atrasada!', txt:`A conta <strong>${f.nome}</strong> venceu há ${Math.abs(diffDays)} dias.`});
     else if (diffDays <= 3) alertas.push({tipo:'warn', ttl:'Vence em breve', txt:`A conta <strong>${f.nome}</strong> vence em ${diffDays} dias.`});
   });
-  $('alertasVencimento').innerHTML = alertas.length ? alertas.map(a=>`<div class="insight ${a.tipo}"><i class="ph-fill ph-warning-circle"></i><div class="txt"><div class="ttl">${a.ttl}</div>${a.txt}</div></div>`).join('') : '<p class="empty">Nenhuma conta atrasada ou perto de vencer.</p>';
+  $('alertasVencimento').innerHTML = alertas.length ? alertas.map(a=>`<div class="insight ${a.tipo}"><i class="ph-fill ph-warning-circle"></i><div class="txt"><div class="ttl">${a.ttl}</div>${a.txt}</div></div>`).join('') : '<p class="empty">Nenhuma conta atrasada.</p>';
 
   // Insights
   const ins = [];
@@ -798,14 +762,12 @@ function render(){
   if(rec > 0) {
     const taxaPoup = (saldo/rec)*100;
     if(taxaPoup > 20) ins.push({tipo:'ok', ttl:'Ótima Poupança', txt:`Vocês conseguiram guardar ${taxaPoup.toFixed(1)}% da renda.`});
-    else if(taxaPoup > 0) ins.push({tipo:'info', ttl:'Dá para melhorar', txt:`A taxa de poupança foi de ${taxaPoup.toFixed(1)}%.`});
   }
   $('insights').innerHTML = ins.length ? ins.map(i=>`<div class="insight ${i.tipo}"><i class="ph-fill ${i.tipo==='danger'?'ph-warning-circle':i.tipo==='ok'?'ph-check-circle':'ph-info'}"></i><div class="txt"><div class="ttl">${i.ttl}</div>${i.txt}</div></div>`).join('') : '<p class="empty">Tudo tranquilo por aqui.</p>';
 
   // Inputs
   $('salEu').value = m.salarios.eu || '';
   $('salEsp').value = m.salarios.esp || '';
-  $('cfgIfood').value = state.cfg.limiteIfood || '';
 
   // Tabela Fixas
   $('fixasBody').innerHTML = state.fixas.map(f => {
@@ -820,10 +782,8 @@ function render(){
     } else if(m.adiadas[f.id]) badge = `<span class="badge adiada">Rolada</span>`;
     else if(m.puladas[f.id]) badge = '<span class="badge pulada">Pulada</span>';
 
-    const corDono = f.dono==='Vanny'?'vanny':f.dono==='Tami'?'tami':'casal';
-
     return `<tr>
-      <td><strong>${f.nome}</strong><br><span class="badge ${corDono}" style="font-size:9px;padding:2px 6px;cursor:pointer" onclick="changeFixaDono('${f.id}')">${f.dono}</span></td>
+      <td><strong>${f.nome}</strong></td>
       <td>${vencFormatado} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')">✎</button></td>
       <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
       <td>${txtPago}</td>
@@ -832,17 +792,16 @@ function render(){
     </tr>`;
   }).join('');
 
-  // Outros
+  // Extras e Outros
   $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
-  $('ifBody').innerHTML = m.ifood.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delIfood(${e.id})">x</button></td></tr>`).join('');
-  $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
+  $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
 
   // Dívidas e Metas
   $('dividasBody').innerHTML = state.dividas.map(d => {
     const pct = (d.pagas/d.qtd)*100;
-    return `<div class="progress-box">
-      <div class="progress-title"><span>${d.nome}</span><span>${fmt(d.total)}</span></div>
-      <div class="progress-info"><span>Parcela: ${fmt(d.parcela)}</span><span>${d.pagas} de ${d.qtd} pagas</span></div>
+    return `<div class="progress-box" style="margin-bottom:16px; background:var(--bg); padding:16px; border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px"><span>${d.nome}</span><span>${fmt(d.total)}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:8px"><span>Parcela: ${fmt(d.parcela)}</span><span>${d.pagas} de ${d.qtd} pagas</span></div>
       <div class="bar"><div style="width:${pct}%;background:var(--danger)"></div></div>
       <div style="margin-top:8px;display:flex;gap:8px">
         <button class="ok sm" onclick="pagarParcela(${d.id})">+ Pagar Parcela</button>
@@ -855,8 +814,8 @@ function render(){
 
   $('metasBody').innerHTML = state.metas.map(meta => {
     const pct = Math.min(100, (meta.atual/meta.alvo)*100);
-    return `<div class="progress-box">
-      <div class="progress-title"><span>${meta.nome}</span><span>${fmt(meta.atual)} / ${fmt(meta.alvo)}</span></div>
+    return `<div class="progress-box" style="margin-bottom:16px; background:var(--bg); padding:16px; border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px"><span>${meta.nome}</span><span>${fmt(meta.atual)} / ${fmt(meta.alvo)}</span></div>
       <div class="bar"><div style="width:${pct}%;background:var(--success)"></div></div>
       <div style="margin-top:8px;display:flex;gap:8px">
         <button class="ok sm" onclick="aportarMeta(${meta.id})">+ Guardar Dinheiro</button>
