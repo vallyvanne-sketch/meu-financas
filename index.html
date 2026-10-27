@@ -631,6 +631,32 @@ const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}
 const ymd = d => d.toISOString().slice(0,10);
 const ym  = d => d.toISOString().slice(0,7);
 
+// FUNÇÃO MÁGICA: Renomeia dados antigos de "Eu" e "Esposa" para "Vanny" e "Tami"
+function normalizarDados() {
+  if (!state || !state.meses) return;
+  let mudou = false;
+  
+  Object.values(state.meses).forEach(m => {
+    if (m.extras) m.extras.forEach(e => { 
+      if (e.pessoa === 'Eu') { e.pessoa = 'Vanny'; mudou = true; } 
+      if (e.pessoa === 'Esposa') { e.pessoa = 'Tami'; mudou = true; } 
+    });
+    if (m.pessoais) m.pessoais.forEach(p => { 
+      if (p.pessoa === 'Eu') { p.pessoa = 'Vanny'; mudou = true; } 
+      if (p.pessoa === 'Esposa') { p.pessoa = 'Tami'; mudou = true; } 
+    });
+    if (m.ifood) m.ifood.forEach(i => { 
+      if (i.pessoa === 'Eu') { i.pessoa = 'Vanny'; mudou = true; } 
+      if (i.pessoa === 'Esposa') { i.pessoa = 'Tami'; mudou = true; } 
+    });
+  });
+  
+  if (mudou) {
+    console.log("Dados antigos atualizados para Vanny e Tami.");
+    localStorage.setItem('financas_local', JSON.stringify(state));
+  }
+}
+
 function save() {
   localStorage.setItem('financas_local', JSON.stringify(state));
   render();
@@ -649,6 +675,7 @@ function loadStateFromFirebase() {
       state = data;
       if(!state.dividas) state.dividas = [];
       if(!state.metas) state.metas = [];
+      normalizarDados(); // <--- CHAMA A CORREÇÃO AQUI
       localStorage.setItem('financas_local', JSON.stringify(state));
       $('status-offline').style.display = 'none';
     } else {
@@ -680,6 +707,7 @@ auth.onAuthStateChanged(user => {
   } else {
     currentUser = null;
     state = JSON.parse(localStorage.getItem('financas_local')) || JSON.parse(JSON.stringify(defaultState));
+    normalizarDados(); // <--- CHAMA A CORREÇÃO AQUI TBM
     $('login-screen').style.display = 'flex';
     $('app-screen').style.display = 'none';
   }
@@ -1117,7 +1145,7 @@ function render(){
   
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
-  const gastoCasaTotal = totalPagoFixas + gastoCasalOutros + ifoodCasalTotal; // Para o termômetro
+  const gastoCasaTotal = totalPagoFixas + gastoCasalOutros + ifoodCasalTotal;
 
   const gastoVannyP = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
@@ -1143,8 +1171,8 @@ function render(){
   $('sGastosTami').textContent = fmt(gastoTamiTotal);
   $('sSalGeral').textContent = fmt(saldoGeral);
 
-  // GRÁFICO DONUT (CSS Conic Gradient)
-  const tGastos = gastoCasaTotal + gastoVannyTotal + gastoTamiTotal || 1; // Evita div por zero
+  // GRÁFICO DONUT
+  const tGastos = gastoCasaTotal + gastoVannyTotal + gastoTamiTotal || 1;
   const pctCasa = (gastoCasaTotal / tGastos) * 100;
   const pctVanny = (gastoVannyTotal / tGastos) * 100;
   const pctTami = (gastoTamiTotal / tGastos) * 100;
@@ -1165,9 +1193,8 @@ function render(){
   const metaLazer = recTotal * 0.3;
   const metaSobra = recTotal * 0.2;
   
-  // Aproximação: Fixos = Casa; Lazer = iFood + Individuais + Outros
-  const gastoRealLazer = gastoVannyTotal + gastoTamiTotal + gastoCasalOutros; // Como simplificar? Vou jogar iFood Casa pra lazer
-  const gastoRealFixo = totalPagoFixas; // Apenas as fixas pagas
+  const gastoRealLazer = gastoVannyTotal + gastoTamiTotal + gastoCasalOutros;
+  const gastoRealFixo = totalPagoFixas;
   const sobraReal = recTotal - gastoRealFixo - gastoRealLazer;
 
   $('potFixosMeta').textContent = fmt(metaFixa);
@@ -1248,7 +1275,14 @@ function render(){
     </tr>`;
   }).join('');
 
-  $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
+  // Força a exibição correta na tabela de extras mesmo se os dados antigos tiverem "Eu"
+  $('extrasBody').innerHTML = m.extras.map(e => {
+    let nomeExibicao = e.pessoa;
+    if (nomeExibicao === 'Eu') nomeExibicao = 'Vanny';
+    if (nomeExibicao === 'Esposa') nomeExibicao = 'Tami';
+    return `<tr><td>${e.desc}</td><td>${nomeExibicao}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`;
+  }).join('');
+
   $('outrosBody').innerHTML = m.outros.map(e => `
     <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td class="neg">${fmt(e.valor)}</td>
     <td style="white-space:nowrap"><button class="edit sm" onclick="editOutro(${e.id})">✎</button> <button class="danger sm" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
@@ -1258,12 +1292,12 @@ function render(){
   $('ifCasalTotal').textContent = fmt(ifoodCasalTotal);
 
   let itensIfood = [...m.ifood];
-  if(filtroIfood === 'vanny') itensIfood = itensIfood.filter(i => i.pessoa === 'Vanny');
-  if(filtroIfood === 'tami') itensIfood = itensIfood.filter(i => i.pessoa === 'Tami');
+  if(filtroIfood === 'vanny') itensIfood = itensIfood.filter(i => i.pessoa === 'Vanny' || i.pessoa === 'Eu');
+  if(filtroIfood === 'tami') itensIfood = itensIfood.filter(i => i.pessoa === 'Tami' || i.pessoa === 'Esposa');
   if(filtroIfood === 'casal') itensIfood = itensIfood.filter(i => i.pessoa === 'Casal');
 
   $('ifBody').innerHTML = itensIfood.sort((a,b)=>b.data.localeCompare(a.data)).map(e => `
-    <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td>
+    <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.pessoa === 'Eu' ? 'Vanny' : e.pessoa === 'Esposa' ? 'Tami' : e.pessoa}</td><td class="neg">${fmt(e.valor)}</td>
     <td style="white-space:nowrap"><button class="edit sm" onclick="editIfood(${e.id})">✎</button> <button class="danger sm" onclick="delIfood(${e.id})">x</button></td></tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum pedido.</td></tr>';
   
