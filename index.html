@@ -104,7 +104,8 @@ tr:last-child td{border-bottom:0}
 /* Aba Individual */
 .personal-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); }
 .personal-box h3 { margin: 0 0 8px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
-.personal-box .total { font-size: 28px; font-weight: 800; margin-bottom: 16px; }
+.personal-box .total { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+.personal-box .saldo-livre { font-size: 12px; font-weight: 600; margin-bottom: 16px; }
 .personal-box.vanny h3, .personal-box.vanny .total { color: var(--vanny-color); }
 .personal-box.tami h3, .personal-box.tami .total { color: var(--tami-color); }
 .personal-breakdown { text-align: left; font-size: 13px; margin-bottom: 16px; }
@@ -157,7 +158,6 @@ tr:last-child td{border-bottom:0}
 </head>
 <body>
 
-<!-- ÁREA DE IMPRESSÃO OCULTA NA TELA -->
 <div id="print-section"></div>
 
 <div id="login-screen">
@@ -173,7 +173,6 @@ tr:last-child td{border-bottom:0}
   </div>
 </div>
 
-<!-- MODAL DE PAGAMENTO -->
 <div id="modal-pgto">
   <div class="modal-box">
     <h3>Pagar Conta</h3>
@@ -216,12 +215,12 @@ tr:last-child td{border-bottom:0}
   <main class="wrap">
     <!-- PAINEL GERAL -->
     <div class="stats">
-      <div class="stat"><div class="lbl">Receita Total</div><div class="val pos" id="sRec">R$ 0,00</div></div>
+      <div class="stat"><div class="lbl">Receita Vanny</div><div class="val pos" id="sRecVanny">R$ 0,00</div></div>
+      <div class="stat"><div class="lbl">Receita Tami</div><div class="val pos" id="sRecTami">R$ 0,00</div></div>
       <div class="stat"><div class="lbl">Gastos da Casa</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
-      <div class="stat"><div class="lbl">iFood Casal</div><div class="val neg" id="sIfoodCasal">R$ 0,00</div></div>
       <div class="stat vanny"><div class="lbl">Gastos Vanny</div><div class="val" id="sGastosVanny">R$ 0,00</div></div>
       <div class="stat tami"><div class="lbl">Gastos Tami</div><div class="val" id="sGastosTami">R$ 0,00</div></div>
-      <div class="stat" style="background:var(--primary-light); border-color:var(--primary)"><div class="lbl" style="color:var(--primary)">Saldo Previsto</div><div class="val" id="sSal" style="color:var(--primary)">R$ 0,00</div></div>
+      <div class="stat" style="background:var(--primary-light); border-color:var(--primary)"><div class="lbl" style="color:var(--primary)">Saldo Geral</div><div class="val" id="sSalGeral" style="color:var(--primary)">R$ 0,00</div></div>
     </div>
 
     <div class="tabs-wrap">
@@ -272,6 +271,7 @@ tr:last-child td{border-bottom:0}
           <div class="personal-box vanny" id="boxVanny">
             <h3>Vanny</h3>
             <div class="total" id="indVannyTotal">R$ 0,00</div>
+            <div class="saldo-livre" id="indVannySaldo">Saldo Livre: R$ 0,00</div>
             
             <div style="margin-bottom:12px; display:grid; gap:8px;">
               <input type="date" id="vData">
@@ -293,6 +293,7 @@ tr:last-child td{border-bottom:0}
           <div class="personal-box tami" id="boxTami">
             <h3>Tami</h3>
             <div class="total" id="indTamiTotal">R$ 0,00</div>
+            <div class="saldo-livre" id="indTamiSaldo">Saldo Livre: R$ 0,00</div>
             
             <div style="margin-bottom:12px; display:grid; gap:8px;">
               <input type="date" id="tData">
@@ -382,6 +383,7 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-ifood">
       <div class="card">
         <h2><i class="ph-fill ph-fork-knife"></i> Controle iFood</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">O iFood de cada uma é descontado apenas do salário da própria pessoa.</p>
         
         <div class="resumo-casal">
           <div><span class="lbl">Gasto Vanny</span><span class="val" style="color:var(--vanny-color)" id="ifVannyTotal">R$ 0,00</span></div>
@@ -391,7 +393,7 @@ tr:last-child td{border-bottom:0}
 
         <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px">
           <span>Usado Total: <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
-          <span>Limite: <strong id="ifLimite">R$ 0,00</strong></span>
+          <span>Limite Geral: <strong id="ifLimite">R$ 0,00</strong></span>
         </div>
         <div class="bar" style="height:16px;margin-bottom:16px"><div id="ifBar" style="width:0%;background:var(--success)"></div></div>
         
@@ -688,7 +690,6 @@ function editPessoal(id) {
   item.valor = parseFloat(novoValor.replace(',', '.')) || item.valor;
   save();
 }
-// ---------------------------
 
 function editFixaValor(id) {
   const f = state.fixas.find(x => x.id === id);
@@ -872,6 +873,12 @@ function gerarRelatorio() {
   const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros;
 
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  
+  const recVanny = (m.salarios.eu || 0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const recTami = (m.salarios.esp || 0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const recCasal = m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  const recTotal = recVanny + recTami + recCasal;
+
   const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
@@ -880,9 +887,10 @@ function gerarRelatorio() {
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
 
-  const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
   const totalGasto = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
-  const saldo = rec - totalGasto;
+  const saldoGeral = recTotal - totalGasto;
+  const saldoVanny = recVanny - gastoVannyTotal;
+  const saldoTami = recTami - gastoTamiTotal;
 
   let html = `
     <div class="print-header">
@@ -891,12 +899,22 @@ function gerarRelatorio() {
     </div>
 
     <div class="print-summary">
-      <div>Receita Total: <span class="text-green">${fmt(rec)}</span></div>
+      <div>Receita Total: <span class="text-green">${fmt(recTotal)}</span></div>
       <div>Despesas Totais: <span class="text-red">${fmt(totalGasto)}</span></div>
-      <div>Saldo Previsto: <span class="${saldo >= 0 ? 'text-green' : 'text-red'}">${fmt(saldo)}</span></div>
+      <div>Saldo Geral: <span class="${saldoGeral >= 0 ? 'text-green' : 'text-red'}">${fmt(saldoGeral)}</span></div>
     </div>
 
-    <div class="print-section-title">1. Contas Fixas da Casa</div>
+    <div class="print-section-title">1. Balanço Individual</div>
+    <table>
+      <thead><tr><th>Pessoa</th><th>Receita</th><th>Gastos (Inclui iFood)</th><th>Saldo Livre</th></tr></thead>
+      <tbody>
+        <tr><td>Vanny</td><td>${fmt(recVanny)}</td><td>${fmt(gastoVannyTotal)}</td><td class="${saldoVanny>=0?'text-green':'text-red'}">${fmt(saldoVanny)}</td></tr>
+        <tr><td>Tami</td><td>${fmt(recTami)}</td><td>${fmt(gastoTamiTotal)}</td><td class="${saldoTami>=0?'text-green':'text-red'}">${fmt(saldoTami)}</td></tr>
+        <tr><td>Casal</td><td>${fmt(recCasal)}</td><td>${fmt(gastoCasalTotal + ifoodCasalTotal)}</td><td class="${(recCasal - gastoCasalTotal - ifoodCasalTotal)>=0?'text-green':'text-red'}">${fmt(recCasal - gastoCasalTotal - ifoodCasalTotal)}</td></tr>
+      </tbody>
+    </table>
+
+    <div class="print-section-title">2. Contas Fixas da Casa</div>
     <table>
       <thead><tr><th>Conta</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
       <tbody>
@@ -918,7 +936,7 @@ function gerarRelatorio() {
   html += `</tbody></table>`;
 
   if(m.outros.length > 0) {
-    html += `<div class="print-section-title">2. Gastos Variáveis (Casa)</div>
+    html += `<div class="print-section-title">3. Gastos Variáveis (Casa)</div>
     <table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>`;
     m.outros.sort((a,b)=>a.data.localeCompare(b.data)).forEach(o => {
       html += `<tr><td>${o.data.split('-').reverse().join('/')}</td><td>${o.desc}</td><td>${o.cat}</td><td>${fmt(o.valor)}</td></tr>`;
@@ -927,8 +945,8 @@ function gerarRelatorio() {
   }
 
   if(m.ifood.length > 0) {
-    html += `<div class="print-section-title">3. Pedidos iFood</div>
-    <table><thead><tr><th>Data</th><th>Tipo</th><th>Quem</th><th>Valor</th></tr></thead><tbody>`;
+    html += `<div class="print-section-title">4. Pedidos iFood</div>
+    <table><thead><tr><th>Data</th><th>Tipo</th><th>Quem Pagou</th><th>Valor</th></tr></thead><tbody>`;
     m.ifood.sort((a,b)=>a.data.localeCompare(b.data)).forEach(i => {
       html += `<tr><td>${i.data.split('-').reverse().join('/')}</td><td>${i.tipo}</td><td>${i.pessoa}</td><td>${fmt(i.valor)}</td></tr>`;
     });
@@ -936,7 +954,7 @@ function gerarRelatorio() {
   }
 
   if(m.pessoais.length > 0) {
-    html += `<div class="print-section-title">4. Gastos Individuais (Vanny & Tami)</div>
+    html += `<div class="print-section-title">5. Gastos Pessoais (Além do iFood)</div>
     <table><thead><tr><th>Data</th><th>Quem</th><th>Descrição</th><th>Tipo</th><th>Valor</th></tr></thead><tbody>`;
     m.pessoais.sort((a,b)=>a.data.localeCompare(b.data)).forEach(p => {
       html += `<tr><td>${p.data.split('-').reverse().join('/')}</td><td>${p.pessoa}</td><td>${p.desc}</td><td>${p.tipo || 'Outros'}</td><td>${fmt(p.valor)}</td></tr>`;
@@ -954,7 +972,6 @@ function gerarRelatorio() {
   $('print-section').innerHTML = html;
   window.print();
 }
-// -----------------------------
 
 function render(){
   if(!state) return;
@@ -963,6 +980,13 @@ function render(){
   
   $('mesIndividual').textContent = formatarMes(mes);
 
+  // CÁLCULO RECEITAS
+  const recVanny = (m.salarios.eu || 0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const recTami = (m.salarios.esp || 0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const recCasal = m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  const recTotal = recVanny + recTami + recCasal;
+
+  // CÁLCULO GASTOS CASA
   let totalPrevistoFixas = 0;
   let totalPagoFixas = 0;
   state.fixas.forEach(f => { 
@@ -971,32 +995,38 @@ function render(){
     if(p) totalPagoFixas += p.valor; 
   });
   const faltaPagarCasa = totalPrevistoFixas - totalPagoFixas;
-  
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
   const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros;
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
 
+  // CÁLCULO GASTOS VANNY
   const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
+  const saldoVanny = recVanny - gastoVannyTotal;
 
+  // CÁLCULO GASTOS TAMI
   const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
+  const saldoTami = recTami - gastoTamiTotal;
 
-  const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
-  const totalGasto = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
-  const saldo = rec - totalGasto;
+  const totalGastoGeral = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
+  const saldoGeral = recTotal - totalGastoGeral;
 
-  $('sRec').textContent = fmt(rec);
-  $('sGastosCasal').textContent = fmt(gastoCasalTotal);
-  $('sIfoodCasal').textContent = fmt(ifoodCasalTotal);
+  // ATUALIZA O TOPO
+  $('sRecVanny').textContent = fmt(recVanny);
+  $('sRecTami').textContent = fmt(recTami);
+  $('sGastosCasal').textContent = fmt(gastoCasalTotal + ifoodCasalTotal);
   $('sGastosVanny').textContent = fmt(gastoVannyTotal);
   $('sGastosTami').textContent = fmt(gastoTamiTotal);
-  $('sSal').textContent = fmt(saldo);
+  $('sSalGeral').textContent = fmt(saldoGeral);
 
+  // ATUALIZA ABA INDIVIDUAL
   $('indVannyTotal').textContent = fmt(gastoVannyTotal);
   $('indTamiTotal').textContent = fmt(gastoTamiTotal);
+  $('indVannySaldo').innerHTML = `Saldo Livre: <span class="${saldoVanny>=0?'pos':'neg'}">${fmt(saldoVanny)}</span>`;
+  $('indTamiSaldo').innerHTML = `Saldo Livre: <span class="${saldoTami>=0?'pos':'neg'}">${fmt(saldoTami)}</span>`;
 
   $('boxVanny').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'vanny') ? 'block' : 'none';
   $('boxTami').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'tami') ? 'block' : 'none';
@@ -1037,6 +1067,7 @@ function render(){
     </tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
+  // Limites
   $('limiteVanny').value = state.cfg.limitesIndividuais.vanny || '';
   $('limiteTami').value = state.cfg.limitesIndividuais.tami || '';
   
@@ -1044,13 +1075,13 @@ function render(){
   const limT = state.cfg.limitesIndividuais.tami || 1;
   const pctV = Math.min(100, (gastoVannyTotal/limV)*100);
   const pctT = Math.min(100, (gastoTamiTotal/limT)*100);
-  
   const corV = pctV>100?'var(--danger)':pctV>80?'var(--warning)':'var(--success)';
   const corT = pctT>100?'var(--danger)':pctT>80?'var(--warning)':'var(--success)';
   
   $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(gastoVannyTotal)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
   $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(gastoTamiTotal)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
 
+  // Restante da renderização
   $('resFixPrevisto').textContent = fmt(totalPrevistoFixas);
   $('resFixPago').textContent = fmt(totalPagoFixas);
   $('resFixFalta').textContent = fmt(Math.max(0, faltaPagarCasa));
@@ -1068,9 +1099,9 @@ function render(){
   $('alertasVencimento').innerHTML = alertas.length ? alertas.map(a=>`<div class="insight ${a.tipo}"><i class="ph-fill ph-warning-circle"></i><div class="txt"><div class="ttl">${a.ttl}</div>${a.txt}</div></div>`).join('') : '<p class="empty">Nenhuma conta atrasada.</p>';
 
   const ins = [];
-  if(saldo < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês.'});
-  if(rec > 0) {
-    const taxaPoup = (saldo/rec)*100;
+  if(saldoGeral < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês.'});
+  if(recTotal > 0) {
+    const taxaPoup = (saldoGeral/recTotal)*100;
     if(taxaPoup > 20) ins.push({tipo:'ok', ttl:'Ótima Poupança', txt:`Vocês conseguiram guardar ${taxaPoup.toFixed(1)}% da renda.`});
   }
   $('insights').innerHTML = ins.length ? ins.map(i=>`<div class="insight ${i.tipo}"><i class="ph-fill ${i.tipo==='danger'?'ph-warning-circle':i.tipo==='ok'?'ph-check-circle':'ph-info'}"></i><div class="txt"><div class="ttl">${i.ttl}</div>${i.txt}</div></div>`).join('') : '<p class="empty">Tudo tranquilo por aqui.</p>';
