@@ -176,20 +176,34 @@ tr:last-child td{border-bottom:0}
     padding: 20px; 
     font-family: sans-serif; 
     width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
   }
   
   .pdf-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
   .pdf-header h1 { margin: 0; font-size: 24px; }
   .pdf-header p { margin: 4px 0 0; font-size: 14px; color: #555; }
   
-  .pdf-section-title { font-size: 16px; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 4px; text-transform: uppercase; }
+  /* Resumo Executivo (Cards) */
+  .pdf-summary-box { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+  .pdf-card { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 10px; text-align: center; }
+  .pdf-card .lbl { font-size: 10px; text-transform: uppercase; color: #555; font-weight: bold; margin-bottom: 4px; }
+  .pdf-card .val { font-size: 16px; font-weight: bold; }
   
-  .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+  /* Tabelas */
+  .pdf-section-title { font-size: 14px; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 4px; text-transform: uppercase; display: flex; justify-content: space-between; }
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }
   .pdf-table th, .pdf-table td { border: 1px solid #ddd; padding: 8px; text-align: left; color: black; }
   .pdf-table th { background: #f5f5f5; font-weight: bold; }
+  .pdf-table tr.subtotal td { background: #fafafa; font-weight: bold; }
   
-  .text-red { color: #d32f2f; }
-  .text-green { color: #388e3c; }
+  /* Balanço Final */
+  .pdf-balance-box { border: 1px solid #000; padding: 15px; border-radius: 8px; margin-top: 20px; }
+  .pdf-balance-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+  .pdf-balance-row.total { border-top: 2px solid #000; padding-top: 10px; font-size: 16px; font-weight: bold; margin-top: 10px; }
+  
+  .text-red { color: #d32f2f !important; }
+  .text-green { color: #388e3c !important; }
 }
 </style>
 </head>
@@ -1183,6 +1197,7 @@ function copiarResumo() {
   .catch(err => { alert('Erro ao copiar. Seu navegador pode não suportar essa função.'); });
 }
 
+// --- RELATÓRIO PROFISSIONAL ---
 function gerarRelatorio() {
   const mes = $('mes').value;
   const m = getMes(mes);
@@ -1190,6 +1205,8 @@ function gerarRelatorio() {
   
   let contasArr = [];
   let cartoesArr = [];
+  let totalContas = 0;
+  let totalCartoes = 0;
   
   const fixasAtivas = state.fixas.filter(f => !f.startMonth || f.startMonth <= mes);
   
@@ -1199,40 +1216,101 @@ function gerarRelatorio() {
     const vencFormatado = vencStr.split('-').reverse().join('/');
     let status = pgto ? (pgto.parcial ? 'Parcial' : 'Pago') : 'Pendente';
     let valorPago = pgto ? fmt(pgto.valor) : '-';
+    let valorPrev = getValorFixa(f, m);
     
-    const item = { nome: f.nome, venc: vencFormatado, previsto: fmt(getValorFixa(f, m)), status: status, pago: valorPago };
-    if (f.tipo === 'Cartão') cartoesArr.push(item); else contasArr.push(item);
+    const item = { nome: f.nome, venc: vencFormatado, previsto: fmt(valorPrev), previstoNum: valorPrev, status: status, pago: valorPago };
+    
+    if (f.tipo === 'Cartão') {
+        cartoesArr.push(item); 
+        totalCartoes += valorPrev;
+    } else {
+        contasArr.push(item); 
+        totalContas += valorPrev;
+    }
   });
+
+  const gastosOutros = m.outros.reduce((s,e)=>s+e.valor,0);
+  const recTotal = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
+  const totalDespesas = totalContas + totalCartoes + gastosOutros;
+  const saldoFinal = recTotal - totalDespesas;
 
   let html = `
     <div class="pdf-header">
-      <h1>Previsão de Pagamentos</h1>
+      <h1>Relatório Financeiro Mensal</h1>
       <p>Referente a: <strong>${mesFormatado}</strong> | Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
     </div>
 
-    <div class="pdf-section-title">1. Contas da Casa (Previsão)</div>
+    <!-- Resumo Executivo -->
+    <div class="pdf-summary-box">
+      <div class="pdf-card">
+        <div class="lbl">Receita Total</div>
+        <div class="val text-green">${fmt(recTotal)}</div>
+      </div>
+      <div class="pdf-card">
+        <div class="lbl">Total Contas + Cartões</div>
+        <div class="val text-red">${fmt(totalContas + totalCartoes)}</div>
+      </div>
+      <div class="pdf-card">
+        <div class="lbl">Outros Gastos</div>
+        <div class="val text-red">${fmt(gastosOutros)}</div>
+      </div>
+      <div class="pdf-card">
+        <div class="lbl">Saldo Previsto</div>
+        <div class="val ${saldoFinal >= 0 ? 'text-green' : 'text-red'}">${fmt(saldoFinal)}</div>
+      </div>
+    </div>
+
+    <div class="pdf-section-title">1. Contas da Casa</div>
     <table class="pdf-table">
-      <thead><tr><th>Conta</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
+      <thead><tr><th>Conta</th><th>Vencimento</th><th>Status</th><th>Valor Previsto</th><th>Valor Pago</th></tr></thead>
       <tbody>`;
-  contasArr.forEach(c => { html += `<tr><td>${c.nome}</td><td>${c.venc}</td><td>${c.previsto}</td><td>${c.status}</td><td>${c.pago}</td></tr>`; });
+  contasArr.forEach(c => { html += `<tr><td>${c.nome}</td><td>${c.venc}</td><td>${c.status}</td><td>${c.previsto}</td><td>${c.pago}</td></tr>`; });
   if(contasArr.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nenhuma conta lançada.</td></tr>`;
-  html += `</tbody></table>`;
+  html += `<tr class="subtotal"><td colspan="3">Subtotal Contas da Casa</td><td>${fmt(totalContas)}</td><td>-</td></tr>
+      </tbody></table>`;
 
   html += `
-    <div class="pdf-section-title">2. Faturas de Cartão (Previsão)</div>
+    <div class="pdf-section-title">2. Faturas de Cartão</div>
     <table class="pdf-table">
-      <thead><tr><th>Cartão</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
+      <thead><tr><th>Cartão</th><th>Vencimento</th><th>Status</th><th>Valor Previsto</th><th>Valor Pago</th></tr></thead>
       <tbody>`;
-  cartoesArr.forEach(c => { html += `<tr><td>${c.nome}</td><td>${c.venc}</td><td>${c.previsto}</td><td>${c.status}</td><td>${c.pago}</td></tr>`; });
+  cartoesArr.forEach(c => { html += `<tr><td>${c.nome}</td><td>${c.venc}</td><td>${c.status}</td><td>${c.previsto}</td><td>${c.pago}</td></tr>`; });
   if(cartoesArr.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nenhum cartão lançado.</td></tr>`;
-  html += `</tbody></table>`;
+  html += `<tr class="subtotal"><td colspan="3">Subtotal Faturas</td><td>${fmt(totalCartoes)}</td><td>-</td></tr>
+      </tbody></table>`;
 
-  html += `<div style="margin-top: 40px; text-align: center; font-size: 12px; color: #777;"><p>_______________________________________________________<br>Assinatura do Casal</p></div>`;
+  html += `
+    <div class="pdf-section-title">3. Balanço Financeiro</div>
+    <div class="pdf-balance-box">
+      <div class="pdf-balance-row">
+        <span>(+) Receita Total (Salários + Extras)</span>
+        <span class="text-green">${fmt(recTotal)}</span>
+      </div>
+      <div class="pdf-balance-row">
+        <span>(-) Contas da Casa</span>
+        <span class="text-red">${fmt(totalContas)}</span>
+      </div>
+      <div class="pdf-balance-row">
+        <span>(-) Faturas de Cartão</span>
+        <span class="text-red">${fmt(totalCartoes)}</span>
+      </div>
+      <div class="pdf-balance-row">
+        <span>(-) Outros Gastos Variáveis</span>
+        <span class="text-red">${fmt(gastosOutros)}</span>
+      </div>
+      <div class="pdf-balance-row total">
+        <span>(=) Saldo Final Previsto</span>
+        <span class="${saldoFinal >= 0 ? 'text-green' : 'text-red'}">${fmt(saldoFinal)}</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #777;">
+      <p>_______________________________________________________<br>Assinatura do Casal</p>
+    </div>
+  `;
 
   $('print-section').innerHTML = html;
   
-  // Abre a tela de impressão nativa do navegador/celular.
-  // O usuário pode escolher "Salvar como PDF".
   setTimeout(() => {
     window.print();
   }, 100);
@@ -1245,7 +1323,6 @@ function render(){
   const m = getMes(mes);
   updateCartaoSelects();
 
-  // FILTRA CONTAS QUE JÁ EXISTIAM NO MÊS
   const fixasAtivas = state.fixas.filter(f => !f.startMonth || f.startMonth <= mes);
 
   const recVanny = (m.salarios.eu||0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
