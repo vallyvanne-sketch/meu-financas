@@ -71,6 +71,7 @@ button.btn-primary{background:var(--primary);color:#fff;padding:10px 16px;border
 button.ghost{background:var(--bg);color:var(--text-main);padding:10px 16px;border-radius:var(--radius-sm);font-weight:600;border:1px solid var(--border)}
 button.danger{background:var(--danger-light);color:var(--danger);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
 button.ok{background:var(--success-light);color:var(--success);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
+button.edit{background:var(--primary-light);color:var(--primary);padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px}
 button.sm{padding:6px 10px;font-size:12px;width:auto}
 .table-responsive{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
@@ -82,6 +83,7 @@ tr:last-child td{border-bottom:0}
 .badge.pago{background:var(--success-light);color:var(--success)}
 .badge.pendente{background:var(--warning-light);color:var(--warning)}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
+.badge.cat { background: var(--bg); color: var(--text-main); border: 1px solid var(--border); }
 .bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar>div{height:100%;transition:width .4s ease}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
@@ -121,6 +123,11 @@ tr:last-child td{border-bottom:0}
 .resumo-casal div { display: flex; flex-direction: column; gap: 4px; }
 .resumo-casal span.lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 .resumo-casal span.val { font-size: 18px; font-weight: 800; }
+
+/* Filtro Individual */
+.filter-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
+.filter-buttons button { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); }
+.filter-buttons button.active { background: var(--primary); color: white; border-color: var(--primary); }
 </style>
 </head>
 <body>
@@ -182,6 +189,7 @@ tr:last-child td{border-bottom:0}
     <div class="stats">
       <div class="stat"><div class="lbl">Receita Total</div><div class="val pos" id="sRec">R$ 0,00</div></div>
       <div class="stat"><div class="lbl">Gastos da Casa</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
+      <div class="stat"><div class="lbl">iFood Casal</div><div class="val neg" id="sIfoodCasal">R$ 0,00</div></div>
       <div class="stat vanny"><div class="lbl">Gastos Vanny</div><div class="val" id="sGastosVanny">R$ 0,00</div></div>
       <div class="stat tami"><div class="lbl">Gastos Tami</div><div class="val" id="sGastosTami">R$ 0,00</div></div>
       <div class="stat" style="background:var(--primary-light); border-color:var(--primary)"><div class="lbl" style="color:var(--primary)">Saldo Previsto</div><div class="val" id="sSal" style="color:var(--primary)">R$ 0,00</div></div>
@@ -219,15 +227,22 @@ tr:last-child td{border-bottom:0}
         <h2><i class="ph-fill ph-users"></i> Lançamentos Individuais - <span id="mesIndividual" style="text-transform: capitalize;"></span></h2>
         <div class="hint" style="background:var(--warning-light); border:1px solid var(--warning)"><i class="ph-fill ph-warning" style="color:var(--warning)"></i> <div><strong>Atenção:</strong> Tudo o que for lançado aqui <strong>não se mistura</strong> com as contas da casa.</div></div>
         
+        <div class="filter-buttons">
+          <button class="active" onclick="mudarFiltroInd('ambas', this)">Ver Ambas</button>
+          <button onclick="mudarFiltroInd('vanny', this)">Só Vanny</button>
+          <button onclick="mudarFiltroInd('tami', this)">Só Tami</button>
+        </div>
+
         <div class="row" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items: start;">
           
           <!-- VANNY -->
-          <div class="personal-box vanny">
+          <div class="personal-box vanny" id="boxVanny">
             <h3>Vanny</h3>
             <div class="total" id="indVannyTotal">R$ 0,00</div>
             
             <div style="margin-bottom:12px; display:grid; gap:8px;">
               <input type="date" id="vData">
+              <select id="vTipo"><option>Compras</option><option>iFood</option><option>Lazer</option><option>Outros</option></select>
               <input type="text" id="vDesc" placeholder="O que você gastou?">
               <input type="number" id="vValor" placeholder="R$" step="0.01">
             </div>
@@ -235,19 +250,20 @@ tr:last-child td{border-bottom:0}
             
             <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
               <table>
-                <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+                <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
                 <tbody id="vannyPessoaisBody"></tbody>
               </table>
             </div>
           </div>
 
           <!-- TAMI -->
-          <div class="personal-box tami">
+          <div class="personal-box tami" id="boxTami">
             <h3>Tami</h3>
             <div class="total" id="indTamiTotal">R$ 0,00</div>
             
             <div style="margin-bottom:12px; display:grid; gap:8px;">
               <input type="date" id="tData">
+              <select id="tTipo"><option>Compras</option><option>iFood</option><option>Lazer</option><option>Outros</option></select>
               <input type="text" id="tDesc" placeholder="O que você gastou?">
               <input type="number" id="tValor" placeholder="R$" step="0.01">
             </div>
@@ -255,7 +271,7 @@ tr:last-child td{border-bottom:0}
             
             <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
               <table>
-                <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+                <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
                 <tbody id="tamiPessoaisBody"></tbody>
               </table>
             </div>
@@ -280,7 +296,6 @@ tr:last-child td{border-bottom:0}
       <div class="card">
         <h2><i class="ph-fill ph-house"></i> Contas Fixas da Casa</h2>
         
-        <!-- Painel de Resumo -->
         <div class="resumo-casal">
           <div><span class="lbl">Total Previsto</span><span class="val" id="resFixPrevisto">R$ 0,00</span></div>
           <div><span class="lbl">Já Pago</span><span class="val pos" id="resFixPago">R$ 0,00</span></div>
@@ -462,6 +477,7 @@ if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
 
 let currentUser = null;
+let filtroIndividual = 'ambas'; // 'ambas', 'vanny', 'tami'
 const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Vestuário','Casa','Outros'];
 const $ = id => document.getElementById(id);
 const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -576,17 +592,25 @@ function getMes(y){
   return m;
 }
 
+function mudarFiltroInd(filtro, btn) {
+  filtroIndividual = filtro;
+  document.querySelectorAll('.filter-buttons button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
 // --- LANÇAMENTO INDIVIDUAL ---
 function addPessoal(pessoa) {
   const isV = pessoa === 'Vanny';
   const desc = $(isV ? 'vDesc' : 'tDesc').value.trim();
   const valor = parseFloat($(isV ? 'vValor' : 'tValor').value.replace(',', '.'));
   const dataInput = $(isV ? 'vData' : 'tData').value;
+  const tipo = $(isV ? 'vTipo' : 'tTipo').value;
   
   if(!desc || !valor) return alert('Preencha a descrição e o valor.');
   
   const m = getMes($('mes').value);
-  m.pessoais.push({id:Date.now(), data:dataInput || ymd(new Date()), desc, pessoa, valor});
+  m.pessoais.push({id:Date.now(), data:dataInput || ymd(new Date()), desc, pessoa, valor, tipo});
   
   $(isV ? 'vDesc' : 'tDesc').value = '';
   $(isV ? 'vValor' : 'tValor').value = '';
@@ -595,6 +619,18 @@ function addPessoal(pessoa) {
 function delPessoal(id) {
   const m = getMes($('mes').value);
   m.pessoais = m.pessoais.filter(x=>x.id!==id);
+  save();
+}
+function editPessoal(id) {
+  const m = getMes($('mes').value);
+  const item = m.pessoais.find(x=>x.id===id);
+  if(!item) return;
+  const novaDesc = prompt("Nova descrição:", item.desc);
+  if(novaDesc === null) return;
+  const novoValor = prompt("Novo valor:", item.valor);
+  if(novoValor === null) return;
+  item.desc = novaDesc;
+  item.valor = parseFloat(novoValor.replace(',', '.')) || item.valor;
   save();
 }
 // ---------------------------
@@ -681,6 +717,15 @@ function addIfood(){
   $('ifDesc').value=''; $('ifValor').value=''; save();
 }
 function delIfood(id){ const m = getMes($('mes').value); m.ifood = m.ifood.filter(e=>e.id!==id); save(); }
+function editIfood(id){
+  const m = getMes($('mes').value);
+  const item = m.ifood.find(x=>x.id===id);
+  if(!item) return;
+  const novoValor = prompt("Novo valor do pedido:", item.valor);
+  if(novoValor === null) return;
+  item.valor = parseFloat(novoValor.replace(',', '.')) || item.valor;
+  save();
+}
 function setLimiteIfood(){ const v = parseFloat($('cfgIfood').value.replace(',', '.')); if(v>0){ state.cfg.limiteIfood = v; save(); } }
 // ------------
 
@@ -691,6 +736,15 @@ function addOutro(){
   $('oDesc').value=''; $('oValor').value=''; save();
 }
 function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
+function editOutro(id){
+  const m = getMes($('mes').value);
+  const item = m.outros.find(x=>x.id===id);
+  if(!item) return;
+  const novoValor = prompt("Novo valor do gasto:", item.valor);
+  if(novoValor === null) return;
+  item.valor = parseFloat(novoValor.replace(',', '.')) || item.valor;
+  save();
+}
 
 function salvarLimites() {
   state.cfg.limitesIndividuais.vanny = parseFloat($('limiteVanny').value.replace(',','.'))||0;
@@ -751,7 +805,6 @@ function render(){
   $('mesIndividual').textContent = formatarMes(mes);
 
   // --- CÁLCULOS ISOLADOS ---
-  // Gastos da Casa (Previstos + iFood Casal + Outros)
   let totalPrevistoFixas = 0;
   let totalPagoFixas = 0;
   state.fixas.forEach(f => { 
@@ -761,27 +814,33 @@ function render(){
   });
   const faltaPagarCasa = totalPrevistoFixas - totalPagoFixas;
   
+  // Gastos da Casa (Fixas + Outros) - SEM IFOOD
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
-  const ifoodCasal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
-  const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros + ifoodCasal;
+  const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros;
 
-  // Gastos Individuais (Vanny)
+  // iFood Casal (Separado)
+  const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+
+  // Gastos Individuais (Vanny) - Inclui o iFood dela
   const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
 
-  // Gastos Individuais (Tami)
+  // Gastos Individuais (Tami) - Inclui o iFood dela
   const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
 
   const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
-  const totalGasto = gastoCasalTotal + gastoVannyTotal + gastoTamiTotal;
+  
+  // Total Geral = Casa + iFood Casal + Vanny (com iFood) + Tami (com iFood)
+  const totalGasto = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
   const saldo = rec - totalGasto;
 
   // Placar Principal
   $('sRec').textContent = fmt(rec);
   $('sGastosCasal').textContent = fmt(gastoCasalTotal);
+  $('sIfoodCasal').textContent = fmt(ifoodCasalTotal);
   $('sGastosVanny').textContent = fmt(gastoVannyTotal);
   $('sGastosTami').textContent = fmt(gastoTamiTotal);
   $('sSal').textContent = fmt(saldo);
@@ -790,13 +849,35 @@ function render(){
   $('indVannyTotal').textContent = fmt(gastoVannyTotal);
   $('indTamiTotal').textContent = fmt(gastoTamiTotal);
 
+  // Controle de visibilidade dos boxes
+  $('boxVanny').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'vanny') ? 'block' : 'none';
+  $('boxTami').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'tami') ? 'block' : 'none';
+
   $('vannyPessoaisBody').innerHTML = m.pessoais.filter(p=>p.pessoa==='Vanny').sort((a,b)=>b.data.localeCompare(a.data)).map(p => `
-    <tr><td>${p.data.split('-').reverse().join('/')}</td><td>${p.desc}</td><td class="neg">${fmt(p.valor)}</td><td><button class="danger" onclick="delPessoal(${p.id})">x</button></td></tr>
-  `).join('') || '<tr><td colspan="4" class="empty">Nenhum gasto lançado.</td></tr>';
+    <tr>
+      <td>${p.data.split('-').reverse().join('/')}</td>
+      <td><span class="badge cat">${p.tipo || 'Outros'}</span></td>
+      <td>${p.desc}</td>
+      <td class="neg">${fmt(p.valor)}</td>
+      <td style="white-space:nowrap">
+        <button class="edit sm" onclick="editPessoal(${p.id})">✎</button>
+        <button class="danger sm" onclick="delPessoal(${p.id})">x</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
   $('tamiPessoaisBody').innerHTML = m.pessoais.filter(p=>p.pessoa==='Tami').sort((a,b)=>b.data.localeCompare(a.data)).map(p => `
-    <tr><td>${p.data.split('-').reverse().join('/')}</td><td>${p.desc}</td><td class="neg">${fmt(p.valor)}</td><td><button class="danger" onclick="delPessoal(${p.id})">x</button></td></tr>
-  `).join('') || '<tr><td colspan="4" class="empty">Nenhum gasto lançado.</td></tr>';
+    <tr>
+      <td>${p.data.split('-').reverse().join('/')}</td>
+      <td><span class="badge cat">${p.tipo || 'Outros'}</span></td>
+      <td>${p.desc}</td>
+      <td class="neg">${fmt(p.valor)}</td>
+      <td style="white-space:nowrap">
+        <button class="edit sm" onclick="editPessoal(${p.id})">✎</button>
+        <button class="danger sm" onclick="delPessoal(${p.id})">x</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
   // Limites Pessoais
   $('limiteVanny').value = state.cfg.limitesIndividuais.vanny || '';
@@ -870,7 +951,15 @@ function render(){
 
   // Extras e Outros
   $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
-  $('outrosBody').innerHTML = m.outros.map(e => `<tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td class="neg">${fmt(e.valor)}</td><td><button class="danger" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
+  $('outrosBody').innerHTML = m.outros.map(e => `
+    <tr>
+      <td>${e.data.split('-').reverse().join('/')}</td>
+      <td>${e.desc}</td><td>${e.cat}</td><td class="neg">${fmt(e.valor)}</td>
+      <td style="white-space:nowrap">
+        <button class="edit sm" onclick="editOutro(${e.id})">✎</button>
+        <button class="danger sm" onclick="delOutro(${e.id})">x</button>
+      </td>
+    </tr>`).join('');
 
   // iFood
   const ifdTotal = m.ifood.reduce((s,e)=>s+e.valor,0);
@@ -878,7 +967,10 @@ function render(){
     <tr>
       <td>${e.data.split('-').reverse().join('/')}</td>
       <td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td>
-      <td><button class="danger" onclick="delIfood(${e.id})">x</button></td>
+      <td style="white-space:nowrap">
+        <button class="edit sm" onclick="editIfood(${e.id})">✎</button>
+        <button class="danger sm" onclick="delIfood(${e.id})">x</button>
+      </td>
     </tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum pedido.</td></tr>';
   
