@@ -163,9 +163,17 @@ tr:last-child td{border-bottom:0}
 .acerto-box i { font-size: 28px; color: var(--primary); }
 .acerto-box div { font-size: 14px; font-weight: 600; color: var(--primary); }
 
-/* ============ ESTILOS PARA IMPRESSÃO/PDF ============ */
-#print-section { display: none; }
-.pdf-layout { background: white; color: black; padding: 20px; font-family: sans-serif; width: 800px; margin: 0 auto; }
+/* ============ ESTILOS PARA O PDF ============ */
+#print-section {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 800px;
+  background: white;
+  color: black;
+  padding: 20px;
+  font-family: sans-serif;
+}
 .pdf-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
 .pdf-header h1 { margin: 0; font-size: 24px; }
 .pdf-header p { margin: 4px 0 0; font-size: 14px; color: #555; }
@@ -180,7 +188,7 @@ tr:last-child td{border-bottom:0}
 <body>
 
 <!-- ÁREA OCULTA PARA GERAR PDF -->
-<div id="print-section" class="pdf-layout"></div>
+<div id="print-section"></div>
 
 <div id="login-screen">
   <div class="login-card">
@@ -674,25 +682,29 @@ function verificarRecorrencia(mes) {
   const anteriores = chaves.filter(k => k < mes);
   if(anteriores.length === 0) return;
 
-  const mesAnt = anteriores[anteriores.length - 1]; // Pega o mais recente antes dele
+  const mesAnt = anteriores[anteriores.length - 1]; 
   const mAnt = state.meses[mesAnt];
   const mAtual = getMes(mes);
   
   let mudou = false;
   
-  // Se o mês atual não tem vencimentos salvos, copia do anterior e ajusta o ano/mês
-  state.fixas.forEach(f => {
+  const fixasAtivas = state.fixas.filter(f => !f.startMonth || f.startMonth <= mes);
+  fixasAtivas.forEach(f => {
+    // Copia vencimento
     if(!mAtual.vencimentos[f.id] && mAnt.vencimentos && mAnt.vencimentos[f.id]) {
-      const p = mAnt.vencimentos[f.id].split('-'); // YYYY-MM-DD
-      const novaData = `${mes}-${p[2]}`; // Muda o ano-mês, mantém o dia
+      const p = mAnt.vencimentos[f.id].split('-'); 
+      const novaData = `${mes}-${p[2]}`; 
       mAtual.vencimentos[f.id] = novaData;
+      mudou = true;
+    }
+    // Copia valor customizado (se houver)
+    if(mAtual.valoresFixos[f.id] === undefined && mAnt.valoresFixos && mAnt.valoresFixos[f.id] !== undefined) {
+      mAtual.valoresFixos[f.id] = mAnt.valoresFixos[f.id];
       mudou = true;
     }
   });
 
-  if(mudou) {
-    save();
-  }
+  if(mudou) save();
 }
 
 function normalizarDados() {
@@ -728,9 +740,7 @@ function normalizarDados() {
     });
   }
 
-  if (mudou) {
-    localStorage.setItem('financas_local', JSON.stringify(state));
-  }
+  if (mudou) localStorage.setItem('financas_local', JSON.stringify(state));
 }
 
 function save() {
@@ -807,12 +817,18 @@ function resetarTudo() {
 
 function getMes(y){
   if(!state.meses) state.meses = {};
-  if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], pessoais:[], fixasPago:{}, adiadas:{}, puladas:{}, vencimentos:{} };
+  if(!state.meses[y]) state.meses[y] = { salarios:{eu:0,esp:0}, extras:[], ifood:[], outros:[], pessoais:[], fixasPago:{}, adiadas:{}, puladas:{}, vencimentos:{}, valoresFixos:{} };
   const m = state.meses[y];
   m.salarios = m.salarios || {eu:0,esp:0}; m.extras = m.extras || []; m.ifood = m.ifood || []; m.outros = m.outros || []; m.pessoais = m.pessoais || [];
   m.fixasPago = m.fixasPago || {}; m.adiadas = m.adiadas || {}; m.puladas = m.puladas || {};
   m.vencimentos = m.vencimentos || {};
+  m.valoresFixos = m.valoresFixos || {};
   return m;
+}
+
+// Retorna o valor da conta fixa para o mês específico
+function getValorFixa(f, m) {
+  return (m.valoresFixos && m.valoresFixos[f.id] !== undefined) ? m.valoresFixos[f.id] : (f.valor || 0);
 }
 
 function mudarFiltroInd(filtro, btn) {
@@ -829,7 +845,6 @@ function mudarFiltroIf(filtro, btn) {
   render();
 }
 
-// --- FUNÇÃO DE PARCELAMENTO ---
 function avancarMes(y, qtd) {
   let [a, m] = y.split('-').map(Number);
   m += qtd;
@@ -837,7 +852,6 @@ function avancarMes(y, qtd) {
   return `${a}-${String(m).padStart(2, '0')}`;
 }
 
-// --- CLONAR GASTO RÁPIDO ---
 function cloneItem(id, type, origem) {
   const m = getMes($('mes').value);
   let itemOrigem;
@@ -847,7 +861,6 @@ function cloneItem(id, type, origem) {
   
   if(!itemOrigem) return;
 
-  const novoId = Date.now();
   const hoje = ymd(new Date());
   
   if(origem === 'ifood') {
@@ -862,7 +875,6 @@ function cloneItem(id, type, origem) {
   alert('Campos preenchidos! Basta clicar em Adicionar.');
 }
 
-// --- LANÇAMENTO INDIVIDUAL ---
 function addPessoal(pessoa) {
   const isV = pessoa === 'Vanny';
   const desc = $(isV ? 'vDesc' : 'tDesc').value.trim();
@@ -888,11 +900,7 @@ function addPessoal(pessoa) {
   $(isV ? 'vParcelas' : 'tParcelas').value = '1';
   save();
 }
-function delPessoal(id) {
-  const m = getMes($('mes').value);
-  m.pessoais = m.pessoais.filter(x=>x.id!==id);
-  save();
-}
+function delPessoal(id) { const m = getMes($('mes').value); m.pessoais = m.pessoais.filter(x=>x.id!==id); save(); }
 function editPessoal(id) {
   const m = getMes($('mes').value);
   const item = m.pessoais.find(x=>x.id===id);
@@ -932,7 +940,6 @@ function editOutro(id){
   save();
 }
 
-// --- FAB ---
 function abrirFab() {
   $('fab-data').value = ymd(new Date());
   $('fab-valor').value = ''; $('fab-desc').value = ''; $('fab-parcelas').value = '1';
@@ -980,13 +987,21 @@ function salvarFab() {
   save();
 }
 
-// --- CONFIGURAÇÕES ---
 function editFixaValor(id) {
+  const mesAtual = $('mes').value;
+  const m = getMes(mesAtual);
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
-  const v = prompt(`Valor PREVISTO para "${f.nome}":`, f.valor);
+  
+  const vAtual = getValorFixa(f, m);
+  const v = prompt(`Valor para "${f.nome}" no mês de ${mesAtual} (deixe em branco para usar o padrão R$ ${fmt(f.valor)}):`, vAtual);
   if (v === null) return;
-  f.valor = parseFloat(v.replace(',', '.')) || 0;
+  
+  if(v.trim() === '') {
+      delete m.valoresFixos[id]; 
+  } else {
+      m.valoresFixos[id] = parseFloat(v.replace(',', '.')) || 0;
+  }
   save();
 }
 function editFixaTipo(id) {
@@ -1030,8 +1045,10 @@ function editVencimentoMes(id) {
 function abrirModalPgto(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
-  $('modal-id').value = id; $('modal-nome').textContent = f.nome; $('modal-previsto').textContent = fmt(f.valor);
-  $('modal-valor').value = f.valor; $('modal-data').value = ymd(new Date());
+  const m = getMes($('mes').value);
+  $('modal-id').value = id; $('modal-nome').textContent = f.nome; 
+  $('modal-previsto').textContent = fmt(getValorFixa(f, m));
+  $('modal-valor').value = getValorFixa(f, m); $('modal-data').value = ymd(new Date());
   $('modal-quem').value = 'Casal (Dividir)';
   $('modal-pgto').style.display = 'flex'; $('modal-valor').focus();
 }
@@ -1044,15 +1061,23 @@ function confirmarPagamento() {
   if (valorReal <= 0 || !dataPgto) return alert('Preencha valor e data.');
   const f = state.fixas.find(x => x.id === id);
   const m = getMes($('mes').value);
-  const diferenca = valorReal - f.valor;
-  m.fixasPago[id] = { valor: valorReal, data: dataPgto, previsto: f.valor, juros: diferenca > 0 ? diferenca : 0, parcial: diferenca < 0, restante: diferenca < 0 ? Math.abs(diferenca) : 0, quem: quem };
+  const previsto = getValorFixa(f, m);
+  const diferenca = valorReal - previsto;
+  m.fixasPago[id] = { valor: valorReal, data: dataPgto, previsto: previsto, juros: diferenca > 0 ? diferenca : 0, parcial: diferenca < 0, restante: diferenca < 0 ? Math.abs(diferenca) : 0, quem: quem };
   fecharModal(); save();
 }
 function desfazerPgto(id) { delete getMes($('mes').value).fixasPago[id]; save(); }
 function addFixa(){
   const nome=$('fxNome').value.trim();
   if(!nome) return alert('Informe o nome');
-  state.fixas.push({id:'f'+Date.now(), nome, tipo:$('fxTipo').value, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
+  state.fixas.push({
+      id:'f'+Date.now(), 
+      nome, 
+      tipo:$('fxTipo').value, 
+      valor:parseFloat($('fxValor').value.replace(',', '.'))||0, 
+      dia:parseInt($('fxDia').value)||1,
+      startMonth: $('mes').value // Salva o mês que foi criado
+  });
   $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value=''; save();
 }
 function salvarSalarios() {
@@ -1087,7 +1112,6 @@ function editIfood(id){
 }
 function setLimiteIfood(){ const v = parseFloat($('cfgIfood').value.replace(',', '.')); if(v>0){ state.cfg.limiteIfood = v; save(); } }
 
-// --- DÍVIDAS E METAS ---
 function addDivida(){
   const nome = $('dvNome').value.trim();
   const total = parseFloat($('dvTotal').value.replace(',','.'))||0;
@@ -1131,14 +1155,12 @@ function aportarMeta(id) {
 }
 function delMeta(id) { if(confirm('Apagar?')) { state.metas = state.metas.filter(x=>x.id!==id); save(); } }
 
-// --- RESUMO WHATSAPP ---
 function copiarResumo() {
   const mes = $('mes').value;
   const m = getMes(mes);
   const recTotal = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
   
-  const fixasPagas = Object.values(m.fixasPago).reduce((s,v)=>s+v.valor, 0);
-  const gastoCasa = m.outros.reduce((s,e)=>s+e.valor,0) + state.fixas.reduce((s,f)=>s+(f.valor||0),0); 
+  const gastoCasa = m.outros.reduce((s,e)=>s+e.valor,0) + state.fixas.filter(f => !f.startMonth || f.startMonth <= mes).reduce((s,f)=>s+getValorFixa(f, m),0); 
   const gastoVanny = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0); 
   const gastoTami = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0); 
   
@@ -1151,15 +1173,15 @@ function copiarResumo() {
                 `🌸 *Gastos Tami:* ${fmt(gastoTami)}\n\n` +
                 `*Saldo em Conta:* ${fmt(saldo)}`;
 
-  navigator.clipboard.writeText(texto).then(() => {
-    alert('Resumo copiado! Agora é só colar no WhatsApp.');
-  }).catch(err => {
-    alert('Erro ao copiar. Seu navegador pode não suportar essa função.');
-  });
+  navigator.clipboard.writeText(texto).then(() => { alert('Resumo copiado! Agora é só colar no WhatsApp.'); })
+  .catch(err => { alert('Erro ao copiar. Seu navegador pode não suportar essa função.'); });
 }
 
-// --- GERAR PDF REAL ---
 function gerarRelatorio() {
+  const btn = document.getElementById('btn-print');
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>'; 
+  
   const mes = $('mes').value;
   const m = getMes(mes);
   const mesFormatado = mes.split('-').reverse().join('/');
@@ -1167,14 +1189,16 @@ function gerarRelatorio() {
   let contasArr = [];
   let cartoesArr = [];
   
-  state.fixas.forEach(f => {
+  const fixasAtivas = state.fixas.filter(f => !f.startMonth || f.startMonth <= mes);
+  
+  fixasAtivas.forEach(f => {
     const pgto = m.fixasPago[f.id];
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const vencFormatado = vencStr.split('-').reverse().join('/');
     let status = pgto ? (pgto.parcial ? 'Parcial' : 'Pago') : 'Pendente';
     let valorPago = pgto ? fmt(pgto.valor) : '-';
     
-    const item = { nome: f.nome, venc: vencFormatado, previsto: fmt(f.valor), status: status, pago: valorPago };
+    const item = { nome: f.nome, venc: vencFormatado, previsto: fmt(getValorFixa(f, m)), status: status, pago: valorPago };
     if (f.tipo === 'Cartão') cartoesArr.push(item); else contasArr.push(item);
   });
 
@@ -1205,35 +1229,46 @@ function gerarRelatorio() {
 
   $('print-section').innerHTML = html;
   
-  // Gera o PDF real
-  const element = document.getElementById('print-section');
-  const opt = {
-    margin:       10,
-    filename:     `extrato_${mes}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-  
-  html2pdf().set(opt).from(element).save();
+  setTimeout(() => {
+    const element = document.getElementById('print-section');
+    const opt = {
+      margin:       10,
+      filename:     `extrato_${mes}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+       btn.innerHTML = originalHtml;
+    }).catch((e) => {
+       alert('Erro ao gerar o PDF. Tentando método alternativo.');
+       window.print();
+       btn.innerHTML = originalHtml;
+    });
+  }, 300);
 }
 
-// --- RENDERIZAÇÃO ---
 function render(){
   if(!state) return;
   const mes = $('mes').value;
-  verificarRecorrencia(mes); // Auto-preenche contas do mês anterior
+  verificarRecorrencia(mes);
   const m = getMes(mes);
   updateCartaoSelects();
 
-  // CÁLCULOS
+  // FILTRA CONTAS QUE JÁ EXISTIAM NO MÊS
+  const fixasAtivas = state.fixas.filter(f => !f.startMonth || f.startMonth <= mes);
+
   const recVanny = (m.salarios.eu||0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const recTami = (m.salarios.esp||0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const recTotal = recVanny + recTami + m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
 
   let totalPrevistoFixas = 0;
   let totalPagoFixas = 0;
-  state.fixas.forEach(f => { totalPrevistoFixas += (f.valor||0); if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; });
+  fixasAtivas.forEach(f => { 
+    totalPrevistoFixas += getValorFixa(f, m); 
+    if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; 
+  });
   
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
   const gastoCasaTotal = totalPrevistoFixas + gastoCasalOutros;
@@ -1250,30 +1285,26 @@ function render(){
   const totalGastoGeral = gastoCasaTotal + gastoVannyTotal + gastoTamiTotal;
   const saldoGeral = recTotal - totalGastoGeral;
 
-  // SEMÁFORO
   let semClass = 'green', semTxt = 'Mês Saudável! Vocês estão economizando.';
   if(saldoGeral < 0) { semClass = 'red'; semTxt = 'Alerta Vermelho! As contas previstas já estouraram a receita.'; }
   else if(saldoGeral < recTotal * 0.1) { semClass = 'yellow'; semTxt = 'Atenção! A margem de sobra está pequena.'; }
   $('semaforo-container').innerHTML = `<div class="semaforo ${semClass}">${semTxt}</div>`;
 
-  // CARDS TOPO
   $('sRecTotal').textContent = fmt(recTotal);
   $('sGastosCasal').textContent = fmt(gastoCasaTotal);
   $('sGastosVanny').textContent = fmt(gastoVannyTotal);
   $('sGastosTami').textContent = fmt(gastoTamiTotal);
   $('sSalGeral').textContent = fmt(saldoGeral);
 
-  // ACERTO DE CONTAS (Quem deve quem)
   let vannyPagou = 0, tamiPagou = 0;
-  state.fixas.forEach(f => {
+  fixasAtivas.forEach(f => {
     const p = m.fixasPago[f.id];
     if(p) {
       if(p.quem === 'Vanny') vannyPagou += p.valor;
       else if(p.quem === 'Tami') tamiPagou += p.valor;
-      else { vannyPagou += p.valor/2; tamiPagou += p.valor/2; } // Casal dividiu
+      else { vannyPagou += p.valor/2; tamiPagou += p.valor/2; }
     }
   });
-  // Adiciona gastos variáveis da casa (assumindo que foram pagos por quem lançou, ou divididos). Para simplificar, vamos apenas usar as fixas.
   const totalCasaPago = vannyPagou + tamiPagou;
   const metaPorPessoa = totalCasaPago / 2;
   
@@ -1285,7 +1316,6 @@ function render(){
   }
   $('acertoContasBox').innerHTML = `<div class="acerto-box"><i class="ph-fill ph-handshake"></i><div>${acertoTxt}</div></div>`;
 
-  // GRÁFICO DE BARRAS (6 MESES)
   const last6 = [];
   let d = new Date(mes+'-01T12:00:00');
   for(let i=5; i>=0; i--) {
@@ -1293,7 +1323,7 @@ function render(){
     let ymStr = `${temp.getFullYear()}-${String(temp.getMonth()+1).padStart(2,'0')}`;
     let mm = state.meses[ymStr] || {};
     let r = (mm.salarios?.eu||0) + (mm.salarios?.esp||0) + (mm.extras||[]).reduce((s,e)=>s+e.valor,0);
-    let des = state.fixas.reduce((s,f)=>s+(f.valor||0),0) + (mm.outros||[]).reduce((s,e)=>s+e.valor,0) + (mm.pessoais||[]).reduce((s,e)=>s+e.valor,0);
+    let des = state.fixas.filter(f => !f.startMonth || f.startMonth <= ymStr).reduce((s,f)=>s+getValorFixa(f, mm),0) + (mm.outros||[]).reduce((s,e)=>s+e.valor,0) + (mm.pessoais||[]).reduce((s,e)=>s+e.valor,0);
     last6.push({ label: ymStr.split('-')[1], rec: r, des: des });
   }
   const maxVal = Math.max(1, ...last6.flatMap(x => [x.rec, x.des]));
@@ -1305,7 +1335,6 @@ function render(){
   });
   $('historyChart').innerHTML = chartHtml;
 
-  // GRÁFICO DONUT
   const tGastos = gastoCasaTotal + gastoVannyTotal + gastoTamiTotal || 1;
   const pctCasa = (gastoCasaTotal / tGastos) * 100;
   const pctVanny = (gastoVannyTotal / tGastos) * 100;
@@ -1316,7 +1345,6 @@ function render(){
   $('donutLegTami').textContent = pctTami.toFixed(0) + '%';
   $('donutChart').style.background = `conic-gradient(var(--casa-color) 0% ${pctCasa}%, var(--vanny-color) ${pctCasa}% ${pctCasa + pctVanny}%, var(--tami-color) ${pctCasa + pctVanny}% 100%)`;
 
-  // ABA INDIVIDUAL
   $('indVannyTotal').textContent = fmt(gastoVannyTotal);
   $('indTamiTotal').textContent = fmt(gastoTamiTotal);
   $('indVannySaldo').innerHTML = `Saldo Livre: <span class="${(recVanny-gastoVannyTotal)>=0?'pos':'neg'}">${fmt(recVanny-gastoVannyTotal)}</span> <br><span style="font-size:10px;color:var(--text-muted)">+ ${fmt(ifoodVanny)} em iFood (Cartão)</span>`;
@@ -1344,14 +1372,13 @@ function render(){
     </td></tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
-  // OUTRAS ABAS
   $('resFixPrevisto').textContent = fmt(totalPrevistoFixas);
   $('resFixPago').textContent = fmt(totalPagoFixas);
   $('resFixFalta').textContent = fmt(Math.max(0, totalPrevistoFixas - totalPagoFixas));
 
   const alertas = [];
   const hoje = new Date();
-  state.fixas.forEach(f => {
+  fixasAtivas.forEach(f => {
     if(m.fixasPago[f.id] || m.puladas[f.id] || m.adiadas[f.id]) return;
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const venc = new Date(vencStr + 'T12:00:00');
@@ -1364,8 +1391,11 @@ function render(){
   $('salEu').value = m.salarios.eu || ''; $('salEsp').value = m.salarios.esp || '';
   $('cfgIfood').value = state.cfg.limiteIfood || '';
 
-  $('fixasBody').innerHTML = state.fixas.map(f => {
+  $('fixasBody').innerHTML = fixasAtivas.map(f => {
     const pgto = m.fixasPago[f.id];
+    const valorExibicao = getValorFixa(f, m);
+    const isEdited = m.valoresFixos && m.valoresFixos[f.id] !== undefined;
+    
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const vencFormatado = vencStr.split('-').reverse().join('/');
     let badge = '<span class="badge pendente">Pendente</span>';
@@ -1382,7 +1412,10 @@ function render(){
         <span class="badge ${badgeTipo}" style="font-size:9px;padding:2px 6px;cursor:pointer" onclick="editFixaTipo('${f.id}')" title="Mudar Tipo">${f.tipo || 'Conta'}</span>
       </td>
       <td>${vencFormatado} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')">✎</button></td>
-      <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
+      <td>
+        ${fmt(valorExibicao)} ${isEdited ? '<span title="Valor customizado para este mês" style="font-size:10px;color:var(--primary);cursor:help">✎*</span>' : ''}
+        <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button>
+      </td>
       <td>${txtPago}</td><td>${badge}</td>
       <td style="white-space:nowrap">
         ${!pgto && !m.adiadas[f.id] && !m.puladas[f.id] ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button>` : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}
