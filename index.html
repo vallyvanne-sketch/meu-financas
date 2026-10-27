@@ -86,6 +86,8 @@ tr:last-child td{border-bottom:0}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
 .badge.cat { background: var(--bg); color: var(--text-main); border: 1px solid var(--border); }
 .badge.ifood-tag { background: #fee2e2; color: #ef4444; }
+.badge.tipo-conta { background: #e0f2fe; color: #0284c7; }
+.badge.tipo-cartao { background: #fce7f3; color: #be185d; }
 .bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar>div{height:100%;transition:width .4s ease}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
@@ -287,7 +289,7 @@ tr:last-child td{border-bottom:0}
     <!-- PAINEL GERAL -->
     <div class="stats">
       <div class="stat casa"><div class="lbl">Receita Total</div><div class="val pos" id="sRecTotal">R$ 0,00</div></div>
-      <div class="stat casa"><div class="lbl">Gastos da Casa</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
+      <div class="stat casa"><div class="lbl">Contas + Cartões</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
       <div class="stat vanny"><div class="lbl">Gastos Vanny</div><div class="val" id="sGastosVanny">R$ 0,00</div></div>
       <div class="stat tami"><div class="lbl">Gastos Tami</div><div class="val" id="sGastosTami">R$ 0,00</div></div>
       <div class="stat" style="background:var(--primary-light); border-color:var(--primary)"><div class="lbl" style="color:var(--primary)">Saldo em Conta</div><div class="val" id="sSalGeral" style="color:var(--primary)">R$ 0,00</div></div>
@@ -297,7 +299,7 @@ tr:last-child td{border-bottom:0}
       <div class="tabs">
         <button class="tab active" data-tab="dash"><i class="ph ph-chart-pie-slice"></i> Dash</button>
         <button class="tab" data-tab="individual"><i class="ph ph-users"></i> Individual (V&T)</button>
-        <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Contas da Casa</button>
+        <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Contas e Cartões</button>
         <button class="tab" data-tab="receitas"><i class="ph ph-money"></i> Receitas</button>
         <button class="tab" data-tab="ifood"><i class="ph ph-fork-knife"></i> iFood (Cartão)</button>
         <button class="tab" data-tab="outros"><i class="ph ph-shopping-cart"></i> Outros (Casa)</button>
@@ -327,28 +329,6 @@ tr:last-child td{border-bottom:0}
       </div>
 
       <div class="card">
-        <h2><i class="ph-fill ph-scales"></i> Regra 50/30/20</h2>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Baseado na receita e nos gastos que saíram da conta.</p>
-        <div class="potinhos">
-          <div class="potinho">
-            <h4>Custos Fixos (50%)</h4>
-            <div class="p-val neg" id="potFixosReal">R$ 0,00</div>
-            <div class="p-target">Meta: <span id="potFixosMeta">R$ 0,00</span></div>
-          </div>
-          <div class="potinho">
-            <h4>Estilo de Vida (30%)</h4>
-            <div class="p-val neg" id="potLazerReal">R$ 0,00</div>
-            <div class="p-target">Meta: <span id="potLazerMeta">R$ 0,00</span></div>
-          </div>
-          <div class="potinho">
-            <h4>Sobra/Metas (20%)</h4>
-            <div class="p-val pos" id="potSobraReal">R$ 0,00</div>
-            <div class="p-target">Meta: <span id="potSobraMeta">R$ 0,00</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
         <h2><i class="ph-fill ph-whatsapp-logo"></i> Enviar para o Casal</h2>
         <div class="row">
           <button class="btn-primary" onclick="copiarResumo()" style="background:#25D366"><i class="ph ph-whatsapp-logo"></i> Copiar Resumo p/ WhatsApp</button>
@@ -365,7 +345,7 @@ tr:last-child td{border-bottom:0}
     <!-- ABA INDIVIDUAL -->
     <section class="panel" id="panel-individual">
       <div class="card">
-        <h2><i class="ph-fill ph-users"></i> Lançamentos Individuais</h2>
+        <h2><i class="ph-fill ph-users"></i> Lançamentos Individuais (Débito/Pix)</h2>
         <div class="filter-buttons">
           <button class="active" onclick="mudarFiltroInd('ambas', this)">Ver Ambas</button>
           <button onclick="mudarFiltroInd('vanny', this)">Só Vanny</button>
@@ -428,10 +408,10 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-    <!-- CONTAS DA CASA -->
+    <!-- CONTAS DA CASA E CARTOES -->
     <section class="panel" id="panel-fixas">
       <div class="card">
-        <h2><i class="ph-fill ph-house"></i> Contas Fixas da Casa</h2>
+        <h2><i class="ph-fill ph-house"></i> Contas e Cartões</h2>
         <div class="resumo-casal">
           <div><span class="lbl">Total Previsto</span><span class="val" id="resFixPrevisto">R$ 0,00</span></div>
           <div><span class="lbl">Já Pago</span><span class="val pos" id="resFixPago">R$ 0,00</span></div>
@@ -439,15 +419,16 @@ tr:last-child td{border-bottom:0}
         </div>
         <div class="table-responsive">
           <table>
-            <thead><tr><th>Conta</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Nome / Tipo</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="fixasBody"></tbody>
           </table>
         </div>
       </div>
       <div class="card">
-        <h2><i class="ph-fill ph-plus-circle"></i> Adicionar conta fixa</h2>
+        <h2><i class="ph-fill ph-plus-circle"></i> Adicionar Conta ou Cartão</h2>
         <div class="row">
-          <input type="text" id="fxNome" placeholder="Nome">
+          <input type="text" id="fxNome" placeholder="Nome (ex: Fatura Digio)">
+          <select id="fxTipo"><option value="Conta">Conta</option><option value="Cartão">Cartão</option></select>
           <input type="number" id="fxValor" placeholder="Valor (R$)" step="0.01">
           <input type="number" id="fxDia" placeholder="Dia venc.">
           <button class="btn-primary" onclick="addFixa()">Adicionar</button>
@@ -483,7 +464,7 @@ tr:last-child td{border-bottom:0}
         <h2><i class="ph-fill ph-fork-knife"></i> Controle iFood (Gasto no Cartão)</h2>
         <div class="hint" style="background:#fee2e2; border:1px solid #ef4444; color:#b91c1c; margin-bottom:16px;">
           <i class="ph-fill ph-warning-circle"></i> 
-          <div><strong>Atenção:</strong> Estes gastos foram no cartão de crédito. Eles <strong>não</strong> afetam o "Saldo em Conta" atual, pois serão pagos na fatura do mês que vem (já lançada nas Contas da Casa).</div>
+          <div><strong>Atenção:</strong> Estes gastos foram no cartão de crédito. Eles <strong>não</strong> afetam o "Saldo em Conta" atual, pois serão pagos na fatura do mês que vem (já lançada nas Contas e Cartões).</div>
         </div>
 
         <div class="resumo-casal">
@@ -520,7 +501,7 @@ tr:last-child td{border-bottom:0}
     <!-- OUTROS (CASA) -->
     <section class="panel" id="panel-outros">
       <div class="card">
-        <h2><i class="ph-fill ph-shopping-cart"></i> Outros gastos da Casa</h2>
+        <h2><i class="ph-fill ph-shopping-cart"></i> Outros gastos da Casa (Débito/Pix)</h2>
         <div class="row" style="margin-bottom:16px">
           <input type="date" id="oData">
           <input type="text" id="oDesc" placeholder="Descrição">
@@ -610,12 +591,19 @@ const db = firebase.database();
 const defaultState = {
   cfg: { limiteIfood: 600 },
   fixas: [
-    {id:'f1', nome:'Construtora', valor:0, dia:5}, {id:'f2', nome:'Caixa', valor:0, dia:10},
-    {id:'f3', nome:'Condomínio', valor:0, dia:10}, {id:'f4', nome:'Spacelink', valor:0, dia:15},
-    {id:'f5', nome:'Energia', valor:0, dia:20}, {id:'f6', nome:'IPTU', valor:0, dia:20},
-    {id:'f7', nome:'Fatura NEON', valor:0, dia:15}, {id:'f8', nome:'Fatura Santander', valor:0, dia:10},
-    {id:'f9', nome:'Fatura Afinz', valor:0, dia:15}, {id:'f10', nome:'Fatura Digio', valor:0, dia:12},
-    {id:'f11', nome:'Fatura Mercado Pago', valor:0, dia:8}, {id:'f12', nome:'Água', valor:0, dia:20}
+    {id:'f1', nome:'Construtora', valor:0, dia:5, tipo:'Conta'},
+    {id:'f2', nome:'Caixa', valor:0, dia:10, tipo:'Conta'},
+    {id:'f3', nome:'Condomínio', valor:0, dia:10, tipo:'Conta'},
+    {id:'f4', nome:'Spacelink', valor:0, dia:15, tipo:'Conta'},
+    {id:'f5', nome:'Energia', valor:0, dia:20, tipo:'Conta'},
+    {id:'f6', nome:'IPTU', valor:0, dia:20, tipo:'Conta'},
+    {id:'f7', nome:'Fatura NEON', valor:0, dia:15, tipo:'Cartão'},
+    {id:'f8', nome:'Fatura Santander', valor:0, dia:10, tipo:'Cartão'},
+    {id:'f9', nome:'Fatura Afinz', valor:0, dia:15, tipo:'Cartão'},
+    {id:'f10', nome:'Fatura Digio', valor:0, dia:12, tipo:'Cartão'},
+    {id:'f11', nome:'Fatura MP Vanessa', valor:0, dia:8, tipo:'Cartão'},
+    {id:'f12', nome:'Fatura MP Tami', valor:0, dia:8, tipo:'Cartão'},
+    {id:'f13', nome:'Água', valor:0, dia:20, tipo:'Conta'}
   ],
   dividas: [],
   metas: [],
@@ -637,11 +625,12 @@ const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}
 const ymd = d => d.toISOString().slice(0,10);
 const ym  = d => d.toISOString().slice(0,7);
 
-// FUNÇÃO MÁGICA: Renomeia dados antigos de "Eu" e "Esposa" para "Vanny" e "Tami"
+// FUNÇÃO MÁGICA: Renomeia dados antigos e define o Tipo (Conta ou Cartão)
 function normalizarDados() {
   if (!state || !state.meses) return;
   let mudou = false;
   
+  // Renomear pessoas antigas
   Object.values(state.meses).forEach(m => {
     if (m.extras) m.extras.forEach(e => { 
       if (e.pessoa === 'Eu') { e.pessoa = 'Vanny'; mudou = true; } 
@@ -657,8 +646,22 @@ function normalizarDados() {
     });
   });
   
+  // Definir Tipo de conta antiga
+  if (state.fixas) {
+    state.fixas.forEach(f => {
+      if (!f.tipo) {
+        const nomeLower = f.nome.toLowerCase();
+        if (nomeLower.includes('fatura') || nomeLower.includes('cartao') || nomeLower.includes('mp ') || nomeLower.includes('neon') || nomeLower.includes('santander') || nomeLower.includes('digio') || nomeLower.includes('afinz')) {
+          f.tipo = 'Cartão';
+        } else {
+          f.tipo = 'Conta';
+        }
+        mudou = true;
+      }
+    });
+  }
+
   if (mudou) {
-    console.log("Dados antigos atualizados para Vanny e Tami.");
     localStorage.setItem('financas_local', JSON.stringify(state));
   }
 }
@@ -901,8 +904,20 @@ function editFixaValor(id) {
   f.valor = parseFloat(v.replace(',', '.')) || 0;
   save();
 }
+function editFixaTipo(id) {
+  const f = state.fixas.find(x => x.id === id);
+  if (!f) return;
+  const v = prompt(`Tipo (Digite "Conta" ou "Cartão"):`, f.tipo);
+  if (!v) return;
+  if(v.toLowerCase() === 'conta' || v.toLowerCase() === 'cartão' || v.toLowerCase() === 'cartao') {
+    f.tipo = v.toLowerCase().includes('cart') ? 'Cartão' : 'Conta';
+    save();
+  } else {
+    alert('Tipo inválido.');
+  }
+}
 function delFixa(id) {
-  if(!confirm('Tem certeza que deseja apagar esta conta fixa?')) return;
+  if(!confirm('Tem certeza que deseja apagar esta conta/cartão?')) return;
   state.fixas = state.fixas.filter(f => f.id !== id);
   save();
 }
@@ -944,7 +959,7 @@ function desfazerPgto(id) { delete getMes($('mes').value).fixasPago[id]; save();
 function addFixa(){
   const nome=$('fxNome').value.trim();
   if(!nome) return alert('Informe o nome');
-  state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
+  state.fixas.push({id:'f'+Date.now(), nome, tipo:$('fxTipo').value, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
   $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value=''; save();
 }
 function salvarSalarios() {
@@ -1032,16 +1047,15 @@ function copiarResumo() {
   const recTami = (m.salarios.esp||0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const recTotal = recVanny + recTami + m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
 
-  // AQUI FOI CORRIGIDO PARA USAR O PREVISTO E NÃO SÓ O PAGO
-  const gastoCasa = m.outros.reduce((s,e)=>s+e.valor,0) + state.fixas.reduce((s,f)=>s+(f.valor||0),0); // Sem iFood
-  const gastoVanny = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0); // Sem iFood
-  const gastoTami = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0); // Sem iFood
+  const gastoCasa = m.outros.reduce((s,e)=>s+e.valor,0) + state.fixas.reduce((s,f)=>s+(f.valor||0),0); 
+  const gastoVanny = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0); 
+  const gastoTami = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0); 
   
   const saldo = recTotal - (gastoCasa + gastoVanny + gastoTami);
 
   const texto = `*Resumo Financeiro - ${mes.split('-').reverse().join('/')}*\n\n` +
                 `💰 *Receita:* ${fmt(recTotal)}\n` +
-                `🏠 *Gastos Casa:* ${fmt(gastoCasa)}\n` +
+                `🏠 *Contas + Cartões:* ${fmt(gastoCasa)}\n` +
                 `💅 *Gastos Vanny:* ${fmt(gastoVanny)}\n` +
                 `🌸 *Gastos Tami:* ${fmt(gastoTami)}\n\n` +
                 `*Saldo em Conta:* ${fmt(saldo)}`;
@@ -1059,74 +1073,50 @@ function gerarRelatorio() {
   const m = getMes(mes);
   const mesFormatado = mes.split('-').reverse().join('/');
   
-  let totalPagoFixas = 0;
-  state.fixas.forEach(f => { if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; });
+  let contasArr = [];
+  let cartoesArr = [];
   
-  const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
-  const gastoCasaTotal = totalPagoFixas + gastoCasalOutros;
-
-  const recVanny = (m.salarios.eu||0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
-  const recTami = (m.salarios.esp||0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
-  const recTotal = recVanny + recTami + m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
-
-  const gastoVanny = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
-  const gastoTami = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
-  
-  const totalGasto = gastoCasaTotal + gastoVanny + gastoTami;
-  const saldoGeral = recTotal - totalGasto;
-
-  let html = `
-    <div class="print-header">
-      <h1>Extrato Financeiro do Casal</h1>
-      <p>Referente a: <strong>${mesFormatado}</strong> | Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
-    </div>
-
-    <div class="print-summary">
-      <div>Receita Total: <span class="text-green">${fmt(recTotal)}</span></div>
-      <div>Despesas Totais (Conta): <span class="text-red">${fmt(totalGasto)}</span></div>
-      <div>Saldo em Conta: <span class="${saldoGeral >= 0 ? 'text-green' : 'text-red'}">${fmt(saldoGeral)}</span></div>
-    </div>
-
-    <div class="print-section-title">1. Contas Fixas da Casa</div>
-    <table>
-      <thead><tr><th>Conta</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
-      <tbody>`;
-
   state.fixas.forEach(f => {
     const pgto = m.fixasPago[f.id];
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const vencFormatado = vencStr.split('-').reverse().join('/');
     let status = pgto ? (pgto.parcial ? 'Parcial' : 'Pago') : 'Pendente';
-    html += `<tr><td>${f.nome}</td><td>${vencFormatado}</td><td>${fmt(f.valor)}</td><td>${status}</td><td>${pgto ? fmt(pgto.valor) : '-'}</td></tr>`;
+    let valorPago = pgto ? fmt(pgto.valor) : '-';
+    
+    const item = { nome: f.nome, venc: vencFormatado, previsto: fmt(f.valor), status: status, pago: valorPago };
+    
+    if (f.tipo === 'Cartão') cartoesArr.push(item);
+    else contasArr.push(item);
   });
+
+  let html = `
+    <div class="print-header">
+      <h1>Previsão de Pagamentos</h1>
+      <p>Referente a: <strong>${mesFormatado}</strong> | Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
+    </div>
+
+    <div class="print-section-title">1. Contas da Casa (Previsão)</div>
+    <table>
+      <thead><tr><th>Conta</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
+      <tbody>`;
+      
+  contasArr.forEach(c => {
+    html += `<tr><td>${c.nome}</td><td>${c.venc}</td><td>${c.previsto}</td><td>${c.status}</td><td>${c.pago}</td></tr>`;
+  });
+  if(contasArr.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nenhuma conta lançada.</td></tr>`;
   html += `</tbody></table>`;
 
-  if(m.outros.length > 0) {
-    html += `<div class="print-section-title">2. Gastos Variáveis (Casa)</div>
-    <table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>`;
-    m.outros.sort((a,b)=>a.data.localeCompare(b.data)).forEach(o => {
-      html += `<tr><td>${o.data.split('-').reverse().join('/')}</td><td>${o.desc}</td><td>${o.cat}</td><td>${fmt(o.valor)}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-  }
-
-  if(m.ifood.length > 0) {
-    html += `<div class="print-section-title">3. Gastos no Cartão (iFood) - Pagos na Fatura</div>
-    <table><thead><tr><th>Data</th><th>Tipo</th><th>Quem</th><th>Valor</th></tr></thead><tbody>`;
-    m.ifood.sort((a,b)=>a.data.localeCompare(b.data)).forEach(i => {
-      html += `<tr><td>${i.data.split('-').reverse().join('/')}</td><td>${i.tipo}</td><td>${i.pessoa}</td><td>${fmt(i.valor)}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-  }
-
-  if(m.pessoais.length > 0) {
-    html += `<div class="print-section-title">4. Gastos Individuais (Débito/Pix)</div>
-    <table><thead><tr><th>Data</th><th>Quem</th><th>Descrição</th><th>Tipo</th><th>Valor</th></tr></thead><tbody>`;
-    m.pessoais.sort((a,b)=>a.data.localeCompare(b.data)).forEach(p => {
-      html += `<tr><td>${p.data.split('-').reverse().join('/')}</td><td>${p.pessoa}</td><td>${p.desc}</td><td>${p.tipo || 'Outros'}</td><td>${fmt(p.valor)}</td></tr>`;
-    });
-    html += `</tbody></table>`;
-  }
+  html += `
+    <div class="print-section-title">2. Faturas de Cartão (Previsão)</div>
+    <table>
+      <thead><tr><th>Cartão</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
+      <tbody>`;
+      
+  cartoesArr.forEach(c => {
+    html += `<tr><td>${c.nome}</td><td>${c.venc}</td><td>${c.previsto}</td><td>${c.status}</td><td>${c.pago}</td></tr>`;
+  });
+  if(cartoesArr.length === 0) html += `<tr><td colspan="5" style="text-align:center;">Nenhum cartão lançado.</td></tr>`;
+  html += `</tbody></table>`;
 
   html += `<div style="margin-top: 40px; text-align: center; font-size: 12px; color: #777;"><p>_______________________________________________________<br>Assinatura do Casal</p></div>`;
 
@@ -1140,7 +1130,7 @@ function render(){
   const mes = $('mes').value;
   const m = getMes(mes);
 
-  // CÁLCULOS (AGORA O iFOOD ESTÁ FORA DA CONTA CORRENTE)
+  // CÁLCULOS
   const recVanny = (m.salarios.eu||0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const recTami = (m.salarios.esp||0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const recTotal = recVanny + recTami + m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
@@ -1150,19 +1140,14 @@ function render(){
   state.fixas.forEach(f => { totalPrevistoFixas += (f.valor||0); if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; });
   
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
-  
-  // Gastos da Casa (Fixas + Outros) - SEM IFOOD
   const gastoCasaTotal = totalPrevistoFixas + gastoCasalOutros;
 
-  // Gastos Individuais (Vanny) - SEM IFOOD
   const gastoVannyP = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const gastoVannyTotal = gastoVannyP;
 
-  // Gastos Individuais (Tami) - SEM IFOOD
   const gastoTamiP = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const gastoTamiTotal = gastoTamiP;
 
-  // iFood (Apenas informativo)
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
@@ -1276,8 +1261,13 @@ function render(){
     else if(m.adiadas[f.id]) badge = `<span class="badge adiada">Rolada</span>`;
     else if(m.puladas[f.id]) badge = '<span class="badge pulada">Pulada</span>';
 
+    const badgeTipo = f.tipo === 'Cartão' ? 'tipo-cartao' : 'tipo-conta';
+
     return `<tr>
-      <td><strong>${f.nome}</strong></td>
+      <td>
+        <strong>${f.nome}</strong><br>
+        <span class="badge ${badgeTipo}" style="font-size:9px;padding:2px 6px;cursor:pointer" onclick="editFixaTipo('${f.id}')" title="Mudar Tipo">${f.tipo || 'Conta'}</span>
+      </td>
       <td>${vencFormatado} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')">✎</button></td>
       <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
       <td>${txtPago}</td><td>${badge}</td>
