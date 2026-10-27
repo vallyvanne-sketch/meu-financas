@@ -162,15 +162,21 @@ tr:last-child td{border-bottom:0}
 .acerto-box i { font-size: 28px; color: var(--primary); }
 .acerto-box div { font-size: 14px; font-weight: 600; color: var(--primary); }
 
+/* Grid iFood */
+.ifood-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 16px; }
+.ifood-card { padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); display: flex; flex-direction: column; gap: 4px; }
+.ifood-card .lbl { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
+.ifood-card .val { font-size: 20px; font-weight: 800; }
+.ifood-card.total { background: var(--surface); border-color: var(--primary); }
+.ifood-card.total .val { color: var(--primary); }
+
 /* ============ ESTILOS PARA IMPRESSÃO/PDF ============ */
 #print-section { display: none; }
 
 @media print {
-  /* Esconde tudo da tela normal */
   body { background: white !important; color: black !important; margin: 0; padding: 0; }
   #app-screen, #login-screen, #modal-pgto, #modal-fab { display: none !important; }
   
-  /* Mostra apenas a área de impressão */
   #print-section { 
     display: block !important; 
     padding: 20px; 
@@ -184,20 +190,17 @@ tr:last-child td{border-bottom:0}
   .pdf-header h1 { margin: 0; font-size: 24px; }
   .pdf-header p { margin: 4px 0 0; font-size: 14px; color: #555; }
   
-  /* Resumo Executivo (Cards) */
   .pdf-summary-box { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
   .pdf-card { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 10px; text-align: center; }
   .pdf-card .lbl { font-size: 10px; text-transform: uppercase; color: #555; font-weight: bold; margin-bottom: 4px; }
   .pdf-card .val { font-size: 16px; font-weight: bold; }
   
-  /* Tabelas */
   .pdf-section-title { font-size: 14px; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 4px; text-transform: uppercase; display: flex; justify-content: space-between; }
   .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }
   .pdf-table th, .pdf-table td { border: 1px solid #ddd; padding: 8px; text-align: left; color: black; }
   .pdf-table th { background: #f5f5f5; font-weight: bold; }
   .pdf-table tr.subtotal td { background: #fafafa; font-weight: bold; }
   
-  /* Balanço Final */
   .pdf-balance-box { border: 1px solid #000; padding: 15px; border-radius: 8px; margin-top: 20px; }
   .pdf-balance-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
   .pdf-balance-row.total { border-top: 2px solid #000; padding-top: 10px; font-size: 16px; font-weight: bold; margin-top: 10px; }
@@ -336,7 +339,7 @@ tr:last-child td{border-bottom:0}
         <button class="tab" data-tab="individual"><i class="ph ph-users"></i> Individual (V&T)</button>
         <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Contas e Cartões</button>
         <button class="tab" data-tab="receitas"><i class="ph ph-money"></i> Receitas</button>
-        <button class="tab" data-tab="ifood"><i class="ph ph-fork-knife"></i> iFood (Cartão)</button>
+        <button class="tab" data-tab="ifood"><i class="ph ph-fork-knife"></i> iFood</button>
         <button class="tab" data-tab="outros"><i class="ph ph-shopping-cart"></i> Outros (Casa)</button>
         <button class="tab" data-tab="dividas"><i class="ph ph-receipt-x"></i> Dívidas</button>
         <button class="tab" data-tab="metas"><i class="ph ph-target"></i> Metas</button>
@@ -509,24 +512,33 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-    <!-- IFOOD -->
+    <!-- IFOOD (AGORA FOCADO NO CONTROLE DIÁRIO) -->
     <section class="panel" id="panel-ifood">
       <div class="card">
-        <h2><i class="ph-fill ph-fork-knife"></i> Controle iFood (Gasto no Cartão)</h2>
-        <div class="hint" style="background:#fee2e2; border:1px solid #ef4444; color:#b91c1c; margin-bottom:16px;">
-          <i class="ph-fill ph-warning-circle"></i> 
-          <div><strong>Atenção:</strong> Estes gastos foram no cartão de crédito. Eles <strong>não</strong> afetam o "Saldo em Conta" atual, pois serão pagos na fatura do mês que vem.</div>
+        <h2><i class="ph-fill ph-fork-knife"></i> Controle de Consumo iFood</h2>
+        
+        <div class="ifood-grid">
+          <div class="ifood-card total">
+            <div class="lbl">Total Geral (Tudo)</div>
+            <div class="val" id="ifTotalGeral">R$ 0,00</div>
+          </div>
+          <div class="ifood-card" style="border-color:var(--vanny-color)">
+            <div class="lbl" style="color:var(--vanny-color)">Só Vanny</div>
+            <div class="val" style="color:var(--vanny-color)" id="ifVannyTotal">R$ 0,00</div>
+          </div>
+          <div class="ifood-card" style="border-color:var(--tami-color)">
+            <div class="lbl" style="color:var(--tami-color)">Só Tami</div>
+            <div class="val" style="color:var(--tami-color)" id="ifTamiTotal">R$ 0,00</div>
+          </div>
+          <div class="ifood-card" style="border-color:var(--casa-color)">
+            <div class="lbl" style="color:var(--casa-color)">Gasto Casal</div>
+            <div class="val" style="color:var(--casa-color)" id="ifCasalTotal">R$ 0,00</div>
+          </div>
         </div>
 
-        <div class="resumo-casal">
-          <div><span class="lbl">Gasto Vanny</span><span class="val" style="color:var(--vanny-color)" id="ifVannyTotal">R$ 0,00</span></div>
-          <div><span class="lbl">Gasto Tami</span><span class="val" style="color:var(--tami-color)" id="ifTamiTotal">R$ 0,00</span></div>
-          <div><span class="lbl">Gasto Casal</span><span class="val" id="ifCasalTotal">R$ 0,00</span></div>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px">
-          <span>Usado Total (Fatura): <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
-          <span>Limite Geral: <strong id="ifLimite">R$ 0,00</strong></span>
+        <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px;margin-top:20px">
+          <span>Limite de Gastos: <strong id="ifLimite">R$ 0,00</strong></span>
+          <span>Restante: <strong id="ifRestante" class="pos">R$ 0,00</strong></span>
         </div>
         <div class="bar" style="height:16px;margin-bottom:16px"><div id="ifBar" style="width:0%;background:var(--success)"></div></div>
         
@@ -846,7 +858,6 @@ function getMes(y){
   return m;
 }
 
-// Retorna o valor da conta fixa para o mês específico
 function getValorFixa(f, m) {
   return (m.valoresFixos && m.valoresFixos[f.id] !== undefined) ? m.valoresFixos[f.id] : (f.valor || 0);
 }
@@ -1096,7 +1107,7 @@ function addFixa(){
       tipo:$('fxTipo').value, 
       valor:parseFloat($('fxValor').value.replace(',', '.'))||0, 
       dia:parseInt($('fxDia').value)||1,
-      startMonth: $('mes').value // Salva o mês que foi criado
+      startMonth: $('mes').value
   });
   $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value=''; save();
 }
@@ -1347,6 +1358,7 @@ function render(){
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  const ifoodTotalGeral = ifoodVanny + ifoodTami + ifoodCasalTotal;
 
   const totalGastoGeral = gastoCasaTotal + gastoVannyTotal + gastoTamiTotal;
   const saldoGeral = recTotal - totalGastoGeral;
@@ -1413,8 +1425,8 @@ function render(){
 
   $('indVannyTotal').textContent = fmt(gastoVannyTotal);
   $('indTamiTotal').textContent = fmt(gastoTamiTotal);
-  $('indVannySaldo').innerHTML = `Saldo Livre: <span class="${(recVanny-gastoVannyTotal)>=0?'pos':'neg'}">${fmt(recVanny-gastoVannyTotal)}</span> <br><span style="font-size:10px;color:var(--text-muted)">+ ${fmt(ifoodVanny)} em iFood (Cartão)</span>`;
-  $('indTamiSaldo').innerHTML = `Saldo Livre: <span class="${(recTami-gastoTamiTotal)>=0?'pos':'neg'}">${fmt(recTami-gastoTamiTotal)}</span> <br><span style="font-size:10px;color:var(--text-muted)">+ ${fmt(ifoodTami)} em iFood (Cartão)</span>`;
+  $('indVannySaldo').innerHTML = `Saldo Livre: <span class="${(recVanny-gastoVannyTotal)>=0?'pos':'neg'}">${fmt(recVanny-gastoVannyTotal)}</span> <br><span style="font-size:10px;color:var(--text-muted)">+ ${fmt(ifoodVanny)} em iFood</span>`;
+  $('indTamiSaldo').innerHTML = `Saldo Livre: <span class="${(recTami-gastoTamiTotal)>=0?'pos':'neg'}">${fmt(recTami-gastoTamiTotal)}</span> <br><span style="font-size:10px;color:var(--text-muted)">+ ${fmt(ifoodTami)} em iFood</span>`;
 
   $('boxVanny').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'vanny') ? 'block' : 'none';
   $('boxTami').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'tami') ? 'block' : 'none';
@@ -1503,9 +1515,21 @@ function render(){
       </td>
     </tr>`).join('');
 
+  // CARDS IFOOD
+  $('ifTotalGeral').textContent = fmt(ifoodTotalGeral);
   $('ifVannyTotal').textContent = fmt(ifoodVanny);
   $('ifTamiTotal').textContent = fmt(ifoodTami);
   $('ifCasalTotal').textContent = fmt(ifoodCasalTotal);
+  
+  const limIf = state.cfg.limiteIfood || 1;
+  const restIf = limIf - ifoodTotalGeral;
+  $('ifLimite').textContent = fmt(limIf);
+  $('ifRestante').textContent = fmt(restIf);
+  $('ifRestante').className = restIf >= 0 ? 'pos' : 'neg';
+
+  const pctIf = Math.min(100, (ifoodTotalGeral / limIf) * 100);
+  $('ifBar').style.width = pctIf + '%'; 
+  $('ifBar').style.background = pctIf>90?'var(--danger)':pctIf>70?'var(--warning)':'var(--success)';
 
   let itensIfood = [...m.ifood];
   if(filtroIfood === 'vanny') itensIfood = itensIfood.filter(i => i.pessoa === 'Vanny');
@@ -1523,11 +1547,6 @@ function render(){
       </td>
     </tr>
   `).join('') || '<tr><td colspan="6" class="empty">Nenhum pedido.</td></tr>';
-  
-  const ifdTotal = m.ifood.reduce((s,e)=>s+e.valor,0);
-  const pctIf = Math.min(100, (ifdTotal/(state.cfg.limiteIfood||1))*100);
-  $('ifBar').style.width = pctIf+'%'; $('ifBar').style.background = pctIf>90?'var(--danger)':pctIf>70?'var(--warning)':'var(--success)';
-  $('ifUsado').textContent = fmt(ifdTotal); $('ifLimite').textContent = fmt(state.cfg.limiteIfood);
 
   $('dividasBody').innerHTML = state.dividas.map(d => {
     const pct = (d.pagas/d.qtd)*100;
