@@ -84,7 +84,7 @@ tr:last-child td{border-bottom:0}
 .badge.pendente{background:var(--warning-light);color:var(--warning)}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
 .badge.cat { background: var(--bg); color: var(--text-main); border: 1px solid var(--border); }
-.badge.ifood-tag { background: #fee2e2; color: #ef4444; } /* Etiqueta vermelha para ifood */
+.badge.ifood-tag { background: #fee2e2; color: #ef4444; }
 .bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar>div{height:100%;transition:width .4s ease}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
@@ -129,9 +129,36 @@ tr:last-child td{border-bottom:0}
 .filter-buttons { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
 .filter-buttons button { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); min-width: 80px; }
 .filter-buttons button.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* ============ ESTILOS PARA IMPRESSÃO (EXTRATO) ============ */
+#print-section { display: none; }
+@media print {
+  body { background: white !important; color: black !important; padding: 0; margin: 0; }
+  #app-screen, #login-screen, #modal-pgto { display: none !important; }
+  #print-section { display: block !important; padding: 20px; font-family: sans-serif; }
+  
+  .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+  .print-header h1 { margin: 0; font-size: 24px; }
+  .print-header p { margin: 4px 0 0; font-size: 14px; color: #555; }
+  
+  .print-section-title { font-size: 16px; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 4px; text-transform: uppercase; }
+  
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; color: black; }
+  th { background: #f5f5f5; font-weight: bold; }
+  
+  .print-summary { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; font-weight: bold; }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .text-red { color: #d32f2f; }
+  .text-green { color: #388e3c; }
+}
 </style>
 </head>
 <body>
+
+<!-- ÁREA DE IMPRESSÃO OCULTA NA TELA -->
+<div id="print-section"></div>
 
 <div id="login-screen">
   <div class="login-card">
@@ -179,6 +206,7 @@ tr:last-child td{border-bottom:0}
       <div class="logo-area"><i class="ph-fill ph-wallet"></i> Finanças V&T</div>
       <div class="header-controls">
         <input type="month" id="mes">
+        <button class="btn-icon" id="btn-print" onclick="gerarRelatorio()" title="Imprimir Extrato"><i class="ph ph-printer"></i></button>
         <button class="btn-icon" id="btn-theme"><i class="ph ph-moon"></i></button>
         <button class="btn-icon" id="btn-logout" style="color:var(--danger)"><i class="ph ph-sign-out"></i></button>
       </div>
@@ -213,6 +241,11 @@ tr:last-child td{border-bottom:0}
     <!-- DASHBOARD -->
     <section class="panel active" id="panel-dash">
       <div class="card">
+        <h2><i class="ph-fill ph-printer"></i> Relatório para o Casal</h2>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Gere um extrato detalhado deste mês para imprimir ou enviar no WhatsApp.</p>
+        <button class="btn-primary" style="width:100%" onclick="gerarRelatorio()"><i class="ph ph-file-pdf"></i> Gerar e Imprimir Extrato</button>
+      </div>
+      <div class="card">
         <h2><i class="ph-fill ph-bell-ringing"></i> Central de Avisos</h2>
         <div id="alertasVencimento" class="insights"></div>
       </div>
@@ -222,11 +255,10 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-    <!-- ABA INDIVIDUAL (LANÇAMENTOS SEPARADOS) -->
+    <!-- ABA INDIVIDUAL -->
     <section class="panel" id="panel-individual">
       <div class="card">
         <h2><i class="ph-fill ph-users"></i> Lançamentos Individuais - <span id="mesIndividual" style="text-transform: capitalize;"></span></h2>
-        <div class="hint" style="background:var(--warning-light); border:1px solid var(--warning)"><i class="ph-fill ph-warning" style="color:var(--warning)"></i> <div><strong>Atenção:</strong> Tudo o que for lançado aqui <strong>não se mistura</strong> com as contas da casa.</div></div>
         
         <div class="filter-buttons">
           <button class="active" onclick="mudarFiltroInd('ambas', this)">Ver Ambas</button>
@@ -386,7 +418,6 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-outros">
       <div class="card">
         <h2><i class="ph-fill ph-shopping-cart"></i> Outros gastos da Casa</h2>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Gastos variáveis do casal (ex: Mercado, Farmácia). Para gastos pessoais, use a aba Individual.</p>
         <div class="row" style="margin-bottom:16px">
           <input type="date" id="oData">
           <input type="text" id="oDesc" placeholder="Descrição">
@@ -492,8 +523,8 @@ if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
 
 let currentUser = null;
-let filtroIndividual = 'ambas'; // 'ambas', 'vanny', 'tami'
-let filtroIfood = 'todos'; // 'todos', 'vanny', 'tami', 'casal'
+let filtroIndividual = 'ambas';
+let filtroIfood = 'todos';
 
 const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Vestuário','Casa','Outros'];
 const $ = id => document.getElementById(id);
@@ -827,6 +858,104 @@ function aportarMeta(id) {
 }
 function delMeta(id) { if(confirm('Apagar?')) { state.metas = state.metas.filter(x=>x.id!==id); save(); } }
 
+// --- GERAR RELATÓRIO IMPRESSO ---
+function gerarRelatorio() {
+  const mes = $('mes').value;
+  const m = getMes(mes);
+  const mesFormatado = formatarMes(mes);
+  
+  let totalPrevistoFixas = 0;
+  let totalPagoFixas = 0;
+  state.fixas.forEach(f => { totalPrevistoFixas += (f.valor || 0); if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; });
+  
+  const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
+  const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros;
+
+  const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
+
+  const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
+
+  const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
+  const totalGasto = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
+  const saldo = rec - totalGasto;
+
+  let html = `
+    <div class="print-header">
+      <h1>Extrato Financeiro do Casal</h1>
+      <p>Referente a: <strong>${mesFormatado}</strong> | Emitido em: ${new Date().toLocaleDateString('pt-BR')}</p>
+    </div>
+
+    <div class="print-summary">
+      <div>Receita Total: <span class="text-green">${fmt(rec)}</span></div>
+      <div>Despesas Totais: <span class="text-red">${fmt(totalGasto)}</span></div>
+      <div>Saldo Previsto: <span class="${saldo >= 0 ? 'text-green' : 'text-red'}">${fmt(saldo)}</span></div>
+    </div>
+
+    <div class="print-section-title">1. Contas Fixas da Casa</div>
+    <table>
+      <thead><tr><th>Conta</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
+      <tbody>
+  `;
+
+  state.fixas.forEach(f => {
+    const pgto = m.fixasPago[f.id];
+    let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
+    const vencFormatado = vencStr.split('-').reverse().join('/');
+    let status = pgto ? (pgto.parcial ? 'Parcial' : 'Pago') : 'Pendente';
+    html += `<tr>
+      <td>${f.nome}</td>
+      <td>${vencFormatado}</td>
+      <td>${fmt(f.valor)}</td>
+      <td>${status}</td>
+      <td>${pgto ? fmt(pgto.valor) : '-'}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+
+  if(m.outros.length > 0) {
+    html += `<div class="print-section-title">2. Gastos Variáveis (Casa)</div>
+    <table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>`;
+    m.outros.sort((a,b)=>a.data.localeCompare(b.data)).forEach(o => {
+      html += `<tr><td>${o.data.split('-').reverse().join('/')}</td><td>${o.desc}</td><td>${o.cat}</td><td>${fmt(o.valor)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  if(m.ifood.length > 0) {
+    html += `<div class="print-section-title">3. Pedidos iFood</div>
+    <table><thead><tr><th>Data</th><th>Tipo</th><th>Quem</th><th>Valor</th></tr></thead><tbody>`;
+    m.ifood.sort((a,b)=>a.data.localeCompare(b.data)).forEach(i => {
+      html += `<tr><td>${i.data.split('-').reverse().join('/')}</td><td>${i.tipo}</td><td>${i.pessoa}</td><td>${fmt(i.valor)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  if(m.pessoais.length > 0) {
+    html += `<div class="print-section-title">4. Gastos Individuais (Vanny & Tami)</div>
+    <table><thead><tr><th>Data</th><th>Quem</th><th>Descrição</th><th>Tipo</th><th>Valor</th></tr></thead><tbody>`;
+    m.pessoais.sort((a,b)=>a.data.localeCompare(b.data)).forEach(p => {
+      html += `<tr><td>${p.data.split('-').reverse().join('/')}</td><td>${p.pessoa}</td><td>${p.desc}</td><td>${p.tipo || 'Outros'}</td><td>${fmt(p.valor)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  html += `
+    <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #777;">
+      <p>Este extrato foi gerado automaticamente pelo sistema de finanças.</p>
+      <p>_______________________________________________________<br>Assinatura do Casal</p>
+    </div>
+  `;
+
+  $('print-section').innerHTML = html;
+  window.print();
+}
+// -----------------------------
+
 function render(){
   if(!state) return;
   const mes = $('mes').value;
@@ -834,7 +963,6 @@ function render(){
   
   $('mesIndividual').textContent = formatarMes(mes);
 
-  // --- CÁLCULOS ISOLADOS ---
   let totalPrevistoFixas = 0;
   let totalPagoFixas = 0;
   state.fixas.forEach(f => { 
@@ -844,19 +972,14 @@ function render(){
   });
   const faltaPagarCasa = totalPrevistoFixas - totalPagoFixas;
   
-  // Gastos da Casa (Fixas + Outros) - SEM IFOOD
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
   const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros;
-
-  // iFood Casal (Separado)
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
 
-  // Gastos Individuais (Vanny)
   const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
 
-  // Gastos Individuais (Tami)
   const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
@@ -865,7 +988,6 @@ function render(){
   const totalGasto = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
   const saldo = rec - totalGasto;
 
-  // Placar Principal
   $('sRec').textContent = fmt(rec);
   $('sGastosCasal').textContent = fmt(gastoCasalTotal);
   $('sIfoodCasal').textContent = fmt(ifoodCasalTotal);
@@ -873,14 +995,12 @@ function render(){
   $('sGastosTami').textContent = fmt(gastoTamiTotal);
   $('sSal').textContent = fmt(saldo);
 
-  // Aba Individual
   $('indVannyTotal').textContent = fmt(gastoVannyTotal);
   $('indTamiTotal').textContent = fmt(gastoTamiTotal);
 
   $('boxVanny').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'vanny') ? 'block' : 'none';
   $('boxTami').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'tami') ? 'block' : 'none';
 
-  // MESCLANDO iFOOD E GASTOS PESSOAIS NA LISTA INDIVIDUAL
   let itensVanny = [
     ...m.pessoais.filter(p=>p.pessoa==='Vanny').map(p => ({...p, isIfood: false, tipo: p.tipo || 'Outros'})),
     ...m.ifood.filter(i=>i.pessoa==='Vanny').map(i => ({id: i.id, data: i.data, desc: i.desc || 'Pedido iFood', valor: i.valor, isIfood: true, tipo: 'iFood'}))
@@ -917,7 +1037,6 @@ function render(){
     </tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
-  // Limites Pessoais
   $('limiteVanny').value = state.cfg.limitesIndividuais.vanny || '';
   $('limiteTami').value = state.cfg.limitesIndividuais.tami || '';
   
@@ -932,12 +1051,10 @@ function render(){
   $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(gastoVannyTotal)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
   $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(gastoTamiTotal)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
 
-  // Resumo Contas Fixas
   $('resFixPrevisto').textContent = fmt(totalPrevistoFixas);
   $('resFixPago').textContent = fmt(totalPagoFixas);
   $('resFixFalta').textContent = fmt(Math.max(0, faltaPagarCasa));
 
-  // Alertas de Vencimento
   const alertas = [];
   const hoje = new Date();
   state.fixas.forEach(f => {
@@ -950,7 +1067,6 @@ function render(){
   });
   $('alertasVencimento').innerHTML = alertas.length ? alertas.map(a=>`<div class="insight ${a.tipo}"><i class="ph-fill ph-warning-circle"></i><div class="txt"><div class="ttl">${a.ttl}</div>${a.txt}</div></div>`).join('') : '<p class="empty">Nenhuma conta atrasada.</p>';
 
-  // Insights
   const ins = [];
   if(saldo < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês.'});
   if(rec > 0) {
@@ -959,12 +1075,10 @@ function render(){
   }
   $('insights').innerHTML = ins.length ? ins.map(i=>`<div class="insight ${i.tipo}"><i class="ph-fill ${i.tipo==='danger'?'ph-warning-circle':i.tipo==='ok'?'ph-check-circle':'ph-info'}"></i><div class="txt"><div class="ttl">${i.ttl}</div>${i.txt}</div></div>`).join('') : '<p class="empty">Tudo tranquilo por aqui.</p>';
 
-  // Inputs
   $('salEu').value = m.salarios.eu || '';
   $('salEsp').value = m.salarios.esp || '';
   $('cfgIfood').value = state.cfg.limiteIfood || '';
 
-  // Tabela Fixas
   $('fixasBody').innerHTML = state.fixas.map(f => {
     const pgto = m.fixasPago[f.id];
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
@@ -990,7 +1104,6 @@ function render(){
     </tr>`;
   }).join('');
 
-  // Extras e Outros
   $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
   $('outrosBody').innerHTML = m.outros.map(e => `
     <tr>
@@ -1002,7 +1115,6 @@ function render(){
       </td>
     </tr>`).join('');
 
-  // iFood (Filtrado e com Resumo)
   $('ifVannyTotal').textContent = fmt(ifoodVanny);
   $('ifTamiTotal').textContent = fmt(ifoodTami);
   $('ifCasalTotal').textContent = fmt(ifoodCasalTotal);
@@ -1028,7 +1140,6 @@ function render(){
   $('ifBar').style.width = pctIf+'%'; $('ifBar').style.background = pctIf>90?'var(--danger)':pctIf>70?'var(--warning)':'var(--success)';
   $('ifUsado').textContent = fmt(ifdTotal); $('ifLimite').textContent = fmt(state.cfg.limiteIfood);
 
-  // Dívidas e Metas
   $('dividasBody').innerHTML = state.dividas.map(d => {
     const pct = (d.pagas/d.qtd)*100;
     return `<div class="progress-box" style="margin-bottom:16px; background:var(--bg); padding:16px; border-radius:10px;">
