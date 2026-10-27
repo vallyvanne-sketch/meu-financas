@@ -111,6 +111,17 @@ tr:last-child td{border-bottom:0}
 .personal-box.vanny h3, .personal-box.vanny .total { color: var(--vanny-color); }
 .personal-box.tami h3, .personal-box.tami .total { color: var(--tami-color); }
 
+/* Aba Split 50/50 */
+.split-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.split-card { border: 2px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.split-card.vanny { border-color: var(--vanny-color); background: #f8fafc; }
+.split-card.tami { border-color: var(--tami-color); background: #fdf2f8; }
+[data-theme="dark"] .split-card.vanny { background: #1e1b4b; }
+[data-theme="dark"] .split-card.tami { background: #4c1d24; }
+.split-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; font-weight: 500; }
+.split-row.total-row { font-size: 18px; font-weight: 800; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+.split-row.saldo-row { font-size: 16px; font-weight: 700; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+
 /* Modal de Pagamento */
 #modal-pgto, #modal-fab { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
 .modal-box { background: var(--surface); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 450px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
@@ -336,6 +347,7 @@ tr:last-child td{border-bottom:0}
     <div class="tabs-wrap">
       <div class="tabs">
         <button class="tab active" data-tab="dash"><i class="ph ph-chart-pie-slice"></i> Dash</button>
+        <button class="tab" data-tab="split"><i class="ph ph-scales"></i> Divisão 50/50</button>
         <button class="tab" data-tab="individual"><i class="ph ph-users"></i> Individual (V&T)</button>
         <button class="tab" data-tab="fixas"><i class="ph ph-house-line"></i> Contas e Cartões</button>
         <button class="tab" data-tab="receitas"><i class="ph ph-money"></i> Receitas</button>
@@ -391,6 +403,100 @@ tr:last-child td{border-bottom:0}
       <div class="card">
         <h2><i class="ph-fill ph-bell-ringing"></i> Central de Avisos</h2>
         <div id="alertasVencimento" class="insights"></div>
+      </div>
+    </section>
+
+    <!-- ABA DIVISÃO 50/50 -->
+    <section class="panel" id="panel-split">
+      <div class="card">
+        <h2><i class="ph-fill ph-scales"></i> Previsão de Custos Individuais</h2>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+          As contas da casa (incluindo faturas e gastos do casal) são divididas 50/50. Veja abaixo quanto cada uma deve reservar do salário.
+        </p>
+
+        <div class="split-grid">
+          <!-- VANNY -->
+          <div class="split-card vanny">
+            <h3 style="color:var(--vanny-color); margin-top:0; margin-bottom:16px; font-size:20px;">Vanny</h3>
+            
+            <div class="split-row">
+              <span>50% das Contas da Casa</span>
+              <strong id="splitVannyCasa">R$ 0,00</strong>
+            </div>
+            <div class="split-row">
+              <span>+ Gastos Individuais (Pessoais + iFood)</span>
+              <strong id="splitVannyIndividual">R$ 0,00</strong>
+            </div>
+            
+            <div class="split-row total-row" style="color:var(--vanny-color)">
+              <span>Custo Total Previsto</span>
+              <span id="splitVannyTotal">R$ 0,00</span>
+            </div>
+
+            <div class="split-row saldo-row">
+              <span>Seu Salário Líquido</span>
+              <strong id="splitVannySalario">R$ 0,00</strong>
+            </div>
+            <div class="split-row">
+              <span>Sobra Prevista para Você</span>
+              <strong id="splitVannySobra" class="pos">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <!-- TAMI -->
+          <div class="split-card tami">
+            <h3 style="color:var(--tami-color); margin-top:0; margin-bottom:16px; font-size:20px;">Tami</h3>
+            
+            <div class="split-row">
+              <span>50% das Contas da Casa</span>
+              <strong id="splitTamiCasa">R$ 0,00</strong>
+            </div>
+            <div class="split-row">
+              <span>+ Gastos Individuais (Pessoais + iFood)</span>
+              <strong id="splitTamiIndividual">R$ 0,00</strong>
+            </div>
+            
+            <div class="split-row total-row" style="color:var(--tami-color)">
+              <span>Custo Total Previsto</span>
+              <span id="splitTamiTotal">R$ 0,00</span>
+            </div>
+
+            <div class="split-row saldo-row">
+              <span>Seu Salário Líquido</span>
+              <strong id="splitTamiSalario">R$ 0,00</strong>
+            </div>
+            <div class="split-row">
+              <span>Sobra Prevista para Você</span>
+              <strong id="splitTamiSobra" class="pos">R$ 0,00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="ph-fill ph-info"></i> Detalhamento do Bolo da Casa</h2>
+        <div class="resumo-casal" style="flex-direction:column; gap:8px;">
+          <div style="flex-direction:row; justify-content:space-between; width:100%;">
+            <span class="lbl">Total Contas e Faturas</span>
+            <span class="val" id="splitTotalFixas">R$ 0,00</span>
+          </div>
+          <div style="flex-direction:row; justify-content:space-between; width:100%;">
+            <span class="lbl">Outros Gastos da Casa</span>
+            <span class="val" id="splitTotalOutros">R$ 0,00</span>
+          </div>
+          <div style="flex-direction:row; justify-content:space-between; width:100%;">
+            <span class="lbl">iFood do Casal</span>
+            <span class="val" id="splitTotalIfoodCasal">R$ 0,00</span>
+          </div>
+          <div style="flex-direction:row; justify-content:space-between; width:100%; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+            <span class="lbl" style="color:var(--primary); font-size:13px;">Total do Bolo da Casa</span>
+            <span class="val" style="color:var(--primary);" id="splitTotalCasa">R$ 0,00</span>
+          </div>
+          <div style="flex-direction:row; justify-content:space-between; width:100%;">
+            <span class="lbl" style="font-weight:800;">Metade para Cada Uma</span>
+            <span class="val" id="splitMetade">R$ 0,00</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1393,6 +1499,45 @@ function render(){
     acertoTxt = `A <strong>Vanny</strong> deve transferir <strong>${fmt(tamiPagou - metaPorPessoa)}</strong> para a <strong>Tami</strong>.`;
   }
   $('acertoContasBox').innerHTML = `<div class="acerto-box"><i class="ph-fill ph-handshake"></i><div>${acertoTxt}</div></div>`;
+
+  // ============= CÁLCULOS DA ABA SPLIT 50/50 =============
+  // Bolo da casa: Contas fixas + Outros + iFood Casal
+  const boloCasa = totalPrevistoFixas + gastoCasalOutros + ifoodCasalTotal;
+  const metadeCasa = boloCasa / 2;
+
+  // Custo individual: Gastos pessoais + iFood individual
+  const custoIndVanny = gastoVannyTotal + ifoodVanny;
+  const custoIndTami = gastoTamiTotal + ifoodTami;
+
+  // Custo total previsto para cada uma
+  const custoTotalVanny = metadeCasa + custoIndVanny;
+  const custoTotalTami = metadeCasa + custoIndTami;
+
+  // Sobra do salário
+  const sobraVanny = recVanny - custoTotalVanny;
+  const sobraTami = recTami - custoTotalTami;
+
+  // Preenche a tela da aba Split
+  $('splitVannyCasa').textContent = fmt(metadeCasa);
+  $('splitVannyIndividual').textContent = fmt(custoIndVanny);
+  $('splitVannyTotal').textContent = fmt(custoTotalVanny);
+  $('splitVannySalario').textContent = fmt(recVanny);
+  $('splitVannySobra').textContent = fmt(sobraVanny);
+  $('splitVannySobra').className = sobraVanny >= 0 ? 'pos' : 'neg';
+
+  $('splitTamiCasa').textContent = fmt(metadeCasa);
+  $('splitTamiIndividual').textContent = fmt(custoIndTami);
+  $('splitTamiTotal').textContent = fmt(custoTotalTami);
+  $('splitTamiSalario').textContent = fmt(recTami);
+  $('splitTamiSobra').textContent = fmt(sobraTami);
+  $('splitTamiSobra').className = sobraTami >= 0 ? 'pos' : 'neg';
+
+  $('splitTotalFixas').textContent = fmt(totalPrevistoFixas);
+  $('splitTotalOutros').textContent = fmt(gastoCasalOutros);
+  $('splitTotalIfoodCasal').textContent = fmt(ifoodCasalTotal);
+  $('splitTotalCasa').textContent = fmt(boloCasa);
+  $('splitMetade').textContent = fmt(metadeCasa);
+  // ========================================================
 
   const last6 = [];
   let d = new Date(mes+'-01T12:00:00');
