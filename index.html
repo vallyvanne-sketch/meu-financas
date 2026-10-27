@@ -15,7 +15,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -163,26 +162,35 @@ tr:last-child td{border-bottom:0}
 .acerto-box i { font-size: 28px; color: var(--primary); }
 .acerto-box div { font-size: 14px; font-weight: 600; color: var(--primary); }
 
-/* ============ ESTILOS PARA O PDF ============ */
-#print-section {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  width: 800px;
-  background: white;
-  color: black;
-  padding: 20px;
-  font-family: sans-serif;
+/* ============ ESTILOS PARA IMPRESSÃO/PDF ============ */
+#print-section { display: none; }
+
+@media print {
+  /* Esconde tudo da tela normal */
+  body { background: white !important; color: black !important; margin: 0; padding: 0; }
+  #app-screen, #login-screen, #modal-pgto, #modal-fab { display: none !important; }
+  
+  /* Mostra apenas a área de impressão */
+  #print-section { 
+    display: block !important; 
+    padding: 20px; 
+    font-family: sans-serif; 
+    width: 100%;
+  }
+  
+  .pdf-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+  .pdf-header h1 { margin: 0; font-size: 24px; }
+  .pdf-header p { margin: 4px 0 0; font-size: 14px; color: #555; }
+  
+  .pdf-section-title { font-size: 16px; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 4px; text-transform: uppercase; }
+  
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+  .pdf-table th, .pdf-table td { border: 1px solid #ddd; padding: 8px; text-align: left; color: black; }
+  .pdf-table th { background: #f5f5f5; font-weight: bold; }
+  
+  .text-red { color: #d32f2f; }
+  .text-green { color: #388e3c; }
 }
-.pdf-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-.pdf-header h1 { margin: 0; font-size: 24px; }
-.pdf-header p { margin: 4px 0 0; font-size: 14px; color: #555; }
-.pdf-section-title { font-size: 16px; font-weight: bold; margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 4px; text-transform: uppercase; }
-.pdf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
-.pdf-table th, .pdf-table td { border: 1px solid #ddd; padding: 8px; text-align: left; color: black; }
-.pdf-table th { background: #f5f5f5; font-weight: bold; }
-.text-red { color: #d32f2f; }
-.text-green { color: #388e3c; }
 </style>
 </head>
 <body>
@@ -289,7 +297,7 @@ tr:last-child td{border-bottom:0}
       <div class="logo-area"><i class="ph-fill ph-wallet"></i> Finanças V&T</div>
       <div class="header-controls">
         <input type="month" id="mes">
-        <button class="btn-icon" id="btn-print" onclick="gerarRelatorio()" title="Baixar PDF"><i class="ph ph-file-pdf"></i></button>
+        <button class="btn-icon" id="btn-print" onclick="gerarRelatorio()" title="Imprimir Extrato"><i class="ph ph-printer"></i></button>
         <button class="btn-icon" id="btn-theme"><i class="ph ph-moon"></i></button>
         <button class="btn-icon" id="btn-logout" style="color:var(--danger)"><i class="ph ph-sign-out"></i></button>
       </div>
@@ -356,9 +364,9 @@ tr:last-child td{border-bottom:0}
       </div>
 
       <div class="card">
-        <h2><i class="ph-fill ph-file-pdf"></i> Relatórios</h2>
+        <h2><i class="ph-fill ph-printer"></i> Relatórios</h2>
         <div class="row">
-          <button class="btn-primary" onclick="gerarRelatorio()"><i class="ph ph-download-simple"></i> Baixar Extrato PDF</button>
+          <button class="btn-primary" onclick="gerarRelatorio()"><i class="ph ph-printer"></i> Imprimir / Salvar PDF</button>
           <button class="btn-primary" onclick="copiarResumo()" style="background:#25D366"><i class="ph ph-whatsapp-logo"></i> Copiar p/ WhatsApp</button>
         </div>
       </div>
@@ -690,14 +698,12 @@ function verificarRecorrencia(mes) {
   
   const fixasAtivas = state.fixas.filter(f => !f.startMonth || f.startMonth <= mes);
   fixasAtivas.forEach(f => {
-    // Copia vencimento
     if(!mAtual.vencimentos[f.id] && mAnt.vencimentos && mAnt.vencimentos[f.id]) {
       const p = mAnt.vencimentos[f.id].split('-'); 
       const novaData = `${mes}-${p[2]}`; 
       mAtual.vencimentos[f.id] = novaData;
       mudou = true;
     }
-    // Copia valor customizado (se houver)
     if(mAtual.valoresFixos[f.id] === undefined && mAnt.valoresFixos && mAnt.valoresFixos[f.id] !== undefined) {
       mAtual.valoresFixos[f.id] = mAnt.valoresFixos[f.id];
       mudou = true;
@@ -1178,10 +1184,6 @@ function copiarResumo() {
 }
 
 function gerarRelatorio() {
-  const btn = document.getElementById('btn-print');
-  const originalHtml = btn.innerHTML;
-  btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>'; 
-  
   const mes = $('mes').value;
   const m = getMes(mes);
   const mesFormatado = mes.split('-').reverse().join('/');
@@ -1229,24 +1231,11 @@ function gerarRelatorio() {
 
   $('print-section').innerHTML = html;
   
+  // Abre a tela de impressão nativa do navegador/celular.
+  // O usuário pode escolher "Salvar como PDF".
   setTimeout(() => {
-    const element = document.getElementById('print-section');
-    const opt = {
-      margin:       10,
-      filename:     `extrato_${mes}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    
-    html2pdf().set(opt).from(element).save().then(() => {
-       btn.innerHTML = originalHtml;
-    }).catch((e) => {
-       alert('Erro ao gerar o PDF. Tentando método alternativo.');
-       window.print();
-       btn.innerHTML = originalHtml;
-    });
-  }, 300);
+    window.print();
+  }, 100);
 }
 
 function render(){
