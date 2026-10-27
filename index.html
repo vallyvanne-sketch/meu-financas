@@ -84,6 +84,7 @@ tr:last-child td{border-bottom:0}
 .badge.pendente{background:var(--warning-light);color:var(--warning)}
 .badge.parcial{background:var(--warning-light);color:var(--warning)}
 .badge.cat { background: var(--bg); color: var(--text-main); border: 1px solid var(--border); }
+.badge.ifood-tag { background: #fee2e2; color: #ef4444; } /* Etiqueta vermelha para ifood */
 .bar{height:10px;background:var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
 .bar>div{height:100%;transition:width .4s ease}
 .insights{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
@@ -124,9 +125,9 @@ tr:last-child td{border-bottom:0}
 .resumo-casal span.lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 .resumo-casal span.val { font-size: 18px; font-weight: 800; }
 
-/* Filtro Individual */
-.filter-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
-.filter-buttons button { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); }
+/* Filtros */
+.filter-buttons { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-buttons button { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); min-width: 80px; }
 .filter-buttons button.active { background: var(--primary); color: white; border-color: var(--primary); }
 </style>
 </head>
@@ -242,7 +243,7 @@ tr:last-child td{border-bottom:0}
             
             <div style="margin-bottom:12px; display:grid; gap:8px;">
               <input type="date" id="vData">
-              <select id="vTipo"><option>Compras</option><option>iFood</option><option>Lazer</option><option>Outros</option></select>
+              <select id="vTipo"><option>Compras</option><option>Lazer</option><option>Outros</option></select>
               <input type="text" id="vDesc" placeholder="O que você gastou?">
               <input type="number" id="vValor" placeholder="R$" step="0.01">
             </div>
@@ -263,7 +264,7 @@ tr:last-child td{border-bottom:0}
             
             <div style="margin-bottom:12px; display:grid; gap:8px;">
               <input type="date" id="tData">
-              <select id="tTipo"><option>Compras</option><option>iFood</option><option>Lazer</option><option>Outros</option></select>
+              <select id="tTipo"><option>Compras</option><option>Lazer</option><option>Outros</option></select>
               <input type="text" id="tDesc" placeholder="O que você gastou?">
               <input type="number" id="tValor" placeholder="R$" step="0.01">
             </div>
@@ -349,12 +350,26 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-ifood">
       <div class="card">
         <h2><i class="ph-fill ph-fork-knife"></i> Controle iFood</h2>
+        
+        <div class="resumo-casal">
+          <div><span class="lbl">Gasto Vanny</span><span class="val" style="color:var(--vanny-color)" id="ifVannyTotal">R$ 0,00</span></div>
+          <div><span class="lbl">Gasto Tami</span><span class="val" style="color:var(--tami-color)" id="ifTamiTotal">R$ 0,00</span></div>
+          <div><span class="lbl">Gasto Casal</span><span class="val" id="ifCasalTotal">R$ 0,00</span></div>
+        </div>
+
         <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px">
-          <span>Usado: <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
+          <span>Usado Total: <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
           <span>Limite: <strong id="ifLimite">R$ 0,00</strong></span>
         </div>
         <div class="bar" style="height:16px;margin-bottom:16px"><div id="ifBar" style="width:0%;background:var(--success)"></div></div>
         
+        <div class="filter-buttons">
+          <button class="active" onclick="mudarFiltroIf('todos', this)">Todos</button>
+          <button onclick="mudarFiltroIf('vanny', this)">Só Vanny</button>
+          <button onclick="mudarFiltroIf('tami', this)">Só Tami</button>
+          <button onclick="mudarFiltroIf('casal', this)">Só Casal</button>
+        </div>
+
         <div class="row" style="margin-bottom:16px">
           <input type="date" id="ifData">
           <select id="ifTipo"><option>Almoço</option><option>Lanche</option><option>Café</option><option>Jantar</option></select>
@@ -478,6 +493,8 @@ if (!state.metas) state.metas = [];
 
 let currentUser = null;
 let filtroIndividual = 'ambas'; // 'ambas', 'vanny', 'tami'
+let filtroIfood = 'todos'; // 'todos', 'vanny', 'tami', 'casal'
+
 const CATS = ['Mercado','Transporte','Combustível','Saúde','Lazer','Vestuário','Casa','Outros'];
 const $ = id => document.getElementById(id);
 const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -594,7 +611,14 @@ function getMes(y){
 
 function mudarFiltroInd(filtro, btn) {
   filtroIndividual = filtro;
-  document.querySelectorAll('.filter-buttons button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#panel-individual .filter-buttons button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function mudarFiltroIf(filtro, btn) {
+  filtroIfood = filtro;
+  document.querySelectorAll('#panel-ifood .filter-buttons button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
@@ -641,6 +665,12 @@ function editFixaValor(id) {
   const v = prompt(`Valor PREVISTO para "${f.nome}":`, f.valor);
   if (v === null) return;
   f.valor = parseFloat(v.replace(',', '.')) || 0;
+  save();
+}
+
+function delFixa(id) {
+  if(!confirm('Tem certeza que deseja apagar esta conta fixa?')) return;
+  state.fixas = state.fixas.filter(f => f.id !== id);
   save();
 }
 
@@ -821,19 +851,17 @@ function render(){
   // iFood Casal (Separado)
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
 
-  // Gastos Individuais (Vanny) - Inclui o iFood dela
+  // Gastos Individuais (Vanny)
   const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
 
-  // Gastos Individuais (Tami) - Inclui o iFood dela
+  // Gastos Individuais (Tami)
   const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
 
   const rec = (m.salarios.eu||0) + (m.salarios.esp||0) + m.extras.reduce((s,e)=>s+e.valor,0);
-  
-  // Total Geral = Casa + iFood Casal + Vanny (com iFood) + Tami (com iFood)
   const totalGasto = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
   const saldo = rec - totalGasto;
 
@@ -849,32 +877,42 @@ function render(){
   $('indVannyTotal').textContent = fmt(gastoVannyTotal);
   $('indTamiTotal').textContent = fmt(gastoTamiTotal);
 
-  // Controle de visibilidade dos boxes
   $('boxVanny').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'vanny') ? 'block' : 'none';
   $('boxTami').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'tami') ? 'block' : 'none';
 
-  $('vannyPessoaisBody').innerHTML = m.pessoais.filter(p=>p.pessoa==='Vanny').sort((a,b)=>b.data.localeCompare(a.data)).map(p => `
+  // MESCLANDO iFOOD E GASTOS PESSOAIS NA LISTA INDIVIDUAL
+  let itensVanny = [
+    ...m.pessoais.filter(p=>p.pessoa==='Vanny').map(p => ({...p, isIfood: false, tipo: p.tipo || 'Outros'})),
+    ...m.ifood.filter(i=>i.pessoa==='Vanny').map(i => ({id: i.id, data: i.data, desc: i.desc || 'Pedido iFood', valor: i.valor, isIfood: true, tipo: 'iFood'}))
+  ].sort((a,b) => b.data.localeCompare(a.data));
+
+  let itensTami = [
+    ...m.pessoais.filter(p=>p.pessoa==='Tami').map(p => ({...p, isIfood: false, tipo: p.tipo || 'Outros'})),
+    ...m.ifood.filter(i=>i.pessoa==='Tami').map(i => ({id: i.id, data: i.data, desc: i.desc || 'Pedido iFood', valor: i.valor, isIfood: true, tipo: 'iFood'}))
+  ].sort((a,b) => b.data.localeCompare(a.data));
+
+  $('vannyPessoaisBody').innerHTML = itensVanny.map(p => `
     <tr>
       <td>${p.data.split('-').reverse().join('/')}</td>
-      <td><span class="badge cat">${p.tipo || 'Outros'}</span></td>
+      <td><span class="badge ${p.isIfood ? 'ifood-tag' : 'cat'}">${p.tipo}</span></td>
       <td>${p.desc}</td>
       <td class="neg">${fmt(p.valor)}</td>
       <td style="white-space:nowrap">
-        <button class="edit sm" onclick="editPessoal(${p.id})">✎</button>
-        <button class="danger sm" onclick="delPessoal(${p.id})">x</button>
+        <button class="edit sm" onclick="${p.isIfood ? 'editIfood' : 'editPessoal'}(${p.id})">✎</button>
+        <button class="danger sm" onclick="${p.isIfood ? 'delIfood' : 'delPessoal'}(${p.id})">x</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
-  $('tamiPessoaisBody').innerHTML = m.pessoais.filter(p=>p.pessoa==='Tami').sort((a,b)=>b.data.localeCompare(a.data)).map(p => `
+  $('tamiPessoaisBody').innerHTML = itensTami.map(p => `
     <tr>
       <td>${p.data.split('-').reverse().join('/')}</td>
-      <td><span class="badge cat">${p.tipo || 'Outros'}</span></td>
+      <td><span class="badge ${p.isIfood ? 'ifood-tag' : 'cat'}">${p.tipo}</span></td>
       <td>${p.desc}</td>
       <td class="neg">${fmt(p.valor)}</td>
       <td style="white-space:nowrap">
-        <button class="edit sm" onclick="editPessoal(${p.id})">✎</button>
-        <button class="danger sm" onclick="delPessoal(${p.id})">x</button>
+        <button class="edit sm" onclick="${p.isIfood ? 'editIfood' : 'editPessoal'}(${p.id})">✎</button>
+        <button class="danger sm" onclick="${p.isIfood ? 'delIfood' : 'delPessoal'}(${p.id})">x</button>
       </td>
     </tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
@@ -945,7 +983,10 @@ function render(){
       <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
       <td>${txtPago}</td>
       <td>${badge}</td>
-      <td>${!pgto && !m.adiadas[f.id] && !m.puladas[f.id] ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button>` : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}</td>
+      <td style="white-space:nowrap">
+        ${!pgto && !m.adiadas[f.id] && !m.puladas[f.id] ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button>` : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}
+        <button class="danger sm" onclick="delFixa('${f.id}')" title="Excluir conta">x</button>
+      </td>
     </tr>`;
   }).join('');
 
@@ -961,9 +1002,17 @@ function render(){
       </td>
     </tr>`).join('');
 
-  // iFood
-  const ifdTotal = m.ifood.reduce((s,e)=>s+e.valor,0);
-  $('ifBody').innerHTML = m.ifood.sort((a,b)=>b.data.localeCompare(a.data)).map(e => `
+  // iFood (Filtrado e com Resumo)
+  $('ifVannyTotal').textContent = fmt(ifoodVanny);
+  $('ifTamiTotal').textContent = fmt(ifoodTami);
+  $('ifCasalTotal').textContent = fmt(ifoodCasalTotal);
+
+  let itensIfood = [...m.ifood];
+  if(filtroIfood === 'vanny') itensIfood = itensIfood.filter(i => i.pessoa === 'Vanny');
+  if(filtroIfood === 'tami') itensIfood = itensIfood.filter(i => i.pessoa === 'Tami');
+  if(filtroIfood === 'casal') itensIfood = itensIfood.filter(i => i.pessoa === 'Casal');
+
+  $('ifBody').innerHTML = itensIfood.sort((a,b)=>b.data.localeCompare(a.data)).map(e => `
     <tr>
       <td>${e.data.split('-').reverse().join('/')}</td>
       <td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td>
@@ -974,6 +1023,7 @@ function render(){
     </tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum pedido.</td></tr>';
   
+  const ifdTotal = m.ifood.reduce((s,e)=>s+e.valor,0);
   const pctIf = Math.min(100, (ifdTotal/(state.cfg.limiteIfood||1))*100);
   $('ifBar').style.width = pctIf+'%'; $('ifBar').style.background = pctIf>90?'var(--danger)':pctIf>70?'var(--warning)':'var(--success)';
   $('ifUsado').textContent = fmt(ifdTotal); $('ifLimite').textContent = fmt(state.cfg.limiteIfood);
