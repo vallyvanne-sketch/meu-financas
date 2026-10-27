@@ -149,13 +149,6 @@ tr:last-child td{border-bottom:0}
 .donut-legend div { display: flex; align-items: center; gap: 8px; }
 .donut-legend span.dot { width: 12px; height: 12px; border-radius: 3px; }
 
-/* Regra 50/30/20 */
-.potinhos { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-.potinho { flex: 1; min-width: 120px; background: var(--bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
-.potinho h4 { margin: 0 0 4px; font-size: 12px; color: var(--text-muted); }
-.potinho .p-val { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
-.potinho .p-target { font-size: 11px; color: var(--text-muted); }
-
 /* ============ ESTILOS PARA IMPRESSÃO (EXTRATO) ============ */
 #print-section { display: none; }
 @media print {
@@ -590,28 +583,37 @@ const db = firebase.database();
 
 const defaultState = {
   cfg: { limiteIfood: 600 },
-  fixas: [
-    {id:'f1', nome:'Construtora', valor:0, dia:5, tipo:'Conta'},
-    {id:'f2', nome:'Caixa', valor:0, dia:10, tipo:'Conta'},
-    {id:'f3', nome:'Condomínio', valor:0, dia:10, tipo:'Conta'},
-    {id:'f4', nome:'Spacelink', valor:0, dia:15, tipo:'Conta'},
-    {id:'f5', nome:'Energia', valor:0, dia:20, tipo:'Conta'},
-    {id:'f6', nome:'IPTU', valor:0, dia:20, tipo:'Conta'},
-    {id:'f7', nome:'Fatura NEON', valor:0, dia:15, tipo:'Cartão'},
-    {id:'f8', nome:'Fatura Santander', valor:0, dia:10, tipo:'Cartão'},
-    {id:'f9', nome:'Fatura Afinz', valor:0, dia:15, tipo:'Cartão'},
-    {id:'f10', nome:'Fatura Digio', valor:0, dia:12, tipo:'Cartão'},
-    {id:'f11', nome:'Fatura MP Vanessa', valor:0, dia:8, tipo:'Cartão'},
-    {id:'f12', nome:'Fatura MP Tami', valor:0, dia:8, tipo:'Cartão'},
-    {id:'f13', nome:'Água', valor:0, dia:20, tipo:'Conta'}
-  ],
+  fixas: [], // Vazio por padrão para não sobrescrever as do usuário
   dividas: [],
   metas: [],
   meses: {}
 };
 
 let state = JSON.parse(localStorage.getItem('financas_local'));
-if (!state || !state.fixas) { state = JSON.parse(JSON.stringify(defaultState)); localStorage.setItem('financas_local', JSON.stringify(state)); }
+if (!state || !state.fixas || state.fixas.length === 0) { 
+    // Se não tem estado, cria um com as fixas padrão. Se já tem, NÃO MEXE.
+    if (!state) state = JSON.parse(JSON.stringify(defaultState));
+    
+    // Se a lista de fixas estiver vazia (primeiro acesso ou reset), aí sim adiciona as padrão.
+    if (!state.fixas || state.fixas.length === 0) {
+        state.fixas = [
+            {id:'f1', nome:'Construtora', valor:0, dia:5, tipo:'Conta'},
+            {id:'f2', nome:'Caixa', valor:0, dia:10, tipo:'Conta'},
+            {id:'f3', nome:'Condomínio', valor:0, dia:10, tipo:'Conta'},
+            {id:'f4', nome:'Spacelink', valor:0, dia:15, tipo:'Conta'},
+            {id:'f5', nome:'Energia', valor:0, dia:20, tipo:'Conta'},
+            {id:'f6', nome:'IPTU', valor:0, dia:20, tipo:'Conta'},
+            {id:'f7', nome:'Fatura NEON', valor:0, dia:15, tipo:'Cartão'},
+            {id:'f8', nome:'Fatura Santander', valor:0, dia:10, tipo:'Cartão'},
+            {id:'f9', nome:'Fatura Afinz', valor:0, dia:15, tipo:'Cartão'},
+            {id:'f10', nome:'Fatura Digio', valor:0, dia:12, tipo:'Cartão'},
+            {id:'f11', nome:'Fatura MP Vanessa', valor:0, dia:8, tipo:'Cartão'},
+            {id:'f12', nome:'Fatura MP Tami', valor:0, dia:8, tipo:'Cartão'},
+            {id:'f13', nome:'Água', valor:0, dia:20, tipo:'Conta'}
+        ];
+    }
+    localStorage.setItem('financas_local', JSON.stringify(state));
+}
 if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
 
@@ -630,7 +632,6 @@ function normalizarDados() {
   if (!state || !state.meses) return;
   let mudou = false;
   
-  // Renomear pessoas antigas
   Object.values(state.meses).forEach(m => {
     if (m.extras) m.extras.forEach(e => { 
       if (e.pessoa === 'Eu') { e.pessoa = 'Vanny'; mudou = true; } 
@@ -646,7 +647,6 @@ function normalizarDados() {
     });
   });
   
-  // Definir Tipo de conta antiga
   if (state.fixas) {
     state.fixas.forEach(f => {
       if (!f.tipo) {
@@ -680,7 +680,7 @@ function loadStateFromFirebase() {
   if (!currentUser) return;
   db.ref('users/' + currentUser.uid + '/state').on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data && data.fixas) {
+    if (data && data.fixas && data.fixas.length > 0) {
       state = data;
       if(!state.dividas) state.dividas = [];
       if(!state.metas) state.metas = [];
@@ -688,7 +688,7 @@ function loadStateFromFirebase() {
       localStorage.setItem('financas_local', JSON.stringify(state));
       $('status-offline').style.display = 'none';
     } else {
-      save();
+      save(); // Se estiver vazio no firebase, envia o local
     }
     render();
   }, (error) => {
@@ -869,7 +869,6 @@ function salvarFab() {
   let m = getMes(mesBase);
 
   if(tipo.startsWith('ifood')) {
-    // iFood não parcela
     const pessoa = tipo.split('-')[1];
     const pNome = pessoa === 'casal' ? 'Casal' : (pessoa === 'vanny' ? 'Vanny' : 'Tami');
     m.ifood.push({id:Date.now(), data: data || ymd(new Date()), tipo:'Almoço', desc: desc || 'iFood', pessoa: pNome, valor: valorTotal});
@@ -877,7 +876,6 @@ function salvarFab() {
     const isV = tipo === 'pessoal-vanny';
     const isT = tipo === 'pessoal-tami';
     const pessoa = isV ? 'Vanny' : (isT ? 'Tami' : 'Casal');
-    const categoria = isV || isT ? 'Compras' : 'Mercado';
 
     for(let i = 0; i < parcelas; i++) {
       const mTarget = getMes(avancarMes(mesBase, i));
@@ -921,21 +919,44 @@ function delFixa(id) {
   state.fixas = state.fixas.filter(f => f.id !== id);
   save();
 }
+
+// A MÁGICA DO MÊS DO VENCIMENTO AQUI:
 function editVencimentoMes(id) {
-  const mes = $('mes').value;
-  const m = getMes(mes);
+  const mesAtual = $('mes').value;
   const f = state.fixas.find(x => x.id === id);
-  let dataAtual = m.vencimentos[id] || `${String(f.dia).padStart(2, '0')}/${mes.split('-')[1]}/${mes.split('-')[0]}`;
-  if (m.vencimentos[id]) { const p = m.vencimentos[id].split('-'); dataAtual = `${p[2]}/${p[1]}/${p[0]}`; }
+  
+  let dataAtual = getMes(mesAtual).vencimentos[id] || `${String(f.dia).padStart(2, '0')}/${mesAtual.split('-')[1]}/${mesAtual.split('-')[0]}`;
+  if (getMes(mesAtual).vencimentos[id]) { const p = getMes(mesAtual).vencimentos[id].split('-'); dataAtual = `${p[2]}/${p[1]}/${p[0]}`; }
+  
   const v = prompt(`Data exata para ${f.nome} (DD/MM/AAAA):`, dataAtual);
   if (!v) return;
+  
   const p = v.split('/');
   if(p.length === 3) {
       const novaData = `${p[2]}-${p[1]}-${p[0]}`;
-      if(!isNaN(new Date(novaData).getTime())) { m.vencimentos[id] = novaData; save(); return; }
+      const novoMes = `${p[2]}-${p[1]}`; // Ex: 2026-11
+      
+      if(!isNaN(new Date(novaData).getTime())) {
+          // Salva o vencimento no mês correspondente
+          const mTarget = getMes(novoMes);
+          mTarget.vencimentos[id] = novaData;
+          
+          // Se o mês for diferente do atual, avisa e muda a tela
+          if(novoMes !== mesAtual) {
+             // Limpa o vencimento do mês atual pra não ficar duplicado visualmente
+             if(getMes(mesAtual).vencimentos[id]) delete getMes(mesAtual).vencimentos[id];
+             
+             $('mes').value = novoMes;
+             alert(`O vencimento foi definido para ${p[1]}/${p[2]}. O app mudou automaticamente para esse mês para você ver a conta lá.`);
+          }
+          
+          save(); 
+          return;
+      }
   }
   alert('Data inválida.');
 }
+
 function abrirModalPgto(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
