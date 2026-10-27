@@ -26,17 +26,17 @@
   --success: #10b981; --success-light: #d1fae5; --danger: #ef4444; --danger-light: #fee2e2;
   --warning: #f59e0b; --warning-light: #fef3c7; --shadow-sm: 0 1px 3px rgba(15,23,42,.05);
   --shadow-md: 0 4px 6px -1px rgba(15,23,42,.05); --radius: 16px; --radius-sm: 10px;
-  --vanny-color: #4338ca; --tami-color: #be185d;
+  --vanny-color: #4338ca; --tami-color: #be185d; --casa-color: #0284c7;
 }
 [data-theme="dark"] {
   --bg: #0f172a; --surface: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8;
   --border: #334155; --primary: #6366f1; --primary-hover: #818cf8; --primary-light: #312e81;
   --success-light: #064e3b; --danger-light: #7f1d1d; --warning-light: #78350f;
   --shadow-sm: 0 1px 3px rgba(0,0,0,.3); --shadow-md: 0 4px 6px rgba(0,0,0,.4);
-  --vanny-color: #818cf8; --tami-color: #f472b6;
+  --vanny-color: #818cf8; --tami-color: #f472b6; --casa-color: #38bdf8;
 }
 *{box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text-main);font-size:14px;transition:background .3s,color .3s; padding-bottom: 20px;}
+body{margin:0;background:var(--bg);color:var(--text-main);font-size:14px;transition:background .3s,color .3s; padding-bottom: 80px;}
 button{font-family:inherit;cursor:pointer;transition:all .2s;border:none;outline:none}
 input,select{font-family:inherit;outline:none;transition:border .2s, box-shadow .2s}
 header{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
@@ -58,6 +58,7 @@ h2 i{color:var(--primary);font-size:20px}
 .stat .val{font-size:20px;font-weight:800}
 .stat.vanny .val { color: var(--vanny-color); }
 .stat.tami .val { color: var(--tami-color); }
+.stat.casa .val { color: var(--casa-color); }
 .pos{color:var(--success)!important}.neg{color:var(--danger)!important}.muted{color:var(--text-muted)}
 .tabs-wrap{overflow-x:auto;margin-bottom:24px;padding-bottom:4px; scrollbar-width: none;}
 .tabs-wrap::-webkit-scrollbar { display: none; }
@@ -95,7 +96,6 @@ tr:last-child td{border-bottom:0}
 .insight.danger{background:var(--danger-light);color:var(--danger)}
 .insight .txt{color:var(--text-main);font-size:12px;line-height:1.4}
 .insight .ttl{font-weight:700;font-size:14px;margin-bottom:4px;}
-.hint{background:var(--primary-light);border-radius:var(--radius-sm);padding:14px;font-size:13px;margin-bottom:16px;display:flex;gap:12px;align-items:center}
 #login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
 .login-card{background:var(--surface);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-md);max-width:400px;width:100%;border:1px solid var(--border)}
 #app-screen{display:none}
@@ -108,10 +108,9 @@ tr:last-child td{border-bottom:0}
 .personal-box .saldo-livre { font-size: 12px; font-weight: 600; margin-bottom: 16px; }
 .personal-box.vanny h3, .personal-box.vanny .total { color: var(--vanny-color); }
 .personal-box.tami h3, .personal-box.tami .total { color: var(--tami-color); }
-.personal-breakdown { text-align: left; font-size: 13px; margin-bottom: 16px; }
 
 /* Modal de Pagamento */
-#modal-pgto { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
+#modal-pgto, #modal-fab { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
 .modal-box { background: var(--surface); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 450px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
 .modal-box h3 { margin: 0 0 16px; font-size: 18px; color: var(--primary); }
 .modal-box .info { background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
@@ -131,11 +130,35 @@ tr:last-child td{border-bottom:0}
 .filter-buttons button { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); min-width: 80px; }
 .filter-buttons button.active { background: var(--primary); color: white; border-color: var(--primary); }
 
+/* FAB */
+.fab { position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(79,70,229,.4); z-index: 900; cursor: pointer; transition: transform .2s; }
+.fab:hover { transform: scale(1.1); }
+[data-theme="dark"] .fab { box-shadow: 0 4px 12px rgba(0,0,0,.6); }
+
+/* Gráficos e Termômetro */
+.semaforo { padding: 12px 16px; border-radius: 10px; font-weight: 700; text-align: center; margin-bottom: 20px; font-size: 14px; color: white; }
+.semaforo.green { background: var(--success); }
+.semaforo.yellow { background: var(--warning); color: #000; }
+.semaforo.red { background: var(--danger); }
+.donut-container { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
+.donut { width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+.donut-inner { width: 100px; height: 100px; background: var(--surface); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.donut-legend div { display: flex; align-items: center; gap: 8px; }
+.donut-legend span.dot { width: 12px; height: 12px; border-radius: 3px; }
+
+/* Regra 50/30/20 */
+.potinhos { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.potinho { flex: 1; min-width: 120px; background: var(--bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border); }
+.potinho h4 { margin: 0 0 4px; font-size: 12px; color: var(--text-muted); }
+.potinho .p-val { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.potinho .p-target { font-size: 11px; color: var(--text-muted); }
+
 /* ============ ESTILOS PARA IMPRESSÃO (EXTRATO) ============ */
 #print-section { display: none; }
 @media print {
   body { background: white !important; color: black !important; padding: 0; margin: 0; }
-  #app-screen, #login-screen, #modal-pgto { display: none !important; }
+  #app-screen, #login-screen, #modal-pgto, #modal-fab { display: none !important; }
   #print-section { display: block !important; padding: 20px; font-family: sans-serif; }
   
   .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
@@ -173,6 +196,7 @@ tr:last-child td{border-bottom:0}
   </div>
 </div>
 
+<!-- MODAL DE PAGAMENTO DE CONTA -->
 <div id="modal-pgto">
   <div class="modal-box">
     <h3>Pagar Conta</h3>
@@ -198,8 +222,53 @@ tr:last-child td{border-bottom:0}
   </div>
 </div>
 
+<!-- MODAL FAB (ADIÇÃO RÁPIDA) -->
+<div id="modal-fab">
+  <div class="modal-box">
+    <h3>Lançamento Rápido</h3>
+    <div class="row" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px;">
+      <div>
+        <label>Onde foi?</label>
+        <select id="fab-tipo">
+          <option value="pessoal-vanny">Pessoal da Vanny</option>
+          <option value="pessoal-tami">Pessoal da Tami</option>
+          <option value="casa">Gastos da Casa (Mercado, etc)</option>
+          <option value="ifood-vanny">iFood Vanny</option>
+          <option value="ifood-tami">iFood Tami</option>
+          <option value="ifood-casal">iFood Casal</option>
+        </select>
+      </div>
+      <div>
+        <label>Data</label>
+        <input type="date" id="fab-data">
+      </div>
+      <div>
+        <label>Descrição (opcional)</label>
+        <input type="text" id="fab-desc" placeholder="Ex: Lanche">
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div>
+           <label>Valor Total (R$)</label>
+           <input type="number" id="fab-valor" step="0.01" placeholder="0,00">
+        </div>
+        <div>
+           <label>Parcelas</label>
+           <input type="number" id="fab-parcelas" value="1" min="1">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" onclick="fecharFab()">Cancelar</button>
+      <button class="btn-primary" onclick="salvarFab()">Lançar</button>
+    </div>
+  </div>
+</div>
+
 <div id="app-screen">
   <div id="status-offline">⚠️ Sem conexão. Salvando apenas neste aparelho.</div>
+  
+  <div class="fab" onclick="abrirFab()"><i class="ph ph-plus"></i></div>
+
   <header>
     <div class="wrap">
       <div class="logo-area"><i class="ph-fill ph-wallet"></i> Finanças V&T</div>
@@ -213,11 +282,12 @@ tr:last-child td{border-bottom:0}
   </header>
 
   <main class="wrap">
+    <div id="semaforo-container"></div>
+
     <!-- PAINEL GERAL -->
     <div class="stats">
-      <div class="stat"><div class="lbl">Receita Vanny</div><div class="val pos" id="sRecVanny">R$ 0,00</div></div>
-      <div class="stat"><div class="lbl">Receita Tami</div><div class="val pos" id="sRecTami">R$ 0,00</div></div>
-      <div class="stat"><div class="lbl">Gastos da Casa</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
+      <div class="stat casa"><div class="lbl">Receita Total</div><div class="val pos" id="sRecTotal">R$ 0,00</div></div>
+      <div class="stat casa"><div class="lbl">Gastos da Casa</div><div class="val neg" id="sGastosCasal">R$ 0,00</div></div>
       <div class="stat vanny"><div class="lbl">Gastos Vanny</div><div class="val" id="sGastosVanny">R$ 0,00</div></div>
       <div class="stat tami"><div class="lbl">Gastos Tami</div><div class="val" id="sGastosTami">R$ 0,00</div></div>
       <div class="stat" style="background:var(--primary-light); border-color:var(--primary)"><div class="lbl" style="color:var(--primary)">Saldo Geral</div><div class="val" id="sSalGeral" style="color:var(--primary)">R$ 0,00</div></div>
@@ -239,26 +309,63 @@ tr:last-child td{border-bottom:0}
 
     <!-- DASHBOARD -->
     <section class="panel active" id="panel-dash">
-      <div class="card">
-        <h2><i class="ph-fill ph-printer"></i> Relatório para o Casal</h2>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Gere um extrato detalhado deste mês para imprimir ou enviar no WhatsApp.</p>
-        <button class="btn-primary" style="width:100%" onclick="gerarRelatorio()"><i class="ph ph-file-pdf"></i> Gerar e Imprimir Extrato</button>
+      <div class="card" style="text-align:center;">
+        <h2 style="justify-content:center;"><i class="ph-fill ph-chart-donut"></i> Distribuição de Gastos</h2>
+        <div class="donut-container">
+          <div class="donut" id="donutChart">
+            <div class="donut-inner">
+              <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;">Total</span>
+              <strong id="donutTotal" style="font-size:16px;">R$ 0</strong>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <div><span class="dot" style="background:var(--casa-color)"></span> Casa: <strong id="donutLegCasa">0%</strong></div>
+            <div><span class="dot" style="background:var(--vanny-color)"></span> Vanny: <strong id="donutLegVanny">0%</strong></div>
+            <div><span class="dot" style="background:var(--tami-color)"></span> Tami: <strong id="donutLegTami">0%</strong></div>
+          </div>
+        </div>
       </div>
+
+      <div class="card">
+        <h2><i class="ph-fill ph-scales"></i> Regra 50/30/20</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Baseado na sua receita total deste mês.</p>
+        <div class="potinhos">
+          <div class="potinho">
+            <h4>Custos Fixos (50%)</h4>
+            <div class="p-val neg" id="potFixosReal">R$ 0,00</div>
+            <div class="p-target">Meta: <span id="potFixosMeta">R$ 0,00</span></div>
+          </div>
+          <div class="potinho">
+            <h4>Estilo de Vida (30%)</h4>
+            <div class="p-val neg" id="potLazerReal">R$ 0,00</div>
+            <div class="p-target">Meta: <span id="potLazerMeta">R$ 0,00</span></div>
+          </div>
+          <div class="potinho">
+            <h4>Sobra/Metas (20%)</h4>
+            <div class="p-val pos" id="potSobraReal">R$ 0,00</div>
+            <div class="p-target">Meta: <span id="potSobraMeta">R$ 0,00</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="ph-fill ph-whatsapp-logo"></i> Enviar para o Casal</h2>
+        <div class="row">
+          <button class="btn-primary" onclick="copiarResumo()" style="background:#25D366"><i class="ph ph-whatsapp-logo"></i> Copiar Resumo p/ WhatsApp</button>
+          <button class="btn-primary" onclick="gerarRelatorio()"><i class="ph ph-file-pdf"></i> Imprimir Extrato</button>
+        </div>
+      </div>
+
       <div class="card">
         <h2><i class="ph-fill ph-bell-ringing"></i> Central de Avisos</h2>
         <div id="alertasVencimento" class="insights"></div>
-      </div>
-      <div class="card">
-        <h2><i class="ph-fill ph-lightbulb"></i> Diagnóstico Automático</h2>
-        <div id="insights" class="insights"></div>
       </div>
     </section>
 
     <!-- ABA INDIVIDUAL -->
     <section class="panel" id="panel-individual">
       <div class="card">
-        <h2><i class="ph-fill ph-users"></i> Lançamentos Individuais - <span id="mesIndividual" style="text-transform: capitalize;"></span></h2>
-        
+        <h2><i class="ph-fill ph-users"></i> Lançamentos Individuais</h2>
         <div class="filter-buttons">
           <button class="active" onclick="mudarFiltroInd('ambas', this)">Ver Ambas</button>
           <button onclick="mudarFiltroInd('vanny', this)">Só Vanny</button>
@@ -277,7 +384,10 @@ tr:last-child td{border-bottom:0}
               <input type="date" id="vData">
               <select id="vTipo"><option>Compras</option><option>Lazer</option><option>Outros</option></select>
               <input type="text" id="vDesc" placeholder="O que você gastou?">
-              <input type="number" id="vValor" placeholder="R$" step="0.01">
+              <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px;">
+                <input type="number" id="vValor" placeholder="R$ Total" step="0.01">
+                <input type="number" id="vParcelas" placeholder="Parcelas" value="1" min="1">
+              </div>
             </div>
             <button class="btn-primary" style="width:100%; margin-bottom:16px; background:var(--vanny-color)" onclick="addPessoal('Vanny')">Adicionar Gasto Vanny</button>
             
@@ -299,7 +409,10 @@ tr:last-child td{border-bottom:0}
               <input type="date" id="tData">
               <select id="tTipo"><option>Compras</option><option>Lazer</option><option>Outros</option></select>
               <input type="text" id="tDesc" placeholder="O que você gastou?">
-              <input type="number" id="tValor" placeholder="R$" step="0.01">
+              <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px;">
+                <input type="number" id="tValor" placeholder="R$ Total" step="0.01">
+                <input type="number" id="tParcelas" placeholder="Parcelas" value="1" min="1">
+              </div>
             </div>
             <button class="btn-primary" style="width:100%; margin-bottom:16px; background:var(--tami-color)" onclick="addPessoal('Tami')">Adicionar Gasto Tami</button>
             
@@ -313,29 +426,17 @@ tr:last-child td{border-bottom:0}
 
         </div>
       </div>
-
-      <div class="card">
-        <h2><i class="ph-fill ph-target"></i> Teto Pessoal</h2>
-        <div class="row" style="margin-bottom:16px">
-          <div><label>Limite da Vanny (R$)</label><input type="number" id="limiteVanny" step="0.01" onchange="salvarLimites()"></div>
-          <div><label>Limite da Tami (R$)</label><input type="number" id="limiteTami" step="0.01" onchange="salvarLimites()"></div>
-        </div>
-        <div id="alertaVanny" style="margin-bottom:16px;"></div>
-        <div id="alertaTami"></div>
-      </div>
     </section>
 
     <!-- CONTAS DA CASA -->
     <section class="panel" id="panel-fixas">
       <div class="card">
         <h2><i class="ph-fill ph-house"></i> Contas Fixas da Casa</h2>
-        
         <div class="resumo-casal">
           <div><span class="lbl">Total Previsto</span><span class="val" id="resFixPrevisto">R$ 0,00</span></div>
           <div><span class="lbl">Já Pago</span><span class="val pos" id="resFixPago">R$ 0,00</span></div>
           <div><span class="lbl">Falta Pagar</span><span class="val neg" id="resFixFalta">R$ 0,00</span></div>
         </div>
-
         <div class="table-responsive">
           <table>
             <thead><tr><th>Conta</th><th>Vencimento</th><th>Previsto</th><th>Pago</th><th>Status</th><th>Ações</th></tr></thead>
@@ -370,9 +471,6 @@ tr:last-child td{border-bottom:0}
           <input type="text" id="exDesc" placeholder="Descrição">
           <select id="exPessoa"><option>Vanny</option><option>Tami</option><option>Casal</option></select>
           <input type="number" id="exValor" placeholder="Valor (R$)" step="0.01">
-          <label style="font-size:12px;display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:10px">
-            <input type="checkbox" id="exRecurring" style="width:auto"> Fixa
-          </label>
           <button class="btn-primary" onclick="addExtra()">Adicionar</button>
         </div>
         <div class="table-responsive"><table><thead><tr><th>Descrição</th><th>Quem</th><th>Valor</th><th></th></tr></thead><tbody id="extrasBody"></tbody></table></div>
@@ -383,14 +481,11 @@ tr:last-child td{border-bottom:0}
     <section class="panel" id="panel-ifood">
       <div class="card">
         <h2><i class="ph-fill ph-fork-knife"></i> Controle iFood</h2>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">O iFood de cada uma é descontado apenas do salário da própria pessoa.</p>
-        
         <div class="resumo-casal">
           <div><span class="lbl">Gasto Vanny</span><span class="val" style="color:var(--vanny-color)" id="ifVannyTotal">R$ 0,00</span></div>
           <div><span class="lbl">Gasto Tami</span><span class="val" style="color:var(--tami-color)" id="ifTamiTotal">R$ 0,00</span></div>
           <div><span class="lbl">Gasto Casal</span><span class="val" id="ifCasalTotal">R$ 0,00</span></div>
         </div>
-
         <div style="display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px">
           <span>Usado Total: <strong id="ifUsado" class="neg">R$ 0,00</strong></span>
           <span>Limite Geral: <strong id="ifLimite">R$ 0,00</strong></span>
@@ -424,7 +519,10 @@ tr:last-child td{border-bottom:0}
           <input type="date" id="oData">
           <input type="text" id="oDesc" placeholder="Descrição">
           <select id="oCat"></select>
-          <input type="number" id="oValor" placeholder="Valor (R$)" step="0.01">
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px;">
+             <input type="number" id="oValor" placeholder="Valor (R$)" step="0.01">
+             <input type="number" id="oParcelas" placeholder="Parcelas" value="1" min="1">
+          </div>
           <button class="btn-primary" onclick="addOutro()">Add Casa</button>
         </div>
         <div class="table-responsive"><table><thead><tr><th>Data</th><th>Descrição</th><th>Cat.</th><th>Valor</th><th></th></tr></thead><tbody id="outrosBody"></tbody></table></div>
@@ -504,7 +602,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 const defaultState = {
-  cfg: { limiteIfood: 600, limitesIndividuais: { vanny: 400, tami: 400 } },
+  cfg: { limiteIfood: 600 },
   fixas: [
     {id:'f1', nome:'Construtora', valor:0, dia:5}, {id:'f2', nome:'Caixa', valor:0, dia:10},
     {id:'f3', nome:'Condomínio', valor:0, dia:10}, {id:'f4', nome:'Spacelink', valor:0, dia:15},
@@ -520,7 +618,6 @@ const defaultState = {
 
 let state = JSON.parse(localStorage.getItem('financas_local'));
 if (!state || !state.fixas) { state = JSON.parse(JSON.stringify(defaultState)); localStorage.setItem('financas_local', JSON.stringify(state)); }
-if (!state.cfg.limitesIndividuais) state.cfg.limitesIndividuais = { vanny: 400, tami: 400 };
 if (!state.dividas) state.dividas = [];
 if (!state.metas) state.metas = [];
 
@@ -533,11 +630,6 @@ const $ = id => document.getElementById(id);
 const fmt = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const ymd = d => d.toISOString().slice(0,10);
 const ym  = d => d.toISOString().slice(0,7);
-const formatarMes = (ymStr) => {
-  const [ano, mes] = ymStr.split('-');
-  const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-  return `${meses[parseInt(mes)-1]} de ${ano}`;
-};
 
 function save() {
   localStorage.setItem('financas_local', JSON.stringify(state));
@@ -555,7 +647,6 @@ function loadStateFromFirebase() {
     const data = snapshot.val();
     if (data && data.fixas) {
       state = data;
-      if(!state.cfg.limitesIndividuais) state.cfg.limitesIndividuais = { vanny: 400, tami: 400 };
       if(!state.dividas) state.dividas = [];
       if(!state.metas) state.metas = [];
       localStorage.setItem('financas_local', JSON.stringify(state));
@@ -604,22 +695,7 @@ $('btn-theme').addEventListener('click', () => {
 function pedirPermissaoNotificacao() {
   if (!("Notification" in window)) { alert("Navegador sem suporte."); return; }
   Notification.requestPermission().then(permission => {
-    if (permission === "granted") { alert("Notificações ativadas!"); checkNotificacoes(); }
-  });
-}
-
-function checkNotificacoes() {
-  if (Notification.permission !== "granted") return;
-  const mes = $('mes').value;
-  const m = getMes(mes);
-  const hoje = new Date();
-  state.fixas.forEach(f => {
-    if (m.fixasPago[f.id] || m.puladas[f.id] || m.adiadas[f.id]) return;
-    let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
-    const venc = new Date(vencStr + 'T12:00:00');
-    const diffDays = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
-    if (diffDays >= 0 && diffDays <= 3) new Notification("Vencimento Próximo!", { body: `A conta "${f.nome}" vence em ${diffDays} dias.` });
-    else if (diffDays < 0) new Notification("Conta Atrasada!", { body: `A conta "${f.nome}" venceu há ${Math.abs(diffDays)} dias.` });
+    if (permission === "granted") { alert("Notificações ativadas!"); }
   });
 }
 
@@ -656,21 +732,37 @@ function mudarFiltroIf(filtro, btn) {
   render();
 }
 
+// --- FUNÇÃO DE PARCELAMENTO ---
+function avancarMes(y, qtd) {
+  let [a, m] = y.split('-').map(Number);
+  m += qtd;
+  while (m > 12) { m -= 12; a++; }
+  return `${a}-${String(m).padStart(2, '0')}`;
+}
+
 // --- LANÇAMENTO INDIVIDUAL ---
 function addPessoal(pessoa) {
   const isV = pessoa === 'Vanny';
   const desc = $(isV ? 'vDesc' : 'tDesc').value.trim();
-  const valor = parseFloat($(isV ? 'vValor' : 'tValor').value.replace(',', '.'));
+  const valorTotal = parseFloat($(isV ? 'vValor' : 'tValor').value.replace(',', '.'));
+  const parcelas = parseInt($(isV ? 'vParcelas' : 'tParcelas').value) || 1;
   const dataInput = $(isV ? 'vData' : 'tData').value;
   const tipo = $(isV ? 'vTipo' : 'tTipo').value;
   
-  if(!desc || !valor) return alert('Preencha a descrição e o valor.');
+  if(!desc || !valorTotal) return alert('Preencha a descrição e o valor.');
   
-  const m = getMes($('mes').value);
-  m.pessoais.push({id:Date.now(), data:dataInput || ymd(new Date()), desc, pessoa, valor, tipo});
+  const valorParcela = valorTotal / parcelas;
+  let mesBase = $('mes').value;
+
+  for(let i = 0; i < parcelas; i++) {
+    const mTarget = getMes(avancarMes(mesBase, i));
+    const descFinal = parcelas > 1 ? `${desc} (${i+1}/${parcelas})` : desc;
+    mTarget.pessoais.push({id:Date.now()+i, data:dataInput || ymd(new Date()), desc: descFinal, pessoa, valor: valorParcela, tipo});
+  }
   
   $(isV ? 'vDesc' : 'tDesc').value = '';
   $(isV ? 'vValor' : 'tValor').value = '';
+  $(isV ? 'vParcelas' : 'tParcelas').value = '1';
   save();
 }
 function delPessoal(id) {
@@ -682,15 +774,91 @@ function editPessoal(id) {
   const m = getMes($('mes').value);
   const item = m.pessoais.find(x=>x.id===id);
   if(!item) return;
-  const novaDesc = prompt("Nova descrição:", item.desc);
-  if(novaDesc === null) return;
-  const novoValor = prompt("Novo valor:", item.valor);
+  const novoValor = prompt("Novo valor desta parcela:", item.valor);
   if(novoValor === null) return;
-  item.desc = novaDesc;
   item.valor = parseFloat(novoValor.replace(',', '.')) || item.valor;
   save();
 }
 
+function addOutro(){
+  const valorTotal = parseFloat($('oValor').value.replace(',', '.'));
+  const parcelas = parseInt($('oParcelas').value) || 1;
+  if(!valorTotal) return alert('Informe o valor');
+  
+  const valorParcela = valorTotal / parcelas;
+  let mesBase = $('mes').value;
+  const descBase = $('oDesc').value || $('oCat').value;
+
+  for(let i = 0; i < parcelas; i++) {
+    const mTarget = getMes(avancarMes(mesBase, i));
+    const descFinal = parcelas > 1 ? `${descBase} (${i+1}/${parcelas})` : descBase;
+    mTarget.outros.push({id:Date.now()+i, data:$('oData').value, desc: descFinal, cat:$('oCat').value, pessoa:'Casal', valor: valorParcela});
+  }
+
+  $('oDesc').value=''; $('oValor').value=''; $('oParcelas').value='1'; save();
+}
+function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
+function editOutro(id){
+  const m = getMes($('mes').value);
+  const item = m.outros.find(x=>x.id===id);
+  if(!item) return;
+  const novoValor = prompt("Novo valor desta parcela:", item.valor);
+  if(novoValor === null) return;
+  item.valor = parseFloat(novoValor.replace(',', '.')) || item.valor;
+  save();
+}
+
+// --- FAB (LANÇAMENTO RÁPIDO) ---
+function abrirFab() {
+  $('fab-data').value = ymd(new Date());
+  $('fab-valor').value = '';
+  $('fab-desc').value = '';
+  $('fab-parcelas').value = '1';
+  $('modal-fab').style.display = 'flex';
+}
+function fecharFab() { $('modal-fab').style.display = 'none'; }
+
+function salvarFab() {
+  const tipo = $('fab-tipo').value;
+  const data = $('fab-data').value;
+  const desc = $('fab-desc').value;
+  const valorTotal = parseFloat($('fab-valor').value.replace(',', '.'));
+  const parcelas = parseInt($('fab-parcelas').value) || 1;
+  
+  if(!valorTotal) return alert('Informe o valor.');
+
+  const valorParcela = valorTotal / parcelas;
+  let mesBase = $('mes').value;
+  let m = getMes(mesBase);
+
+  if(tipo.startsWith('ifood')) {
+    // iFood não parcela
+    const pessoa = tipo.split('-')[1];
+    const pNome = pessoa === 'casal' ? 'Casal' : (pessoa === 'vanny' ? 'Vanny' : 'Tami');
+    m.ifood.push({id:Date.now(), data: data || ymd(new Date()), tipo:'Almoço', desc: desc || 'iFood', pessoa: pNome, valor: valorTotal});
+  } else {
+    const isV = tipo === 'pessoal-vanny';
+    const isT = tipo === 'pessoal-tami';
+    const pessoa = isV ? 'Vanny' : (isT ? 'Tami' : 'Casal');
+    const categoria = isV || isT ? 'Compras' : 'Mercado';
+
+    for(let i = 0; i < parcelas; i++) {
+      const mTarget = getMes(avancarMes(mesBase, i));
+      const descFinal = parcelas > 1 ? (desc || 'Gasto') + ` (${i+1}/${parcelas})` : (desc || 'Gasto Rápido');
+      
+      if(isV || isT) {
+        mTarget.pessoais.push({id:Date.now()+i, data: data || ymd(new Date()), desc: descFinal, pessoa, valor: valorParcela, tipo: 'Compras'});
+      } else {
+        mTarget.outros.push({id:Date.now()+i, data: data || ymd(new Date()), desc: descFinal, cat: 'Mercado', pessoa: 'Casal', valor: valorParcela});
+      }
+    }
+  }
+
+  fecharFab();
+  save();
+}
+
+// --- CONFIGURAÇÕES E OUTRAS FUNÇÕES ---
 function editFixaValor(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
@@ -699,13 +867,11 @@ function editFixaValor(id) {
   f.valor = parseFloat(v.replace(',', '.')) || 0;
   save();
 }
-
 function delFixa(id) {
   if(!confirm('Tem certeza que deseja apagar esta conta fixa?')) return;
   state.fixas = state.fixas.filter(f => f.id !== id);
   save();
 }
-
 function editVencimentoMes(id) {
   const mes = $('mes').value;
   const m = getMes(mes);
@@ -721,17 +887,12 @@ function editVencimentoMes(id) {
   }
   alert('Data inválida.');
 }
-
 function abrirModalPgto(id) {
   const f = state.fixas.find(x => x.id === id);
   if (!f) return;
-  $('modal-id').value = id;
-  $('modal-nome').textContent = f.nome;
-  $('modal-previsto').textContent = fmt(f.valor);
-  $('modal-valor').value = f.valor; 
-  $('modal-data').value = ymd(new Date());
-  $('modal-pgto').style.display = 'flex';
-  $('modal-valor').focus();
+  $('modal-id').value = id; $('modal-nome').textContent = f.nome; $('modal-previsto').textContent = fmt(f.valor);
+  $('modal-valor').value = f.valor; $('modal-data').value = ymd(new Date());
+  $('modal-pgto').style.display = 'flex'; $('modal-valor').focus();
 }
 function fecharModal() { $('modal-pgto').style.display = 'none'; }
 function confirmarPagamento() {
@@ -746,16 +907,12 @@ function confirmarPagamento() {
   fecharModal(); save();
 }
 function desfazerPgto(id) { delete getMes($('mes').value).fixasPago[id]; save(); }
-
 function addFixa(){
   const nome=$('fxNome').value.trim();
   if(!nome) return alert('Informe o nome');
   state.fixas.push({id:'f'+Date.now(), nome, valor:parseFloat($('fxValor').value.replace(',', '.'))||0, dia:parseInt($('fxDia').value)||1});
-  $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value='';
-  save();
+  $('fxNome').value=''; $('fxValor').value=''; $('fxDia').value=''; save();
 }
-function pularFixa(id){ const m = getMes($('mes').value); m.puladas[id] = true; delete m.adiadas[id]; save(); }
-
 function salvarSalarios() {
   const m = getMes($('mes').value);
   m.salarios.eu = parseFloat($('salEu').value.replace(',', '.')) || 0;
@@ -766,12 +923,10 @@ function addExtra(){
   const m = getMes($('mes').value);
   const valor = parseFloat($('exValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
-  m.extras.push({id:Date.now(), desc:$('exDesc').value||'Extra', pessoa:$('exPessoa').value, valor, recurring:$('exRecurring').checked});
+  m.extras.push({id:Date.now(), desc:$('exDesc').value||'Extra', pessoa:$('exPessoa').value, valor});
   $('exDesc').value=''; $('exValor').value=''; save();
 }
 function delExtra(id){ const m = getMes($('mes').value); m.extras = m.extras.filter(e=>e.id!==id); save(); }
-
-// --- IFOOD ---
 function addIfood(){
   const valor = parseFloat($('ifValor').value.replace(',', '.'));
   if(!valor) return alert('Informe o valor');
@@ -789,32 +944,8 @@ function editIfood(id){
   save();
 }
 function setLimiteIfood(){ const v = parseFloat($('cfgIfood').value.replace(',', '.')); if(v>0){ state.cfg.limiteIfood = v; save(); } }
-// ------------
 
-function addOutro(){
-  const valor = parseFloat($('oValor').value.replace(',', '.'));
-  if(!valor) return alert('Informe o valor');
-  getMes($('mes').value).outros.push({id:Date.now(), data:$('oData').value, desc:$('oDesc').value||$('oCat').value, cat:$('oCat').value, pessoa:'Casal', valor});
-  $('oDesc').value=''; $('oValor').value=''; save();
-}
-function delOutro(id){ const m = getMes($('mes').value); m.outros = m.outros.filter(e=>e.id!==id); save(); }
-function editOutro(id){
-  const m = getMes($('mes').value);
-  const item = m.outros.find(x=>x.id===id);
-  if(!item) return;
-  const novoValor = prompt("Novo valor do gasto:", item.valor);
-  if(novoValor === null) return;
-  item.valor = parseFloat(novoValor.replace(',', '.')) || item.valor;
-  save();
-}
-
-function salvarLimites() {
-  state.cfg.limitesIndividuais.vanny = parseFloat($('limiteVanny').value.replace(',','.'))||0;
-  state.cfg.limitesIndividuais.tami = parseFloat($('limiteTami').value.replace(',','.'))||0;
-  save();
-  alert('Limites pessoais salvos!');
-}
-
+// --- DÍVIDAS E METAS ---
 function addDivida(){
   const nome = $('dvNome').value.trim();
   const total = parseFloat($('dvTotal').value.replace(',','.'))||0;
@@ -841,7 +972,6 @@ function simularQuitacao() {
   const economiaMeses = restam - novosMeses;
   res.innerHTML = `Saldo: ${fmt(saldoDevedor)}<br>Pagando ${fmt(novoPagamento)}/mês, quita em <strong>${novosMeses} meses</strong>.<br>${economiaMeses > 0 ? `Economia de ${economiaMeses} meses!` : ''}`;
 }
-
 function addMeta(){
   const nome = $('mtNome').value.trim();
   const alvo = parseFloat($('mtAlvo').value.replace(',','.'))||0;
@@ -859,38 +989,57 @@ function aportarMeta(id) {
 }
 function delMeta(id) { if(confirm('Apagar?')) { state.metas = state.metas.filter(x=>x.id!==id); save(); } }
 
-// --- GERAR RELATÓRIO IMPRESSO ---
+// --- RESUMO WHATSAPP ---
+function copiarResumo() {
+  const mes = $('mes').value;
+  const m = getMes(mes);
+  
+  const recVanny = (m.salarios.eu||0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const recTami = (m.salarios.esp||0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const recTotal = recVanny + recTami + m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+
+  const gastoCasa = m.outros.reduce((s,e)=>s+e.valor,0) + state.fixas.reduce((s,f)=>s+(m.fixasPago[f.id] ? m.fixasPago[f.id].valor : 0),0) + m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  const gastoVanny = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0) + m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const gastoTami = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0) + m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  
+  const saldo = recTotal - (gastoCasa + gastoVanny + gastoTami);
+
+  const texto = `*Resumo Financeiro - ${mes.split('-').reverse().join('/')}*\n\n` +
+                `💰 *Receita:* ${fmt(recTotal)}\n` +
+                `🏠 *Gastos Casa:* ${fmt(gastoCasa)}\n` +
+                `💅 *Gastos Vanny:* ${fmt(gastoVanny)}\n` +
+                `🌸 *Gastos Tami:* ${fmt(gastoTami)}\n\n` +
+                `*Saldo Final:* ${fmt(saldo)}`;
+
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('Resumo copiado! Agora é só colar no WhatsApp.');
+  }).catch(err => {
+    alert('Erro ao copiar. Seu navegador pode não suportar essa função.');
+  });
+}
+
+// --- RELATÓRIO IMPRESSO ---
 function gerarRelatorio() {
   const mes = $('mes').value;
   const m = getMes(mes);
-  const mesFormatado = formatarMes(mes);
+  const mesFormatado = mes.split('-').reverse().join('/');
   
-  let totalPrevistoFixas = 0;
   let totalPagoFixas = 0;
-  state.fixas.forEach(f => { totalPrevistoFixas += (f.valor || 0); if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; });
+  state.fixas.forEach(f => { if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; });
   
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
-  const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros;
-
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  const gastoCasaTotal = totalPagoFixas + gastoCasalOutros + ifoodCasalTotal;
+
+  const recVanny = (m.salarios.eu||0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const recTami = (m.salarios.esp||0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const recTotal = recVanny + recTami + m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+
+  const gastoVanny = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0) + m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const gastoTami = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0) + m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   
-  const recVanny = (m.salarios.eu || 0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
-  const recTami = (m.salarios.esp || 0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
-  const recCasal = m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
-  const recTotal = recVanny + recTami + recCasal;
-
-  const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
-  const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
-  const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
-
-  const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
-  const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
-  const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
-
-  const totalGasto = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
+  const totalGasto = gastoCasaTotal + gastoVanny + gastoTami;
   const saldoGeral = recTotal - totalGasto;
-  const saldoVanny = recVanny - gastoVannyTotal;
-  const saldoTami = recTami - gastoTamiTotal;
 
   let html = `
     <div class="print-header">
@@ -904,39 +1053,22 @@ function gerarRelatorio() {
       <div>Saldo Geral: <span class="${saldoGeral >= 0 ? 'text-green' : 'text-red'}">${fmt(saldoGeral)}</span></div>
     </div>
 
-    <div class="print-section-title">1. Balanço Individual</div>
-    <table>
-      <thead><tr><th>Pessoa</th><th>Receita</th><th>Gastos (Inclui iFood)</th><th>Saldo Livre</th></tr></thead>
-      <tbody>
-        <tr><td>Vanny</td><td>${fmt(recVanny)}</td><td>${fmt(gastoVannyTotal)}</td><td class="${saldoVanny>=0?'text-green':'text-red'}">${fmt(saldoVanny)}</td></tr>
-        <tr><td>Tami</td><td>${fmt(recTami)}</td><td>${fmt(gastoTamiTotal)}</td><td class="${saldoTami>=0?'text-green':'text-red'}">${fmt(saldoTami)}</td></tr>
-        <tr><td>Casal</td><td>${fmt(recCasal)}</td><td>${fmt(gastoCasalTotal + ifoodCasalTotal)}</td><td class="${(recCasal - gastoCasalTotal - ifoodCasalTotal)>=0?'text-green':'text-red'}">${fmt(recCasal - gastoCasalTotal - ifoodCasalTotal)}</td></tr>
-      </tbody>
-    </table>
-
-    <div class="print-section-title">2. Contas Fixas da Casa</div>
+    <div class="print-section-title">1. Contas Fixas da Casa</div>
     <table>
       <thead><tr><th>Conta</th><th>Vencimento</th><th>Valor Previsto</th><th>Status</th><th>Valor Pago</th></tr></thead>
-      <tbody>
-  `;
+      <tbody>`;
 
   state.fixas.forEach(f => {
     const pgto = m.fixasPago[f.id];
     let vencStr = m.vencimentos[f.id] || `${mes}-${String(f.dia).padStart(2, '0')}`;
     const vencFormatado = vencStr.split('-').reverse().join('/');
     let status = pgto ? (pgto.parcial ? 'Parcial' : 'Pago') : 'Pendente';
-    html += `<tr>
-      <td>${f.nome}</td>
-      <td>${vencFormatado}</td>
-      <td>${fmt(f.valor)}</td>
-      <td>${status}</td>
-      <td>${pgto ? fmt(pgto.valor) : '-'}</td>
-    </tr>`;
+    html += `<tr><td>${f.nome}</td><td>${vencFormatado}</td><td>${fmt(f.valor)}</td><td>${status}</td><td>${pgto ? fmt(pgto.valor) : '-'}</td></tr>`;
   });
   html += `</tbody></table>`;
 
   if(m.outros.length > 0) {
-    html += `<div class="print-section-title">3. Gastos Variáveis (Casa)</div>
+    html += `<div class="print-section-title">2. Gastos Variáveis (Casa)</div>
     <table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>`;
     m.outros.sort((a,b)=>a.data.localeCompare(b.data)).forEach(o => {
       html += `<tr><td>${o.data.split('-').reverse().join('/')}</td><td>${o.desc}</td><td>${o.cat}</td><td>${fmt(o.valor)}</td></tr>`;
@@ -945,7 +1077,7 @@ function gerarRelatorio() {
   }
 
   if(m.ifood.length > 0) {
-    html += `<div class="print-section-title">4. Pedidos iFood</div>
+    html += `<div class="print-section-title">3. Pedidos iFood</div>
     <table><thead><tr><th>Data</th><th>Tipo</th><th>Quem Pagou</th><th>Valor</th></tr></thead><tbody>`;
     m.ifood.sort((a,b)=>a.data.localeCompare(b.data)).forEach(i => {
       html += `<tr><td>${i.data.split('-').reverse().join('/')}</td><td>${i.tipo}</td><td>${i.pessoa}</td><td>${fmt(i.valor)}</td></tr>`;
@@ -954,7 +1086,7 @@ function gerarRelatorio() {
   }
 
   if(m.pessoais.length > 0) {
-    html += `<div class="print-section-title">5. Gastos Pessoais (Além do iFood)</div>
+    html += `<div class="print-section-title">4. Gastos Individuais</div>
     <table><thead><tr><th>Data</th><th>Quem</th><th>Descrição</th><th>Tipo</th><th>Valor</th></tr></thead><tbody>`;
     m.pessoais.sort((a,b)=>a.data.localeCompare(b.data)).forEach(p => {
       html += `<tr><td>${p.data.split('-').reverse().join('/')}</td><td>${p.pessoa}</td><td>${p.desc}</td><td>${p.tipo || 'Outros'}</td><td>${fmt(p.valor)}</td></tr>`;
@@ -962,71 +1094,94 @@ function gerarRelatorio() {
     html += `</tbody></table>`;
   }
 
-  html += `
-    <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #777;">
-      <p>Este extrato foi gerado automaticamente pelo sistema de finanças.</p>
-      <p>_______________________________________________________<br>Assinatura do Casal</p>
-    </div>
-  `;
+  html += `<div style="margin-top: 40px; text-align: center; font-size: 12px; color: #777;"><p>_______________________________________________________<br>Assinatura do Casal</p></div>`;
 
   $('print-section').innerHTML = html;
   window.print();
 }
 
+// --- RENDERIZAÇÃO ---
 function render(){
   if(!state) return;
   const mes = $('mes').value;
   const m = getMes(mes);
-  
-  $('mesIndividual').textContent = formatarMes(mes);
 
-  // CÁLCULO RECEITAS
-  const recVanny = (m.salarios.eu || 0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
-  const recTami = (m.salarios.esp || 0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
-  const recCasal = m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
-  const recTotal = recVanny + recTami + recCasal;
+  // CÁLCULOS
+  const recVanny = (m.salarios.eu||0) + m.extras.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const recTami = (m.salarios.esp||0) + m.extras.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const recTotal = recVanny + recTami + m.extras.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
 
-  // CÁLCULO GASTOS CASA
   let totalPrevistoFixas = 0;
   let totalPagoFixas = 0;
-  state.fixas.forEach(f => { 
-    totalPrevistoFixas += (f.valor || 0); 
-    const p = m.fixasPago[f.id]; 
-    if(p) totalPagoFixas += p.valor; 
-  });
-  const faltaPagarCasa = totalPrevistoFixas - totalPagoFixas;
+  state.fixas.forEach(f => { totalPrevistoFixas += (f.valor||0); if(m.fixasPago[f.id]) totalPagoFixas += m.fixasPago[f.id].valor; });
+  
   const gastoCasalOutros = m.outros.reduce((s,e)=>s+e.valor,0);
-  const gastoCasalTotal = totalPrevistoFixas + gastoCasalOutros;
   const ifoodCasalTotal = m.ifood.filter(e=>e.pessoa==='Casal').reduce((s,e)=>s+e.valor,0);
+  const gastoCasaTotal = totalPagoFixas + gastoCasalOutros + ifoodCasalTotal; // Para o termômetro
 
-  // CÁLCULO GASTOS VANNY
-  const gastoVannyPessoais = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
+  const gastoVannyP = m.pessoais.filter(p=>p.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
   const ifoodVanny = m.ifood.filter(e=>e.pessoa==='Vanny').reduce((s,e)=>s+e.valor,0);
-  const gastoVannyTotal = gastoVannyPessoais + ifoodVanny;
-  const saldoVanny = recVanny - gastoVannyTotal;
+  const gastoVannyTotal = gastoVannyP + ifoodVanny;
 
-  // CÁLCULO GASTOS TAMI
-  const gastoTamiPessoais = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
+  const gastoTamiP = m.pessoais.filter(p=>p.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
   const ifoodTami = m.ifood.filter(e=>e.pessoa==='Tami').reduce((s,e)=>s+e.valor,0);
-  const gastoTamiTotal = gastoTamiPessoais + ifoodTami;
-  const saldoTami = recTami - gastoTamiTotal;
+  const gastoTamiTotal = gastoTamiP + ifoodTami;
 
-  const totalGastoGeral = gastoCasalTotal + ifoodCasalTotal + gastoVannyTotal + gastoTamiTotal;
+  const totalGastoGeral = gastoCasaTotal + gastoVannyTotal + gastoTamiTotal;
   const saldoGeral = recTotal - totalGastoGeral;
 
-  // ATUALIZA O TOPO
-  $('sRecVanny').textContent = fmt(recVanny);
-  $('sRecTami').textContent = fmt(recTami);
-  $('sGastosCasal').textContent = fmt(gastoCasalTotal + ifoodCasalTotal);
+  // SEMÁFORO
+  let semClass = 'green', semTxt = 'Mês Saudável! Vocês estão economizando.';
+  if(saldoGeral < 0) { semClass = 'red'; semTxt = 'Alerta Vermelho! Vocês gastaram mais do que ganharam.'; }
+  else if(saldoGeral < recTotal * 0.1) { semClass = 'yellow'; semTxt = 'Atenção! A margem de sobra está pequena.'; }
+  $('semaforo-container').innerHTML = `<div class="semaforo ${semClass}">${semTxt}</div>`;
+
+  // CARDS TOPO
+  $('sRecTotal').textContent = fmt(recTotal);
+  $('sGastosCasal').textContent = fmt(gastoCasaTotal);
   $('sGastosVanny').textContent = fmt(gastoVannyTotal);
   $('sGastosTami').textContent = fmt(gastoTamiTotal);
   $('sSalGeral').textContent = fmt(saldoGeral);
 
-  // ATUALIZA ABA INDIVIDUAL
+  // GRÁFICO DONUT (CSS Conic Gradient)
+  const tGastos = gastoCasaTotal + gastoVannyTotal + gastoTamiTotal || 1; // Evita div por zero
+  const pctCasa = (gastoCasaTotal / tGastos) * 100;
+  const pctVanny = (gastoVannyTotal / tGastos) * 100;
+  const pctTami = (gastoTamiTotal / tGastos) * 100;
+
+  $('donutTotal').textContent = fmt(tGastos);
+  $('donutLegCasa').textContent = pctCasa.toFixed(0) + '%';
+  $('donutLegVanny').textContent = pctVanny.toFixed(0) + '%';
+  $('donutLegTami').textContent = pctTami.toFixed(0) + '%';
+
+  $('donutChart').style.background = `conic-gradient(
+    var(--casa-color) 0% ${pctCasa}%,
+    var(--vanny-color) ${pctCasa}% ${pctCasa + pctVanny}%,
+    var(--tami-color) ${pctCasa + pctVanny}% 100%
+  )`;
+
+  // REGRA 50/30/20
+  const metaFixa = recTotal * 0.5;
+  const metaLazer = recTotal * 0.3;
+  const metaSobra = recTotal * 0.2;
+  
+  // Aproximação: Fixos = Casa; Lazer = iFood + Individuais + Outros
+  const gastoRealLazer = gastoVannyTotal + gastoTamiTotal + gastoCasalOutros; // Como simplificar? Vou jogar iFood Casa pra lazer
+  const gastoRealFixo = totalPagoFixas; // Apenas as fixas pagas
+  const sobraReal = recTotal - gastoRealFixo - gastoRealLazer;
+
+  $('potFixosMeta').textContent = fmt(metaFixa);
+  $('potFixosReal').textContent = fmt(gastoRealFixo);
+  $('potLazerMeta').textContent = fmt(metaLazer);
+  $('potLazerReal').textContent = fmt(gastoRealLazer);
+  $('potSobraMeta').textContent = fmt(metaSobra);
+  $('potSobraReal').textContent = fmt(sobraReal);
+
+  // ABA INDIVIDUAL
   $('indVannyTotal').textContent = fmt(gastoVannyTotal);
   $('indTamiTotal').textContent = fmt(gastoTamiTotal);
-  $('indVannySaldo').innerHTML = `Saldo Livre: <span class="${saldoVanny>=0?'pos':'neg'}">${fmt(saldoVanny)}</span>`;
-  $('indTamiSaldo').innerHTML = `Saldo Livre: <span class="${saldoTami>=0?'pos':'neg'}">${fmt(saldoTami)}</span>`;
+  $('indVannySaldo').innerHTML = `Saldo Livre: <span class="${(recVanny-gastoVannyTotal)>=0?'pos':'neg'}">${fmt(recVanny-gastoVannyTotal)}</span>`;
+  $('indTamiSaldo').innerHTML = `Saldo Livre: <span class="${(recTami-gastoTamiTotal)>=0?'pos':'neg'}">${fmt(recTami-gastoTamiTotal)}</span>`;
 
   $('boxVanny').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'vanny') ? 'block' : 'none';
   $('boxTami').style.display = (filtroIndividual === 'ambas' || filtroIndividual === 'tami') ? 'block' : 'none';
@@ -1042,49 +1197,19 @@ function render(){
   ].sort((a,b) => b.data.localeCompare(a.data));
 
   $('vannyPessoaisBody').innerHTML = itensVanny.map(p => `
-    <tr>
-      <td>${p.data.split('-').reverse().join('/')}</td>
-      <td><span class="badge ${p.isIfood ? 'ifood-tag' : 'cat'}">${p.tipo}</span></td>
-      <td>${p.desc}</td>
-      <td class="neg">${fmt(p.valor)}</td>
-      <td style="white-space:nowrap">
-        <button class="edit sm" onclick="${p.isIfood ? 'editIfood' : 'editPessoal'}(${p.id})">✎</button>
-        <button class="danger sm" onclick="${p.isIfood ? 'delIfood' : 'delPessoal'}(${p.id})">x</button>
-      </td>
-    </tr>
+    <tr><td>${p.data.split('-').reverse().join('/')}</td><td><span class="badge ${p.isIfood ? 'ifood-tag' : 'cat'}">${p.tipo}</span></td><td>${p.desc}</td><td class="neg">${fmt(p.valor)}</td>
+    <td style="white-space:nowrap"><button class="edit sm" onclick="${p.isIfood ? 'editIfood' : 'editPessoal'}(${p.id})">✎</button> <button class="danger sm" onclick="${p.isIfood ? 'delIfood' : 'delPessoal'}(${p.id})">x</button></td></tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
   $('tamiPessoaisBody').innerHTML = itensTami.map(p => `
-    <tr>
-      <td>${p.data.split('-').reverse().join('/')}</td>
-      <td><span class="badge ${p.isIfood ? 'ifood-tag' : 'cat'}">${p.tipo}</span></td>
-      <td>${p.desc}</td>
-      <td class="neg">${fmt(p.valor)}</td>
-      <td style="white-space:nowrap">
-        <button class="edit sm" onclick="${p.isIfood ? 'editIfood' : 'editPessoal'}(${p.id})">✎</button>
-        <button class="danger sm" onclick="${p.isIfood ? 'delIfood' : 'delPessoal'}(${p.id})">x</button>
-      </td>
-    </tr>
+    <tr><td>${p.data.split('-').reverse().join('/')}</td><td><span class="badge ${p.isIfood ? 'ifood-tag' : 'cat'}">${p.tipo}</span></td><td>${p.desc}</td><td class="neg">${fmt(p.valor)}</td>
+    <td style="white-space:nowrap"><button class="edit sm" onclick="${p.isIfood ? 'editIfood' : 'editPessoal'}(${p.id})">✎</button> <button class="danger sm" onclick="${p.isIfood ? 'delIfood' : 'delPessoal'}(${p.id})">x</button></td></tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum gasto lançado.</td></tr>';
 
-  // Limites
-  $('limiteVanny').value = state.cfg.limitesIndividuais.vanny || '';
-  $('limiteTami').value = state.cfg.limitesIndividuais.tami || '';
-  
-  const limV = state.cfg.limitesIndividuais.vanny || 1;
-  const limT = state.cfg.limitesIndividuais.tami || 1;
-  const pctV = Math.min(100, (gastoVannyTotal/limV)*100);
-  const pctT = Math.min(100, (gastoTamiTotal/limT)*100);
-  const corV = pctV>100?'var(--danger)':pctV>80?'var(--warning)':'var(--success)';
-  const corT = pctT>100?'var(--danger)':pctT>80?'var(--warning)':'var(--success)';
-  
-  $('alertaVanny').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Vanny</span><span>${fmt(gastoVannyTotal)} / ${fmt(limV)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctV}%;background:${corV}"></div></div>`;
-  $('alertaTami').innerHTML = `<div style="font-size:12px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:4px"><span>Tami</span><span>${fmt(gastoTamiTotal)} / ${fmt(limT)}</span></div><div class="bar" style="height:10px;margin-top:0"><div style="width:${pctT}%;background:${corT}"></div></div>`;
-
-  // Restante da renderização
+  // OUTRAS ABAS
   $('resFixPrevisto').textContent = fmt(totalPrevistoFixas);
   $('resFixPago').textContent = fmt(totalPagoFixas);
-  $('resFixFalta').textContent = fmt(Math.max(0, faltaPagarCasa));
+  $('resFixFalta').textContent = fmt(Math.max(0, totalPrevistoFixas - totalPagoFixas));
 
   const alertas = [];
   const hoje = new Date();
@@ -1098,16 +1223,7 @@ function render(){
   });
   $('alertasVencimento').innerHTML = alertas.length ? alertas.map(a=>`<div class="insight ${a.tipo}"><i class="ph-fill ph-warning-circle"></i><div class="txt"><div class="ttl">${a.ttl}</div>${a.txt}</div></div>`).join('') : '<p class="empty">Nenhuma conta atrasada.</p>';
 
-  const ins = [];
-  if(saldoGeral < 0) ins.push({tipo:'danger', ttl:'Atenção ao Saldo', txt:'Vocês gastaram mais do que ganharam este mês.'});
-  if(recTotal > 0) {
-    const taxaPoup = (saldoGeral/recTotal)*100;
-    if(taxaPoup > 20) ins.push({tipo:'ok', ttl:'Ótima Poupança', txt:`Vocês conseguiram guardar ${taxaPoup.toFixed(1)}% da renda.`});
-  }
-  $('insights').innerHTML = ins.length ? ins.map(i=>`<div class="insight ${i.tipo}"><i class="ph-fill ${i.tipo==='danger'?'ph-warning-circle':i.tipo==='ok'?'ph-check-circle':'ph-info'}"></i><div class="txt"><div class="ttl">${i.ttl}</div>${i.txt}</div></div>`).join('') : '<p class="empty">Tudo tranquilo por aqui.</p>';
-
-  $('salEu').value = m.salarios.eu || '';
-  $('salEsp').value = m.salarios.esp || '';
+  $('salEu').value = m.salarios.eu || ''; $('salEsp').value = m.salarios.esp || '';
   $('cfgIfood').value = state.cfg.limiteIfood || '';
 
   $('fixasBody').innerHTML = state.fixas.map(f => {
@@ -1116,18 +1232,15 @@ function render(){
     const vencFormatado = vencStr.split('-').reverse().join('/');
     let badge = '<span class="badge pendente">Pendente</span>';
     let txtPago = '-';
-    if(pgto) {
-      txtPago = `<div>${fmt(pgto.valor)}</div>`;
-      badge = pgto.parcial ? `<span class="badge parcial">Parcial</span>` : `<span class="badge pago">✓ Pago</span>`;
-    } else if(m.adiadas[f.id]) badge = `<span class="badge adiada">Rolada</span>`;
+    if(pgto) { txtPago = `<div>${fmt(pgto.valor)}</div>`; badge = pgto.parcial ? `<span class="badge parcial">Parcial</span>` : `<span class="badge pago">✓ Pago</span>`; }
+    else if(m.adiadas[f.id]) badge = `<span class="badge adiada">Rolada</span>`;
     else if(m.puladas[f.id]) badge = '<span class="badge pulada">Pulada</span>';
 
     return `<tr>
       <td><strong>${f.nome}</strong></td>
       <td>${vencFormatado} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editVencimentoMes('${f.id}')">✎</button></td>
       <td>${fmt(f.valor)} <button class="ghost sm" style="margin-left:4px;padding:2px 6px" onclick="editFixaValor('${f.id}')">✎</button></td>
-      <td>${txtPago}</td>
-      <td>${badge}</td>
+      <td>${txtPago}</td><td>${badge}</td>
       <td style="white-space:nowrap">
         ${!pgto && !m.adiadas[f.id] && !m.puladas[f.id] ? `<button class="ok sm" onclick="abrirModalPgto('${f.id}')">Pagar</button>` : `<button class="danger sm" onclick="desfazerPgto('${f.id}')">Desfazer</button>`}
         <button class="danger sm" onclick="delFixa('${f.id}')" title="Excluir conta">x</button>
@@ -1137,14 +1250,8 @@ function render(){
 
   $('extrasBody').innerHTML = m.extras.map(e => `<tr><td>${e.desc}</td><td>${e.pessoa}</td><td class="pos">+${fmt(e.valor)}</td><td><button class="danger" onclick="delExtra(${e.id})">x</button></td></tr>`).join('');
   $('outrosBody').innerHTML = m.outros.map(e => `
-    <tr>
-      <td>${e.data.split('-').reverse().join('/')}</td>
-      <td>${e.desc}</td><td>${e.cat}</td><td class="neg">${fmt(e.valor)}</td>
-      <td style="white-space:nowrap">
-        <button class="edit sm" onclick="editOutro(${e.id})">✎</button>
-        <button class="danger sm" onclick="delOutro(${e.id})">x</button>
-      </td>
-    </tr>`).join('');
+    <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.desc}</td><td>${e.cat}</td><td class="neg">${fmt(e.valor)}</td>
+    <td style="white-space:nowrap"><button class="edit sm" onclick="editOutro(${e.id})">✎</button> <button class="danger sm" onclick="delOutro(${e.id})">x</button></td></tr>`).join('');
 
   $('ifVannyTotal').textContent = fmt(ifoodVanny);
   $('ifTamiTotal').textContent = fmt(ifoodTami);
@@ -1156,14 +1263,8 @@ function render(){
   if(filtroIfood === 'casal') itensIfood = itensIfood.filter(i => i.pessoa === 'Casal');
 
   $('ifBody').innerHTML = itensIfood.sort((a,b)=>b.data.localeCompare(a.data)).map(e => `
-    <tr>
-      <td>${e.data.split('-').reverse().join('/')}</td>
-      <td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td>
-      <td style="white-space:nowrap">
-        <button class="edit sm" onclick="editIfood(${e.id})">✎</button>
-        <button class="danger sm" onclick="delIfood(${e.id})">x</button>
-      </td>
-    </tr>
+    <tr><td>${e.data.split('-').reverse().join('/')}</td><td>${e.tipo}</td><td>${e.pessoa}</td><td class="neg">${fmt(e.valor)}</td>
+    <td style="white-space:nowrap"><button class="edit sm" onclick="editIfood(${e.id})">✎</button> <button class="danger sm" onclick="delIfood(${e.id})">x</button></td></tr>
   `).join('') || '<tr><td colspan="5" class="empty">Nenhum pedido.</td></tr>';
   
   const ifdTotal = m.ifood.reduce((s,e)=>s+e.valor,0);
@@ -1177,10 +1278,7 @@ function render(){
       <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px"><span>${d.nome}</span><span>${fmt(d.total)}</span></div>
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:8px"><span>Parcela: ${fmt(d.parcela)}</span><span>${d.pagas} de ${d.qtd} pagas</span></div>
       <div class="bar"><div style="width:${pct}%;background:var(--danger)"></div></div>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button class="ok sm" onclick="pagarParcela(${d.id})">+ Pagar Parcela</button>
-        <button class="danger sm" onclick="delDivida(${d.id})">Excluir</button>
-      </div>
+      <div style="margin-top:8px;display:flex;gap:8px"><button class="ok sm" onclick="pagarParcela(${d.id})">+ Pagar Parcela</button><button class="danger sm" onclick="delDivida(${d.id})">Excluir</button></div>
     </div>`;
   }).join('') || '<p class="empty">Nenhuma dívida cadastrada.</p>';
   
@@ -1191,10 +1289,7 @@ function render(){
     return `<div class="progress-box" style="margin-bottom:16px; background:var(--bg); padding:16px; border-radius:10px;">
       <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px"><span>${meta.nome}</span><span>${fmt(meta.atual)} / ${fmt(meta.alvo)}</span></div>
       <div class="bar"><div style="width:${pct}%;background:var(--success)"></div></div>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button class="ok sm" onclick="aportarMeta(${meta.id})">+ Guardar Dinheiro</button>
-        <button class="danger sm" onclick="delMeta(${meta.id})">Excluir</button>
-      </div>
+      <div style="margin-top:8px;display:flex;gap:8px"><button class="ok sm" onclick="aportarMeta(${meta.id})">+ Guardar Dinheiro</button><button class="danger sm" onclick="delMeta(${meta.id})">Excluir</button></div>
     </div>`;
   }).join('') || '<p class="empty">Nenhuma meta criada.</p>';
 }
@@ -1217,7 +1312,6 @@ $('oCat').innerHTML = CATS.map(c=>`<option>${c}</option>`).join('');
 $('mes').addEventListener('change', render);
 
 render();
-setTimeout(checkNotificacoes, 3000);
 </script>
 </body>
 </html>
